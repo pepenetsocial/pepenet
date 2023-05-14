@@ -62,7 +62,7 @@ extern "C" {
 #define DP(x)
 #endif
 
-//atomic units of moneros
+//atomic units of pepenets
 #define ATOMS 64
 
 //for printing large ints

@@ -27,8 +27,8 @@
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 
-#ifndef MONERO_PROTOCOL_H
-#define MONERO_PROTOCOL_H
+#ifndef PEPENET_PROTOCOL_H
+#define PEPENET_PROTOCOL_H
 
 #include "trezor_defs.hpp"
 #include "device/device_cold.hpp"
@@ -106,9 +106,9 @@ namespace chacha {
 // Cold Key image sync
 namespace ki {
 
-  using MoneroTransferDetails = messages::monero::MoneroKeyImageSyncStepRequest_MoneroTransferDetails;
-  using MoneroSubAddressIndicesList = messages::monero::MoneroKeyImageExportInitRequest_MoneroSubAddressIndicesList;
-  using MoneroExportedKeyImage = messages::monero::MoneroKeyImageSyncStepAck_MoneroExportedKeyImage;
+  using MoneroTransferDetails = messages::pepenet::MoneroKeyImageSyncStepRequest_MoneroTransferDetails;
+  using MoneroSubAddressIndicesList = messages::pepenet::MoneroKeyImageExportInitRequest_MoneroSubAddressIndicesList;
+  using MoneroExportedKeyImage = messages::pepenet::MoneroKeyImageSyncStepAck_MoneroExportedKeyImage;
   using exported_key_image = hw::device_cold::exported_key_image;
 
   /**
@@ -128,28 +128,28 @@ namespace ki {
    */
   void generate_commitment(std::vector<MoneroTransferDetails> & mtds,
                            const std::vector<tools::wallet2::transfer_details> & transfers,
-                           std::shared_ptr<messages::monero::MoneroKeyImageExportInitRequest> & req);
+                           std::shared_ptr<messages::pepenet::MoneroKeyImageExportInitRequest> & req);
 
   /**
    * Processes Live refresh step response, parses KI, checks the signature
    */
   void live_refresh_ack(const ::crypto::secret_key & view_key_priv,
                         const ::crypto::public_key& out_key,
-                        const std::shared_ptr<messages::monero::MoneroLiveRefreshStepAck> & ack,
+                        const std::shared_ptr<messages::pepenet::MoneroLiveRefreshStepAck> & ack,
                         ::cryptonote::keypair& in_ephemeral,
                         ::crypto::key_image& ki);
 }
 
 // Cold transaction signing
 namespace tx {
-  using TsxData = messages::monero::MoneroTransactionInitRequest_MoneroTransactionData;
-  using MoneroTransactionDestinationEntry = messages::monero::MoneroTransactionDestinationEntry;
-  using MoneroAccountPublicAddress = messages::monero::MoneroTransactionDestinationEntry_MoneroAccountPublicAddress;
-  using MoneroTransactionSourceEntry = messages::monero::MoneroTransactionSourceEntry;
-  using MoneroMultisigKLRki = messages::monero::MoneroTransactionSourceEntry_MoneroMultisigKLRki;
-  using MoneroOutputEntry = messages::monero::MoneroTransactionSourceEntry_MoneroOutputEntry;
-  using MoneroRctKey = messages::monero::MoneroTransactionSourceEntry_MoneroOutputEntry_MoneroRctKeyPublic;
-  using MoneroRsigData = messages::monero::MoneroTransactionRsigData;
+  using TsxData = messages::pepenet::MoneroTransactionInitRequest_MoneroTransactionData;
+  using MoneroTransactionDestinationEntry = messages::pepenet::MoneroTransactionDestinationEntry;
+  using MoneroAccountPublicAddress = messages::pepenet::MoneroTransactionDestinationEntry_MoneroAccountPublicAddress;
+  using MoneroTransactionSourceEntry = messages::pepenet::MoneroTransactionSourceEntry;
+  using MoneroMultisigKLRki = messages::pepenet::MoneroTransactionSourceEntry_MoneroMultisigKLRki;
+  using MoneroOutputEntry = messages::pepenet::MoneroTransactionSourceEntry_MoneroOutputEntry;
+  using MoneroRctKey = messages::pepenet::MoneroTransactionSourceEntry_MoneroOutputEntry_MoneroRctKeyPublic;
+  using MoneroRsigData = messages::pepenet::MoneroTransactionRsigData;
 
   using tx_construction_data = tools::wallet2::tx_construction_data;
   using unsigned_tx_set = tools::wallet2::unsigned_tx_set;
@@ -244,41 +244,41 @@ namespace tx {
     void extract_payment_id();
     void compute_integrated_indices(TsxData * tsx_data);
     bool should_compute_bp_now() const;
-    void compute_bproof(messages::monero::MoneroTransactionRsigData & rsig_data);
+    void compute_bproof(messages::pepenet::MoneroTransactionRsigData & rsig_data);
     void process_bproof(rsig_v & bproof);
     void set_tx_input(MoneroTransactionSourceEntry * dst, size_t idx, bool need_ring_keys=false, bool need_ring_indices=false);
 
   public:
     Signer(wallet_shim * wallet2, const unsigned_tx_set * unsigned_tx, size_t tx_idx = 0, hw::tx_aux_data * aux_data = nullptr);
 
-    std::shared_ptr<messages::monero::MoneroTransactionInitRequest> step_init();
-    void step_init_ack(std::shared_ptr<const messages::monero::MoneroTransactionInitAck> ack);
+    std::shared_ptr<messages::pepenet::MoneroTransactionInitRequest> step_init();
+    void step_init_ack(std::shared_ptr<const messages::pepenet::MoneroTransactionInitAck> ack);
 
-    std::shared_ptr<messages::monero::MoneroTransactionSetInputRequest> step_set_input(size_t idx);
-    void step_set_input_ack(std::shared_ptr<const messages::monero::MoneroTransactionSetInputAck> ack);
+    std::shared_ptr<messages::pepenet::MoneroTransactionSetInputRequest> step_set_input(size_t idx);
+    void step_set_input_ack(std::shared_ptr<const messages::pepenet::MoneroTransactionSetInputAck> ack);
 
     void sort_ki();
 
-    std::shared_ptr<messages::monero::MoneroTransactionInputViniRequest> step_set_vini_input(size_t idx);
-    void step_set_vini_input_ack(std::shared_ptr<const messages::monero::MoneroTransactionInputViniAck> ack);
+    std::shared_ptr<messages::pepenet::MoneroTransactionInputViniRequest> step_set_vini_input(size_t idx);
+    void step_set_vini_input_ack(std::shared_ptr<const messages::pepenet::MoneroTransactionInputViniAck> ack);
 
-    std::shared_ptr<messages::monero::MoneroTransactionAllInputsSetRequest> step_all_inputs_set();
-    void step_all_inputs_set_ack(std::shared_ptr<const messages::monero::MoneroTransactionAllInputsSetAck> ack);
+    std::shared_ptr<messages::pepenet::MoneroTransactionAllInputsSetRequest> step_all_inputs_set();
+    void step_all_inputs_set_ack(std::shared_ptr<const messages::pepenet::MoneroTransactionAllInputsSetAck> ack);
 
-    std::shared_ptr<messages::monero::MoneroTransactionSetOutputRequest> step_set_output(size_t idx);
-    void step_set_output_ack(std::shared_ptr<const messages::monero::MoneroTransactionSetOutputAck> ack);
+    std::shared_ptr<messages::pepenet::MoneroTransactionSetOutputRequest> step_set_output(size_t idx);
+    void step_set_output_ack(std::shared_ptr<const messages::pepenet::MoneroTransactionSetOutputAck> ack);
 
-    std::shared_ptr<messages::monero::MoneroTransactionSetOutputRequest> step_rsig(size_t idx);
-    void step_set_rsig_ack(std::shared_ptr<const messages::monero::MoneroTransactionSetOutputAck> ack);
+    std::shared_ptr<messages::pepenet::MoneroTransactionSetOutputRequest> step_rsig(size_t idx);
+    void step_set_rsig_ack(std::shared_ptr<const messages::pepenet::MoneroTransactionSetOutputAck> ack);
 
-    std::shared_ptr<messages::monero::MoneroTransactionAllOutSetRequest> step_all_outs_set();
-    void step_all_outs_set_ack(std::shared_ptr<const messages::monero::MoneroTransactionAllOutSetAck> ack, hw::device &hwdev);
+    std::shared_ptr<messages::pepenet::MoneroTransactionAllOutSetRequest> step_all_outs_set();
+    void step_all_outs_set_ack(std::shared_ptr<const messages::pepenet::MoneroTransactionAllOutSetAck> ack, hw::device &hwdev);
 
-    std::shared_ptr<messages::monero::MoneroTransactionSignInputRequest> step_sign_input(size_t idx);
-    void step_sign_input_ack(std::shared_ptr<const messages::monero::MoneroTransactionSignInputAck> ack);
+    std::shared_ptr<messages::pepenet::MoneroTransactionSignInputRequest> step_sign_input(size_t idx);
+    void step_sign_input_ack(std::shared_ptr<const messages::pepenet::MoneroTransactionSignInputAck> ack);
 
-    std::shared_ptr<messages::monero::MoneroTransactionFinalRequest> step_final();
-    void step_final_ack(std::shared_ptr<const messages::monero::MoneroTransactionFinalAck> ack);
+    std::shared_ptr<messages::pepenet::MoneroTransactionFinalRequest> step_final();
+    void step_final_ack(std::shared_ptr<const messages::pepenet::MoneroTransactionFinalAck> ack);
 
     std::string store_tx_aux_info();
 
@@ -345,14 +345,14 @@ namespace tx {
   // TX Key decryption
   void load_tx_key_data(hw::device_cold::tx_key_data_t & res, const std::string & data);
 
-  std::shared_ptr<messages::monero::MoneroGetTxKeyRequest> get_tx_key(
+  std::shared_ptr<messages::pepenet::MoneroGetTxKeyRequest> get_tx_key(
       const hw::device_cold::tx_key_data_t & tx_data);
 
   void get_tx_key_ack(
       std::vector<::crypto::secret_key> & tx_keys,
       const std::string & tx_prefix_hash,
       const ::crypto::secret_key & view_key_priv,
-      std::shared_ptr<const messages::monero::MoneroGetTxKeyAck> ack
+      std::shared_ptr<const messages::pepenet::MoneroGetTxKeyAck> ack
   );
 }
 
@@ -361,4 +361,4 @@ namespace tx {
 }
 
 
-#endif //MONERO_PROTOCOL_H
+#endif //PEPENET_PROTOCOL_H

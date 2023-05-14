@@ -35,8 +35,8 @@
 #include "daemon/protocol.h"
 #include "daemon/command_line_args.h"
 
-#undef MONERO_DEFAULT_LOG_CATEGORY
-#define MONERO_DEFAULT_LOG_CATEGORY "daemon"
+#undef PEPENET_DEFAULT_LOG_CATEGORY
+#define PEPENET_DEFAULT_LOG_CATEGORY "daemon"
 
 namespace daemonize
 {

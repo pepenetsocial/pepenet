@@ -102,5 +102,5 @@ jobs:
       with:
         name: ${{ matrix.toolchain.name }}
         path: |
-          /home/runner/work/monero/monero/build/${{ matrix.toolchain.host }}/release/bin/monero-wallet-cli*
-          /home/runner/work/monero/monero/build/${{ matrix.toolchain.host }}/release/bin/monerod*
+          /home/runner/work/pepenet/pepenet/build/${{ matrix.toolchain.host }}/release/bin/pepenet-wallet-cli*
+          /home/runner/work/pepenet/pepenet/build/${{ matrix.toolchain.host }}/release/bin/pepenetd*

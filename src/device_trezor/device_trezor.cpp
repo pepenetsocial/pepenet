@@ -36,8 +36,8 @@ namespace trezor {
 
 #ifdef WITH_DEVICE_TREZOR
 
-#undef MONERO_DEFAULT_LOG_CATEGORY
-#define MONERO_DEFAULT_LOG_CATEGORY "device.trezor"
+#undef PEPENET_DEFAULT_LOG_CATEGORY
+#define PEPENET_DEFAULT_LOG_CATEGORY "device.trezor"
 
 #define HW_TREZOR_NAME "Trezor"
 
@@ -235,7 +235,7 @@ namespace trezor {
     /*                              TREZOR PROTOCOL                            */
     /* ======================================================================= */
 
-    std::shared_ptr<messages::monero::MoneroAddress> device_trezor::get_address(
+    std::shared_ptr<messages::pepenet::MoneroAddress> device_trezor::get_address(
         const boost::optional<cryptonote::subaddress_index> & subaddress,
         const boost::optional<crypto::hash8> & payment_id,
         bool show_address,
@@ -247,8 +247,8 @@ namespace trezor {
       device_state_initialize_unsafe();
       require_initialized();
 
-      auto req = std::make_shared<messages::monero::MoneroGetAddress>();
-      this->set_msg_addr<messages::monero::MoneroGetAddress>(req.get(), path, network_type);
+      auto req = std::make_shared<messages::pepenet::MoneroGetAddress>();
+      this->set_msg_addr<messages::pepenet::MoneroGetAddress>(req.get(), path, network_type);
       req->set_show_display(show_address);
       if (subaddress){
         req->set_account(subaddress->major);
@@ -258,12 +258,12 @@ namespace trezor {
         req->set_payment_id(std::string(payment_id->data, 8));
       }
 
-      auto response = this->client_exchange<messages::monero::MoneroAddress>(req);
+      auto response = this->client_exchange<messages::pepenet::MoneroAddress>(req);
       MTRACE("Get address response received");
       return response;
     }
 
-    std::shared_ptr<messages::monero::MoneroWatchKey> device_trezor::get_view_key(
+    std::shared_ptr<messages::pepenet::MoneroWatchKey> device_trezor::get_view_key(
         const boost::optional<std::vector<uint32_t>> & path,
         const boost::optional<cryptonote::network_type> & network_type){
       TREZOR_AUTO_LOCK_CMD();
@@ -271,10 +271,10 @@ namespace trezor {
       device_state_initialize_unsafe();
       require_initialized();
 
-      auto req = std::make_shared<messages::monero::MoneroGetWatchKey>();
-      this->set_msg_addr<messages::monero::MoneroGetWatchKey>(req.get(), path, network_type);
+      auto req = std::make_shared<messages::pepenet::MoneroGetWatchKey>();
+      this->set_msg_addr<messages::pepenet::MoneroGetWatchKey>(req.get(), path, network_type);
 
-      auto response = this->client_exchange<messages::monero::MoneroWatchKey>(req);
+      auto response = this->client_exchange<messages::pepenet::MoneroWatchKey>(req);
       MTRACE("Get watch key response received");
       return response;
     }
@@ -301,9 +301,9 @@ namespace trezor {
       require_initialized();
 
       auto req = protocol::tx::get_tx_key(tx_aux_data);
-      this->set_msg_addr<messages::monero::MoneroGetTxKeyRequest>(req.get());
+      this->set_msg_addr<messages::pepenet::MoneroGetTxKeyRequest>(req.get());
 
-      auto response = this->client_exchange<messages::monero::MoneroGetTxKeyAck>(req);
+      auto response = this->client_exchange<messages::pepenet::MoneroGetTxKeyAck>(req);
       MTRACE("Get TX key response received");
 
       protocol::tx::get_tx_key_ack(tx_keys, tx_aux_data.tx_prefix_hash, view_key_priv, response);
@@ -320,7 +320,7 @@ namespace trezor {
       device_state_initialize_unsafe();
       require_initialized();
 
-      std::shared_ptr<messages::monero::MoneroKeyImageExportInitRequest> req;
+      std::shared_ptr<messages::pepenet::MoneroKeyImageExportInitRequest> req;
 
       std::vector<protocol::ki::MoneroTransferDetails> mtds;
       std::vector<protocol::ki::MoneroExportedKeyImage> kis;
@@ -328,13 +328,13 @@ namespace trezor {
       protocol::ki::generate_commitment(mtds, transfers, req);
 
       EVENT_PROGRESS(0.);
-      this->set_msg_addr<messages::monero::MoneroKeyImageExportInitRequest>(req.get());
-      auto ack1 = this->client_exchange<messages::monero::MoneroKeyImageExportInitAck>(req);
+      this->set_msg_addr<messages::pepenet::MoneroKeyImageExportInitRequest>(req.get());
+      auto ack1 = this->client_exchange<messages::pepenet::MoneroKeyImageExportInitAck>(req);
 
       const auto batch_size = 10;
       const auto num_batches = (mtds.size() + batch_size - 1) / batch_size;
       for(uint64_t cur = 0; cur < num_batches; ++cur){
-        auto step_req = std::make_shared<messages::monero::MoneroKeyImageSyncStepRequest>();
+        auto step_req = std::make_shared<messages::pepenet::MoneroKeyImageSyncStepRequest>();
         auto idx_finish = std::min(static_cast<uint64_t>((cur + 1) * batch_size), static_cast<uint64_t>(mtds.size()));
         for(uint64_t idx = cur * batch_size; idx < idx_finish; ++idx){
           auto added_tdis = step_req->add_tdis();
@@ -342,7 +342,7 @@ namespace trezor {
           *added_tdis = mtds[idx];
         }
 
-        auto step_ack = this->client_exchange<messages::monero::MoneroKeyImageSyncStepAck>(step_req);
+        auto step_ack = this->client_exchange<messages::pepenet::MoneroKeyImageSyncStepAck>(step_req);
         auto kis_size = step_ack->kis_size();
         kis.reserve(static_cast<size_t>(kis_size));
         for(int i = 0; i < kis_size; ++i){
@@ -355,8 +355,8 @@ namespace trezor {
       }
       EVENT_PROGRESS(1.);
 
-      auto final_req = std::make_shared<messages::monero::MoneroKeyImageSyncFinalRequest>();
-      auto final_ack = this->client_exchange<messages::monero::MoneroKeyImageSyncFinalAck>(final_req);
+      auto final_req = std::make_shared<messages::pepenet::MoneroKeyImageSyncFinalRequest>();
+      auto final_ack = this->client_exchange<messages::pepenet::MoneroKeyImageSyncFinalAck>(final_req);
       ski.reserve(kis.size());
 
       for(auto & sub : kis){
@@ -412,9 +412,9 @@ namespace trezor {
       device_state_initialize_unsafe();
       require_initialized();
 
-      auto req = std::make_shared<messages::monero::MoneroLiveRefreshStartRequest>();
-      this->set_msg_addr<messages::monero::MoneroLiveRefreshStartRequest>(req.get());
-      this->client_exchange<messages::monero::MoneroLiveRefreshStartAck>(req);
+      auto req = std::make_shared<messages::pepenet::MoneroLiveRefreshStartRequest>();
+      this->set_msg_addr<messages::pepenet::MoneroLiveRefreshStartRequest>(req.get());
+      this->client_exchange<messages::pepenet::MoneroLiveRefreshStartAck>(req);
       m_live_refresh_in_progress = true;
       m_last_live_refresh_time = std::chrono::steady_clock::now();
     }
@@ -439,21 +439,21 @@ namespace trezor {
 
       m_last_live_refresh_time = std::chrono::steady_clock::now();
 
-      auto req = std::make_shared<messages::monero::MoneroLiveRefreshStepRequest>();
+      auto req = std::make_shared<messages::pepenet::MoneroLiveRefreshStepRequest>();
       req->set_out_key(out_key.data, 32);
       req->set_recv_deriv(recv_derivation.data, 32);
       req->set_real_out_idx(real_output_index);
       req->set_sub_addr_major(received_index.major);
       req->set_sub_addr_minor(received_index.minor);
 
-      auto ack = this->client_exchange<messages::monero::MoneroLiveRefreshStepAck>(req);
+      auto ack = this->client_exchange<messages::pepenet::MoneroLiveRefreshStepAck>(req);
       protocol::ki::live_refresh_ack(view_key_priv, out_key, ack, in_ephemeral, ki);
     }
 
     void device_trezor::live_refresh_finish_unsafe()
     {
-      auto req = std::make_shared<messages::monero::MoneroLiveRefreshFinalRequest>();
-      this->client_exchange<messages::monero::MoneroLiveRefreshFinalAck>(req);
+      auto req = std::make_shared<messages::pepenet::MoneroLiveRefreshFinalRequest>();
+      this->client_exchange<messages::pepenet::MoneroLiveRefreshFinalAck>(req);
       m_live_refresh_in_progress = false;
     }
 
@@ -623,13 +623,13 @@ namespace trezor {
       transaction_pre_check(init_msg);
       EVENT_PROGRESS(1, 1, 1);
 
-      auto response = this->client_exchange<messages::monero::MoneroTransactionInitAck>(init_msg);
+      auto response = this->client_exchange<messages::pepenet::MoneroTransactionInitAck>(init_msg);
       signer->step_init_ack(response);
 
       // Step: Set transaction inputs
       for(size_t cur_src = 0; cur_src < num_sources; ++cur_src){
         auto src = signer->step_set_input(cur_src);
-        auto ack = this->client_exchange<messages::monero::MoneroTransactionSetInputAck>(src);
+        auto ack = this->client_exchange<messages::pepenet::MoneroTransactionSetInputAck>(src);
         signer->step_set_input_ack(ack);
         EVENT_PROGRESS(2, cur_src, num_sources);
       }
@@ -641,27 +641,27 @@ namespace trezor {
       // Step: input_vini
       for(size_t cur_src = 0; cur_src < num_sources; ++cur_src){
         auto src = signer->step_set_vini_input(cur_src);
-        auto ack = this->client_exchange<messages::monero::MoneroTransactionInputViniAck>(src);
+        auto ack = this->client_exchange<messages::pepenet::MoneroTransactionInputViniAck>(src);
         signer->step_set_vini_input_ack(ack);
         EVENT_PROGRESS(4, cur_src, num_sources);
       }
 
       // Step: all inputs set
       auto all_inputs_set = signer->step_all_inputs_set();
-      auto ack_all_inputs = this->client_exchange<messages::monero::MoneroTransactionAllInputsSetAck>(all_inputs_set);
+      auto ack_all_inputs = this->client_exchange<messages::pepenet::MoneroTransactionAllInputsSetAck>(all_inputs_set);
       signer->step_all_inputs_set_ack(ack_all_inputs);
       EVENT_PROGRESS(5, 1, 1);
 
       // Step: outputs
       for(size_t cur_dst = 0; cur_dst < num_outputs; ++cur_dst){
         auto src = signer->step_set_output(cur_dst);
-        auto ack = this->client_exchange<messages::monero::MoneroTransactionSetOutputAck>(src);
+        auto ack = this->client_exchange<messages::pepenet::MoneroTransactionSetOutputAck>(src);
         signer->step_set_output_ack(ack);
 
         // If BP is offloaded to host, another step with computed BP may be needed.
         auto offloaded_bp = signer->step_rsig(cur_dst);
         if (offloaded_bp){
-          auto bp_ack = this->client_exchange<messages::monero::MoneroTransactionSetOutputAck>(offloaded_bp);
+          auto bp_ack = this->client_exchange<messages::pepenet::MoneroTransactionSetOutputAck>(offloaded_bp);
           signer->step_set_rsig_ack(ack);
         }
 
@@ -670,21 +670,21 @@ namespace trezor {
 
       // Step: all outs set
       auto all_out_set = signer->step_all_outs_set();
-      auto ack_all_out_set = this->client_exchange<messages::monero::MoneroTransactionAllOutSetAck>(all_out_set);
+      auto ack_all_out_set = this->client_exchange<messages::pepenet::MoneroTransactionAllOutSetAck>(all_out_set);
       signer->step_all_outs_set_ack(ack_all_out_set, *this);
       EVENT_PROGRESS(7, 1, 1);
 
       // Step: sign each input
       for(size_t cur_src = 0; cur_src < num_sources; ++cur_src){
         auto src = signer->step_sign_input(cur_src);
-        auto ack_sign = this->client_exchange<messages::monero::MoneroTransactionSignInputAck>(src);
+        auto ack_sign = this->client_exchange<messages::pepenet::MoneroTransactionSignInputAck>(src);
         signer->step_sign_input_ack(ack_sign);
         EVENT_PROGRESS(8, cur_src, num_sources);
       }
 
       // Step: final
       auto final_msg = signer->step_final();
-      auto ack_final = this->client_exchange<messages::monero::MoneroTransactionFinalAck>(final_msg);
+      auto ack_final = this->client_exchange<messages::pepenet::MoneroTransactionFinalAck>(final_msg);
       signer->step_final_ack(ack_final);
       EVENT_PROGRESS(9, 1, 1);
 #undef EVENT_PROGRESS
@@ -730,7 +730,7 @@ namespace trezor {
       aux_data.client_version = cversion;
     }
 
-    void device_trezor::transaction_pre_check(std::shared_ptr<messages::monero::MoneroTransactionInitRequest> init_msg)
+    void device_trezor::transaction_pre_check(std::shared_ptr<messages::pepenet::MoneroTransactionInitRequest> init_msg)
     {
       CHECK_AND_ASSERT_THROW_MES(init_msg, "TransactionInitRequest is empty");
       CHECK_AND_ASSERT_THROW_MES(init_msg->has_tsx_data(), "TransactionInitRequest has no transaction data");

@@ -34,13 +34,13 @@ if (WIN32 OR STATIC)
   add_definitions(-DMINIUPNP_STATICLIB)
 endif ()
 
-function (monero_private_headers group)
+function (pepenet_private_headers group)
   source_group("${group}\\Private"
     FILES
       ${ARGN})
 endfunction ()
 
-function (monero_install_headers subdir)
+function (pepenet_install_headers subdir)
   install(
     FILES       ${ARGN}
     DESTINATION "include/${subdir}"
@@ -58,7 +58,7 @@ function (enable_stack_trace target)
   endif()
 endfunction()
 
-function (monero_add_executable name)
+function (pepenet_add_executable name)
   source_group("${name}"
     FILES
       ${ARGN})
@@ -76,12 +76,12 @@ function (monero_add_executable name)
       RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
   enable_stack_trace("${name}")
   
-  monero_set_target_no_relink("${name}")
-  monero_set_target_strip    ("${name}")
+  pepenet_set_target_no_relink("${name}")
+  pepenet_set_target_strip    ("${name}")
 endfunction ()
 
 include(Version)
-monero_add_library(version SOURCES ${CMAKE_BINARY_DIR}/version.cpp DEPENDS genversion)
+pepenet_add_library(version SOURCES ${CMAKE_BINARY_DIR}/version.cpp DEPENDS genversion)
 
 add_subdirectory(common)
 add_subdirectory(crypto)

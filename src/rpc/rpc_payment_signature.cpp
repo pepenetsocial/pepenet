@@ -33,8 +33,8 @@
 #include "string_tools.h"
 #include "rpc_payment_signature.h"
 
-#undef MONERO_DEFAULT_LOG_CATEGORY
-#define MONERO_DEFAULT_LOG_CATEGORY "daemon.rpc.payment"
+#undef PEPENET_DEFAULT_LOG_CATEGORY
+#define PEPENET_DEFAULT_LOG_CATEGORY "daemon.rpc.payment"
 
 #define TIMESTAMP_LEEWAY (60 * 1000000) /* 60 seconds, in microseconds */
 

@@ -23,11 +23,11 @@ su $USER
 The final `su` command is needed to start a new shell with your new group membership,
 since the `usermod` command doesn't affect any existing sessions.
 
-You'll also need to clone the monero repository and navigate to the `contrib/gitian` directory:
+You'll also need to clone the pepenet repository and navigate to the `contrib/gitian` directory:
 
 ```bash
-git clone https://github.com/monero-project/monero.git
-cd monero/contrib/gitian
+git clone https://github.com/pepenet-project/pepenet.git
+cd pepenet/contrib/gitian
 ```
 
 Other User Preparation
@@ -44,10 +44,10 @@ export GH_USER=<github account name>
 ```
 
 * PGP keys - if you don't have one already, you can use `gpg --quick-gen-key` to generate it.
-* a fork of the [gitian.sigs](https://github.com/monero-project/gitian.sigs/) repo on your GitHub account.
+* a fork of the [gitian.sigs](https://github.com/pepenet-project/gitian.sigs/) repo on your GitHub account.
 Please follow the directions there for uploading your key first.
 
-**Note:** Please ensure your gpg public key is available to check signatures by adding it to the [gitian.sigs/gitian-pubkeys/](https://github.com/monero-project/gitian.sigs/tree/master/gitian-pubkeys) directory in a pull request.
+**Note:** Please ensure your gpg public key is available to check signatures by adding it to the [gitian.sigs/gitian-pubkeys/](https://github.com/pepenet-project/gitian.sigs/tree/master/gitian-pubkeys) directory in a pull request.
 
 
 Building the Binaries
@@ -67,7 +67,7 @@ then the results will be signed, and the signatures will be pushed to GitHub.
 
 ***Note: In order to publish the signed assertions via this script, you need to have your SSH key uploaded to GitHub beforehand. See https://docs.github.com/articles/generating-an-ssh-key/ for more info.***
 
-You can also look in the [gitian.sigs](https://github.com/monero-project/gitian.sigs/) repo and / or [getmonero.org release checksums](https://web.getmonero.org/downloads/hashes.txt) to see if others got the same checksum for the same version tag.  If there is ever a mismatch -- **STOP! Something is wrong**.  Contact others on IRC / GitHub to figure out what is going on.
+You can also look in the [gitian.sigs](https://github.com/pepenet-project/gitian.sigs/) repo and / or [getpepenet.org release checksums](https://web.getpepenet.org/downloads/hashes.txt) to see if others got the same checksum for the same version tag.  If there is ever a mismatch -- **STOP! Something is wrong**.  Contact others on IRC / GitHub to figure out what is going on.
 
 
 Other Options
