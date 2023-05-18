@@ -73,8 +73,8 @@
   #include <unistd.h>
 #endif
 
-#undef PEPENET_DEFAULT_LOG_CATEGORY
-#define PEPENET_DEFAULT_LOG_CATEGORY "miner"
+#undef MONERO_DEFAULT_LOG_CATEGORY
+#define MONERO_DEFAULT_LOG_CATEGORY "miner"
 
 #define AUTODETECT_WINDOW 10 // seconds
 #define AUTODETECT_GAIN_THRESHOLD 1.02f  // 2%
@@ -523,7 +523,7 @@ namespace cryptonote
   bool miner::worker_thread()
   {
     const uint32_t th_local_index = m_thread_index++; // atomically increment, getting value before increment
-    crypto::rx_set_miner_thread(th_local_index, tools::get_max_concurrency());
+    bool rx_set = false;
 
     MLOG_SET_THREAD_NAME(std::string("[miner ") + std::to_string(th_local_index) + "]");
     MGINFO("Miner thread was started ["<< th_local_index << "]");
@@ -575,6 +575,13 @@ namespace cryptonote
 
       b.nonce = nonce;
       crypto::hash h;
+
+      if ((b.major_version >= RX_BLOCK_VERSION) && !rx_set)
+      {
+        crypto::rx_set_miner_thread(th_local_index, tools::get_max_concurrency());
+        rx_set = true;
+      }
+
       m_gbh(b, height, NULL, tools::get_max_concurrency(), h);
 
       if(check_hash(h, local_diff))
