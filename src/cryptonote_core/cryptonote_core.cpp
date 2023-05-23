@@ -1308,7 +1308,7 @@ namespace cryptonote
   //-----------------------------------------------------------------------------------------------
   bool core::check_tx_inputs_ring_members_diff(const transaction& tx, const uint8_t hf_version) const
   {
-    if (hf_version >= 6)
+    if (hf_version >= HF_VERSION_MIN_MIXIN_4)
     {
       for(const auto& in: tx.vin)
       {

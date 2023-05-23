@@ -345,7 +345,7 @@ namespace cryptonote
     if (hshd.current_height > 0)
     {
       const uint8_t version = m_core.get_ideal_hard_fork_version(hshd.current_height - 1);
-      if (version >= 6 && version != hshd.top_version)
+      if (version >= HF_VERSION_MIN_MIXIN_4 && version != hshd.top_version)
       {
         if (version < hshd.top_version && version == m_core.get_ideal_hard_fork_version())
           MDEBUG(context << " peer claims higher version than we think (" <<

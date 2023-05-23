@@ -166,15 +166,21 @@
 
 #define THREAD_STACK_SIZE                       5 * 1024 * 1024
 
+#define HF_VERSION_1                            0
+#define HF_VERSION_2                            0
+#define HF_VERSION_3                            0
 #define HF_VERSION_DYNAMIC_FEE                  4
+#define HF_VERSION_5                            0
 #define HF_VERSION_MIN_MIXIN_4                  6
 #define HF_VERSION_MIN_MIXIN_6                  7
 #define HF_VERSION_MIN_MIXIN_10                 8
+#define HF_VERSION_9                            0
 #define HF_VERSION_MIN_MIXIN_15                 15
 #define HF_VERSION_ENFORCE_RCT                  6
 #define HF_VERSION_PER_BYTE_FEE                 8
 #define HF_VERSION_SMALLER_BP                   10
 #define HF_VERSION_LONG_TERM_BLOCK_WEIGHT       10
+#define HF_VERSION_11                           0
 #define HF_VERSION_MIN_2_OUTPUTS                12
 #define HF_VERSION_MIN_V2_COINBASE_TX           12
 #define HF_VERSION_SAME_MIXIN                   12
@@ -184,9 +190,11 @@
 #define HF_VERSION_EXACT_COINBASE               13
 #define HF_VERSION_CLSAG                        13
 #define HF_VERSION_DETERMINISTIC_UNLOCK_TIME    13
+#define HF_VERSION_14                           0
 #define HF_VERSION_BULLETPROOF_PLUS             15
 #define HF_VERSION_VIEW_TAGS                    15
 #define HF_VERSION_2021_SCALING                 15
+#define HF_VERSION_16                           0
 
 #define PER_KB_FEE_QUANTIZATION_DECIMALS        8
 #define CRYPTONOTE_SCALING_2021_FEE_ROUNDING_PLACES 2
@@ -226,7 +234,7 @@ namespace config
   uint16_t const RPC_DEFAULT_PORT = 18081;
   uint16_t const ZMQ_RPC_DEFAULT_PORT = 18082;
   boost::uuids::uuid const NETWORK_ID = { {
-      0x12 ,0x30, 0xF1, 0x71 , 0x61, 0x04 , 0x41, 0x61, 0x17, 0x31, 0x00, 0x82, 0x16, 0xA1, 0xA1, 0x10
+    0x64, 0x82, 0xf0, 0xbe, 0xdc, 0x28, 0x5f, 0x9a, 0x81, 0x00, 0xa0, 0xf6, 0xa5, 0xf5, 0x5e, 0x9a
     } }; // Bender's nightmare
   std::string const GENESIS_TX = "013c01ff0001ffffffffffff03029b2e4c0281c0b02e7c53291a94d1d0cbff8883f8024f5142ee494ffbbd08807121017767aafcde9be00dcfd098715ebcf7f410daebc582fda69d24a28e9d0bc890d1";
   uint32_t const GENESIS_NONCE = 10000;
@@ -267,8 +275,8 @@ namespace config
     uint16_t const RPC_DEFAULT_PORT = 28081;
     uint16_t const ZMQ_RPC_DEFAULT_PORT = 28082;
     boost::uuids::uuid const NETWORK_ID = { {
-        0x12 ,0x30, 0xF1, 0x71 , 0x61, 0x04 , 0x41, 0x61, 0x17, 0x31, 0x00, 0x82, 0x16, 0xA1, 0xA1, 0x11
-      } }; // Bender's daydream
+    0x64, 0x82, 0xf0, 0xbe, 0xdc, 0x28, 0x5f, 0x9a, 0x81, 0x00, 0xa0, 0xf6, 0xa5, 0xf5, 0x5e, 0x9b
+    } }; // Bender's daydream
     std::string const GENESIS_TX = "013c01ff0001ffffffffffff03029b2e4c0281c0b02e7c53291a94d1d0cbff8883f8024f5142ee494ffbbd08807121017767aafcde9be00dcfd098715ebcf7f410daebc582fda69d24a28e9d0bc890d1";
     uint32_t const GENESIS_NONCE = 10001;
   }
@@ -282,8 +290,8 @@ namespace config
     uint16_t const RPC_DEFAULT_PORT = 38081;
     uint16_t const ZMQ_RPC_DEFAULT_PORT = 38082;
     boost::uuids::uuid const NETWORK_ID = { {
-        0x12 ,0x30, 0xF1, 0x71 , 0x61, 0x04 , 0x41, 0x61, 0x17, 0x31, 0x00, 0x82, 0x16, 0xA1, 0xA1, 0x12
-      } }; // Bender's daydream
+    0x64, 0x82, 0xf0, 0xbe, 0xdc, 0x28, 0x5f, 0x9a, 0x81, 0x00, 0xa0, 0xf6, 0xa5, 0xf5, 0x5e, 0x9c
+    } }; // Bender's daydream
     std::string const GENESIS_TX = "013c01ff0001ffffffffffff0302df5d56da0c7d643ddd1ce61901c7bdc5fb1738bfe39fbe69c28a3a7032729c0f2101168d0c4ca86fb55a4cf6a36d31431be1c53a3bd7411bb24e8832410289fa6f3b";
     uint32_t const GENESIS_NONCE = 10002;
   }

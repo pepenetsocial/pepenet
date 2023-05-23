@@ -1406,7 +1406,7 @@ bool Blockchain::validate_miner_transaction(const block& b, size_t cumulative_bl
     money_in_use += o.amount;
   partial_block_reward = false;
 
-  if (version == 3) {
+  if (version == HF_VERSION_3) {
     for (auto &o: b.miner_tx.vout) {
       if (!is_valid_decomposed_amount(o.amount)) {
         MERROR_VER("miner tx output " << print_money(o.amount) << " is not a valid decomposed amount");
@@ -1437,7 +1437,7 @@ bool Blockchain::validate_miner_transaction(const block& b, size_t cumulative_bl
     return false;
   }
   // From hard fork 2 till 12, we allow a miner to claim less block reward than is allowed, in case a miner wants less dust
-  if (version < 2 || version >= HF_VERSION_EXACT_COINBASE)
+  if (version < HF_VERSION_2 || version >= HF_VERSION_EXACT_COINBASE)
   {
     if(base_reward + fee != money_in_use)
     {
@@ -1752,7 +1752,7 @@ bool Blockchain::create_block_template(block& b, const crypto::hash *from_block,
    */
   //make blocks coin-base tx looks close to real coinbase tx to get truthful blob weight
   uint8_t hf_version = b.major_version;
-  size_t max_outs = hf_version >= 4 ? 1 : 11;
+  size_t max_outs = hf_version >= HF_VERSION_DYNAMIC_FEE ? 1 : 11;
   bool r = construct_miner_tx(height, median_weight, already_generated_coins, txs_weight, fee, miner_address, b.miner_tx, ex_nonce, max_outs, hf_version);
   CHECK_AND_ASSERT_MES(r, false, "Failed to construct miner tx, first chance");
   size_t cumulative_weight = txs_weight + get_transaction_weight(b.miner_tx);
@@ -3041,7 +3041,7 @@ bool Blockchain::check_tx_outputs(const transaction& tx, tx_verification_context
   const uint8_t hf_version = m_hardfork->get_current_version();
 
   // from hard fork 2, we forbid dust and compound outputs
-  if (hf_version >= 2) {
+  if (hf_version >= HF_VERSION_2) {
     for (auto &o: tx.vout) {
       if (tx.version == 1)
       {
@@ -3054,7 +3054,7 @@ bool Blockchain::check_tx_outputs(const transaction& tx, tx_verification_context
   }
 
   // in a v2 tx, all outputs must have 0 amount
-  if (hf_version >= 3) {
+  if (hf_version >= HF_VERSION_3) {
     if (tx.version >= 2) {
       for (auto &o: tx.vout) {
         if (o.amount != 0) {
@@ -3066,7 +3066,7 @@ bool Blockchain::check_tx_outputs(const transaction& tx, tx_verification_context
   }
 
   // from v4, forbid invalid pubkeys
-  if (hf_version >= 4) {
+  if (hf_version >= HF_VERSION_DYNAMIC_FEE) {
     for (const auto &o: tx.vout) {
       crypto::public_key output_public_key;
       if (!get_output_public_key(o, output_public_key)) {
@@ -3081,7 +3081,7 @@ bool Blockchain::check_tx_outputs(const transaction& tx, tx_verification_context
   }
 
   // from v8, allow bulletproofs
-  if (hf_version < 8) {
+  if (hf_version < HF_VERSION_MIN_MIXIN_10) {
     if (tx.version >= 2) {
       const bool bulletproof = rct::is_rct_bulletproof(tx.rct_signatures.type);
       if (bulletproof || !tx.rct_signatures.p.bulletproofs.empty())
@@ -3337,7 +3337,7 @@ bool Blockchain::check_tx_inputs(transaction& tx, tx_verification_context &tvc, 
 
   // from hard fork 2, we require mixin at least 2 unless one output cannot mix with 2 others
   // if one output cannot mix with 2 others, we accept at most 1 output that can mix
-  if (hf_version >= 2)
+  if (hf_version >= HF_VERSION_2)
   {
     size_t n_unmixable = 0, n_mixable = 0;
     size_t min_actual_mixin = std::numeric_limits<size_t>::max();
@@ -3432,7 +3432,7 @@ bool Blockchain::check_tx_inputs(transaction& tx, tx_verification_context &tvc, 
   }
 
   // from v7, sorted ins
-  if (hf_version >= 7) {
+  if (hf_version >= HF_VERSION_MIN_MIXIN_6) {
     const crypto::key_image *last_key_image = NULL;
     for (size_t n = 0; n < tx.vin.size(); ++n)
     {
@@ -3661,7 +3661,7 @@ bool Blockchain::check_tx_inputs(transaction& tx, tx_verification_context &tvc, 
     // for bulletproofs, check they're only multi-output after v8
     if (rct::is_rct_bulletproof(rv.type))
     {
-      if (hf_version < 8)
+      if (hf_version < HF_VERSION_MIN_MIXIN_10)
       {
         for (const rct::Bulletproof &proof: rv.p.bulletproofs)
         {
@@ -3722,7 +3722,7 @@ uint64_t Blockchain::get_dynamic_base_fee(uint64_t block_reward, size_t median_b
     }
   }
 
-  const uint64_t fee_base = version >= 5 ? DYNAMIC_FEE_PER_KB_BASE_FEE_V5 : DYNAMIC_FEE_PER_KB_BASE_FEE;
+  const uint64_t fee_base = version >= HF_VERSION_5 ? DYNAMIC_FEE_PER_KB_BASE_FEE_V5 : DYNAMIC_FEE_PER_KB_BASE_FEE;
 
   uint64_t unscaled_fee_base = (fee_base * min_block_weight / median_block_weight);
   lo = mul128(unscaled_fee_base, block_reward, &hi);
