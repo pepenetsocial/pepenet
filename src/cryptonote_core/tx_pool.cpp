@@ -1511,7 +1511,7 @@ namespace cryptonote
 
     size_t max_total_weight_pre_v5 = (130 * median_weight) / 100 - CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE;
     size_t max_total_weight_v5 = 2 * median_weight - CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE;
-    size_t max_total_weight = version >= HF_VERSION_5 ? max_total_weight_v5 : max_total_weight_pre_v5;
+    size_t max_total_weight = version >= HF_VERSION_OPTIMAL_FILLING_ALGORITHM ? max_total_weight_v5 : max_total_weight_pre_v5;
     std::unordered_set<crypto::key_image> k_images;
 
     LOG_PRINT_L2("Filling block template, median weight " << median_weight << ", " << m_txs_by_fee_and_receive_time.size() << " txes in the pool");
@@ -1551,7 +1551,7 @@ namespace cryptonote
       }
 
       // start using the optimal filling algorithm from v5
-      if (version >= HF_VERSION_5)
+      if (version >= HF_VERSION_OPTIMAL_FILLING_ALGORITHM)
       {
         // If we're getting lower coinbase tx,
         // stop including more tx

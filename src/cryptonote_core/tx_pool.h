@@ -659,7 +659,7 @@ namespace boost
       ar & td.receive_time;
       ar & td.last_relayed_time;
       ar & td.relayed;
-      if (version < HF_VERSION_11)
+      if (version < HF_VERSION_DEFAULT_SERIALIZE_TX)
         return;
       ar & td.kept_by_block;
       if (version < HF_VERSION_MIN_V2_COINBASE_TX)
