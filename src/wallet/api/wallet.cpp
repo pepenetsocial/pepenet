@@ -1773,12 +1773,12 @@ uint64_t WalletImpl::estimateTransactionFee(const std::vector<std::pair<std::str
 
     return m_wallet->estimate_fee(
         m_wallet->use_fork_rules(HF_VERSION_PER_BYTE_FEE, 0),
-        m_wallet->use_fork_rules(4, 0),
+        m_wallet->use_fork_rules(HF_VERSION_DYNAMIC_FEE, 0),
         1,
         m_wallet->get_min_ring_size() - 1,
         destinations.size() + 1,
         extra_size,
-        m_wallet->use_fork_rules(8, 0),
+        m_wallet->use_fork_rules(HF_VERSION_MIN_MIXIN_10, 0),
         m_wallet->use_fork_rules(HF_VERSION_CLSAG, 0),
         m_wallet->use_fork_rules(HF_VERSION_BULLETPROOF_PLUS, 0),
         m_wallet->use_fork_rules(HF_VERSION_VIEW_TAGS, 0),

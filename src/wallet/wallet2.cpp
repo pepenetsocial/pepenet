@@ -874,7 +874,7 @@ uint64_t estimate_tx_weight(bool use_rct, int n_inputs, int mixin, int n_outputs
 
 uint8_t get_bulletproof_fork()
 {
-  return 8;
+  return HF_VERSION_MIN_MIXIN_10;
 }
 
 uint8_t get_bulletproof_plus_fork()
@@ -7558,9 +7558,9 @@ int wallet2::get_fee_algorithm()
   // changes at v3, v5, v8
   if (use_fork_rules(HF_VERSION_PER_BYTE_FEE, 0))
     return 3;
-  if (use_fork_rules(5, 0))
+  if (use_fork_rules(HF_VERSION_OPTIMAL_FILLING_ALGORITHM, 0))
     return 2;
-  if (use_fork_rules(3, -30 * 14))
+  if (use_fork_rules(HF_VERSION_OUTPUTS_HAVE_ZERO_AMOUNTS, -30 * 14))
    return 1;
   return 0;
 }
@@ -7569,13 +7569,13 @@ uint64_t wallet2::get_min_ring_size()
 {
   if (use_fork_rules(HF_VERSION_MIN_MIXIN_15, 0))
     return 16;
-  if (use_fork_rules(8, 10))
+  if (use_fork_rules(HF_VERSION_MIN_MIXIN_10, 10))
     return 11;
-  if (use_fork_rules(7, 10))
+  if (use_fork_rules(HF_VERSION_MIN_MIXIN_6, 10))
     return 7;
-  if (use_fork_rules(6, 10))
+  if (use_fork_rules(HF_VERSION_MIN_MIXIN_4, 10))
     return 5;
-  if (use_fork_rules(2, 10))
+  if (use_fork_rules(HF_VERSION_FORBID_DUST_OUTPUTS, 10))
     return 3;
   return 0;
 }
@@ -7584,7 +7584,7 @@ uint64_t wallet2::get_max_ring_size()
 {
   if (use_fork_rules(HF_VERSION_MIN_MIXIN_15, 0))
     return 16;
-  if (use_fork_rules(8, 10))
+  if (use_fork_rules(HF_VERSION_MIN_MIXIN_10, 10))
     return 11;
   return 0;
 }
@@ -10007,7 +10007,7 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_2(std::vector<cryp
   uint64_t needed_fee, available_for_fee = 0;
   uint64_t upper_transaction_weight_limit = get_upper_transaction_weight_limit();
   const bool use_per_byte_fee = use_fork_rules(HF_VERSION_PER_BYTE_FEE, 0);
-  const bool use_rct = use_fork_rules(4, 0);
+  const bool use_rct = use_fork_rules(HF_VERSION_DYNAMIC_FEE, 0);
   const bool bulletproof = use_fork_rules(get_bulletproof_fork(), 0);
   const bool bulletproof_plus = use_fork_rules(get_bulletproof_plus_fork(), 0);
   const bool clsag = use_fork_rules(get_clsag_fork(), 0);
@@ -10601,7 +10601,7 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_all(uint64_t below
 {
   std::vector<size_t> unused_transfers_indices;
   std::vector<size_t> unused_dust_indices;
-  const bool use_rct = use_fork_rules(4, 0);
+  const bool use_rct = use_fork_rules(HF_VERSION_DYNAMIC_FEE, 0);
 
   // determine threshold for fractional amount
   const bool use_per_byte_fee = use_fork_rules(HF_VERSION_PER_BYTE_FEE, 0);
@@ -10674,7 +10674,7 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_single(const crypt
 {
   std::vector<size_t> unused_transfers_indices;
   std::vector<size_t> unused_dust_indices;
-  const bool use_rct = use_fork_rules(4, 0);
+  const bool use_rct = use_fork_rules(HF_VERSION_DYNAMIC_FEE, 0);
   // find output with the given key image
   for (size_t i = 0; i < m_transfers.size(); ++i)
   {
@@ -10717,7 +10717,7 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_from(const crypton
   std::vector<std::vector<get_outs_entry>> outs;
 
   const bool use_per_byte_fee = use_fork_rules(HF_VERSION_PER_BYTE_FEE);
-  const bool use_rct = fake_outs_count > 0 && use_fork_rules(4, 0);
+  const bool use_rct = fake_outs_count > 0 && use_fork_rules(HF_VERSION_DYNAMIC_FEE, 0);
   const bool bulletproof = use_fork_rules(get_bulletproof_fork(), 0);
   const bool bulletproof_plus = use_fork_rules(get_bulletproof_plus_fork(), 0);
   const bool clsag = use_fork_rules(get_clsag_fork(), 0);
@@ -11035,8 +11035,8 @@ uint64_t wallet2::get_upper_transaction_weight_limit()
 {
   if (m_upper_transaction_weight_limit > 0)
     return m_upper_transaction_weight_limit;
-  uint64_t full_reward_zone = use_fork_rules(5, 10) ? CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V5 : use_fork_rules(2, 10) ? CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V2 : CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V1;
-  if (use_fork_rules(8, 10))
+  uint64_t full_reward_zone = use_fork_rules(HF_VERSION_OPTIMAL_FILLING_ALGORITHM, 10) ? CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V5 : use_fork_rules(HF_VERSION_FORBID_DUST_OUTPUTS, 10) ? CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V2 : CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V1;
+  if (use_fork_rules(HF_VERSION_MIN_MIXIN_10, 10))
     return full_reward_zone / 2 - CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE;
   else
     return full_reward_zone - CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE;
@@ -11167,7 +11167,7 @@ std::vector<size_t> wallet2::select_available_mixable_outputs()
 std::vector<wallet2::pending_tx> wallet2::create_unmixable_sweep_transactions()
 {
   // From hard fork 1, we don't consider small amounts to be dust anymore
-  const bool hf1_rules = use_fork_rules(2, 10); // first hard fork has version 2
+  const bool hf1_rules = use_fork_rules(HF_VERSION_FORBID_DUST_OUTPUTS, 10); // first hard fork has version 2
   tx_dust_policy dust_policy(hf1_rules ? 0 : ::config::DEFAULT_DUST_THRESHOLD);
 
   const uint64_t base_fee  = get_base_fee(1);

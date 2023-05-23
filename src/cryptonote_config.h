@@ -166,31 +166,31 @@
 
 #define THREAD_STACK_SIZE                       5 * 1024 * 1024
 
-#define HF_VERSION_FORBID_DUST_OUTPUTS          2
-#define HF_VERSION_OUTPUTS_HAVE_ZERO_AMOUNTS    2
-#define HF_VERSION_DYNAMIC_FEE                  2
-#define HF_VERSION_OPTIMAL_FILLING_ALGORITHM    2
-#define HF_VERSION_MIN_MIXIN_4                  2
-#define HF_VERSION_MIN_MIXIN_6                  2
-#define HF_VERSION_MIN_MIXIN_10                 2
-#define HF_VERSION_MIN_MIXIN_15                 2
-#define HF_VERSION_ENFORCE_RCT                  2
-#define HF_VERSION_PER_BYTE_FEE                 2
-#define HF_VERSION_SMALLER_BP                   2
-#define HF_VERSION_LONG_TERM_BLOCK_WEIGHT       2
-#define HF_VERSION_DEFAULT_SERIALIZE_TX         2
-#define HF_VERSION_MIN_2_OUTPUTS                2
-#define HF_VERSION_MIN_V2_COINBASE_TX           2
-#define HF_VERSION_SAME_MIXIN                   2
-#define HF_VERSION_REJECT_SIGS_IN_COINBASE      2
-#define HF_VERSION_ENFORCE_MIN_AGE              2
-#define HF_VERSION_EFFECTIVE_SHORT_TERM_MEDIAN_IN_PENALTY 2
-#define HF_VERSION_EXACT_COINBASE               2
-#define HF_VERSION_CLSAG                        2
-#define HF_VERSION_DETERMINISTIC_UNLOCK_TIME    2
-#define HF_VERSION_BULLETPROOF_PLUS             2
-#define HF_VERSION_VIEW_TAGS                    2
-#define HF_VERSION_2021_SCALING                 2
+#define HF_VERSION_FORBID_DUST_OUTPUTS          2 //Monero HF_VERSION 2
+#define HF_VERSION_OUTPUTS_HAVE_ZERO_AMOUNTS    2 //Monero HF_VERSION 3
+#define HF_VERSION_DYNAMIC_FEE                  2 //Monero HF_VERSION 4
+#define HF_VERSION_OPTIMAL_FILLING_ALGORITHM    2 //Monero HF_VERSION 5
+#define HF_VERSION_MIN_MIXIN_4                  2 //Monero HF_VERSION 6
+#define HF_VERSION_MIN_MIXIN_6                  2 //Monero HF_VERSION 7
+#define HF_VERSION_MIN_MIXIN_10                 2 //Monero HF_VERSION 8 + bulletproofs
+#define HF_VERSION_MIN_MIXIN_15                 2 //Monero HF_VERSION 15
+#define HF_VERSION_ENFORCE_RCT                  2 //Monero HF_VERSION 6
+#define HF_VERSION_PER_BYTE_FEE                 2 //Monero HF_VERSION 8
+#define HF_VERSION_SMALLER_BP                   2 //Monero HF_VERSION 10
+#define HF_VERSION_LONG_TERM_BLOCK_WEIGHT       2 //Monero HF_VERSION 10
+#define HF_VERSION_DEFAULT_SERIALIZE_TX         2 //Monero HF_VERSION 11
+#define HF_VERSION_MIN_2_OUTPUTS                2 //Monero HF_VERSION 12
+#define HF_VERSION_MIN_V2_COINBASE_TX           2 //Monero HF_VERSION 12
+#define HF_VERSION_SAME_MIXIN                   2 //Monero HF_VERSION 12
+#define HF_VERSION_REJECT_SIGS_IN_COINBASE      2 //Monero HF_VERSION 12
+#define HF_VERSION_ENFORCE_MIN_AGE              2 //Monero HF_VERSION 12
+#define HF_VERSION_EFFECTIVE_SHORT_TERM_MEDIAN_IN_PENALTY 2 //Monero HF_VERSION 12
+#define HF_VERSION_EXACT_COINBASE               2 //Monero HF_VERSION 13
+#define HF_VERSION_CLSAG                        2 //Monero HF_VERSION 13
+#define HF_VERSION_DETERMINISTIC_UNLOCK_TIME    2 //Monero HF_VERSION 13
+#define HF_VERSION_BULLETPROOF_PLUS             2 //Monero HF_VERSION 15
+#define HF_VERSION_VIEW_TAGS                    2 //Monero HF_VERSION 15
+#define HF_VERSION_2021_SCALING                 2 //Monero HF_VERSION 15
 
 #define PER_KB_FEE_QUANTIZATION_DECIMALS        8
 #define CRYPTONOTE_SCALING_2021_FEE_ROUNDING_PLACES 2
