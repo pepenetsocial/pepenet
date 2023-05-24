@@ -3380,7 +3380,7 @@ bool Blockchain::check_tx_inputs(transaction& tx, tx_verification_context &tvc, 
     // allowed is when spending unmixable non-RCT outputs in the chain.
     // Caveat: at HF_VERSION_MIN_MIXIN_15, temporarily allow ring sizes
     // of 11 to allow a grace period in the transition to larger ring size.
-    if (min_actual_mixin < min_mixin && !(hf_version == HF_VERSION_MIN_MIXIN_15 && min_actual_mixin == 10))
+    if (min_actual_mixin < min_mixin)
     {
       if (n_unmixable == 0)
       {
@@ -3394,9 +3394,7 @@ bool Blockchain::check_tx_inputs(transaction& tx, tx_verification_context &tvc, 
         tvc.m_low_mixin = true;
         return false;
       }
-    } else if ((hf_version >= HF_VERSION_MIN_MIXIN_15 && min_actual_mixin > 15)
-      || (hf_version >= HF_VERSION_MIN_MIXIN_15 && min_actual_mixin < 15)
-    )
+    } else if ((hf_version >= HF_VERSION_MIN_MIXIN_15 && min_actual_mixin > 15))
     {
       MERROR_VER("Tx " << get_transaction_hash(tx) << " has invalid ring size (" << (min_actual_mixin + 1) << "), it should be " << (min_mixin + 1));
       tvc.m_low_mixin = true;
