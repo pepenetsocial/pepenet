@@ -103,7 +103,7 @@ static inline int disabled_flags(void) {
     return flags;
   }
 
-  const char *env = getenv("MONERO_RANDOMX_UMASK");
+  const char *env = getenv("PEPENET_RANDOMX_UMASK");
   if (!env) {
     flags = 0;
   }
@@ -199,16 +199,16 @@ static void rx_alloc_dataset(randomx_flags flags, randomx_dataset** dataset, int
     static int shown = 0;
     if (!shown) {
       shown = 1;
-      minfo(RX_LOGCAT, "RandomX dataset is disabled by MONERO_RANDOMX_UMASK environment variable.");
+      minfo(RX_LOGCAT, "RandomX dataset is disabled by PEPENET_RANDOMX_UMASK environment variable.");
     }
     return;
   }
 
-  if (!ignore_env && !getenv("MONERO_RANDOMX_FULL_MEM")) {
+  if (!ignore_env && !getenv("PEPENET_RANDOMX_FULL_MEM")) {
     static int shown = 0;
     if (!shown) {
       shown = 1;
-      minfo(RX_LOGCAT, "RandomX dataset is not enabled by default. Use MONERO_RANDOMX_FULL_MEM environment variable to enable it.");
+      minfo(RX_LOGCAT, "RandomX dataset is not enabled by default. Use PEPENET_RANDOMX_FULL_MEM environment variable to enable it.");
     }
     return;
   }

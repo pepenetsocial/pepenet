@@ -43,9 +43,9 @@ set(checkpoints_headers)
 
 monero_find_all_headers(checkpoints_private_headers "${CMAKE_CURRENT_SOURCE_DIR}")
 
-monero_private_headers(checkpoints
+pepenet_private_headers(checkpoints
   ${checkpoints_private_headers})
-monero_add_library(checkpoints
+pepenet_add_library(checkpoints
   ${checkpoints_sources}
   ${checkpoints_headers}
   ${checkpoints_private_headers})

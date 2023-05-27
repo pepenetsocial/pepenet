@@ -42,8 +42,8 @@
 #include "profile_tools.h"
 #include "ringct/rctOps.h"
 
-#undef MONERO_DEFAULT_LOG_CATEGORY
-#define MONERO_DEFAULT_LOG_CATEGORY "blockchain.db.lmdb"
+#undef PEPENET_DEFAULT_LOG_CATEGORY
+#define PEPENET_DEFAULT_LOG_CATEGORY "blockchain.db.lmdb"
 
 
 #if defined(__i386) || defined(__x86_64)
@@ -820,7 +820,7 @@ void BlockchainLMDB::add_block(const block& blk, size_t block_weight, uint64_t l
   bi.bi_diff_lo = (cumulative_difficulty & 0xffffffffffffffff).convert_to<uint64_t>();
   bi.bi_hash = blk_hash;
   bi.bi_cum_rct = num_rct_outs;
-  if (blk.major_version >= 4)
+  if (blk.major_version >= HF_VERSION_DYNAMIC_FEE)
   {
     uint64_t last_height = m_height-1;
     MDB_val_set(h, last_height);
@@ -1504,7 +1504,7 @@ void BlockchainLMDB::open(const std::string& filename, const int db_flags)
         mdb_env_close(m_env);
         m_open = false;
         MFATAL("Existing lmdb database needs to be converted, which cannot be done on a read-only database.");
-        MFATAL("Please run monerod once to convert the database.");
+        MFATAL("Please run pepenetd once to convert the database.");
         return;
       }
       // Note that there was a schema change within version 0 as well.

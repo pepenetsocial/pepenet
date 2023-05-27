@@ -110,11 +110,11 @@ namespace
   TEST_F(fee, double_at_full)
   {
     static const uint64_t block_rewards[] = {
-      20000000000000ull, // 20 monero
+      20000000000000ull, // 20 pepenet
       13000000000000ull,
       1000000000000ull,
-      600000000000ull, // .6 monero, minimum reward per block at 2min
-      300000000000ull, // .3 monero, minimum reward per block at 1min
+      600000000000ull, // .6 pepenet, minimum reward per block at 2min
+      300000000000ull, // .3 pepenet, minimum reward per block at 1min
     };
     static const uint64_t median_block_weights[] = {
       CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V2,

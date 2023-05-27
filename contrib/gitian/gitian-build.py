@@ -5,7 +5,7 @@ import os
 import subprocess
 import sys
 
-gsigs = 'https://github.com/monero-project/gitian.sigs.git'
+gsigs = 'https://github.com/pepenet-project/gitian.sigs.git'
 gbrepo = 'https://github.com/devrandom/gitian-builder.git'
 
 platforms = {'l': ['Linux', 'linux', 'tar.bz2'],
@@ -31,10 +31,10 @@ def setup():
     subprocess.check_call(['git', 'checkout', 'c0f77ca018cb5332bfd595e0aff0468f77542c23'])
     os.makedirs('inputs', exist_ok=True)
     os.chdir('inputs')
-    if os.path.isdir('monero'):
-        # Remove the potentially stale monero dir. Otherwise you might face submodule mismatches.
-        subprocess.check_call(['rm', 'monero', '-fR'])
-    subprocess.check_call(['git', 'clone', args.url, 'monero'])
+    if os.path.isdir('pepenet'):
+        # Remove the potentially stale pepenet dir. Otherwise you might face submodule mismatches.
+        subprocess.check_call(['rm', 'pepenet', '-fR'])
+    subprocess.check_call(['git', 'clone', args.url, 'pepenet'])
     os.chdir('..')
     make_image_prog = ['bin/make-base-vm', '--suite', 'bionic', '--arch', 'amd64']
     if args.docker:
@@ -66,10 +66,10 @@ def rebuild():
         suffix = platforms[i][2]
 
         print('\nCompiling ' + args.version + ' ' + os_name)
-        infile = 'inputs/monero/contrib/gitian/gitian-' + tag_name + '.yml'
-        subprocess.check_call(['bin/gbuild', '-j', args.jobs, '-m', args.memory, '--commit', 'monero='+args.commit, '--url', 'monero='+args.url, infile])
+        infile = 'inputs/pepenet/contrib/gitian/gitian-' + tag_name + '.yml'
+        subprocess.check_call(['bin/gbuild', '-j', args.jobs, '-m', args.memory, '--commit', 'pepenet='+args.commit, '--url', 'pepenet='+args.url, infile])
         subprocess.check_call(['bin/gsign', '-p', args.sign_prog, '--signer', args.signer, '--release', args.version+'-'+tag_name, '--destination', '../sigs/', infile])
-        subprocess.check_call('mv build/out/monero-*.' + suffix + ' ../out/'+args.version, shell=True)
+        subprocess.check_call('mv build/out/pepenet-*.' + suffix + ' ../out/'+args.version, shell=True)
         print('Moving var/install.log to var/install-' + tag_name + '.log')
         subprocess.check_call('mv var/install.log var/install-' + tag_name + '.log', shell=True)
         print('Moving var/build.log to var/build-' + tag_name + '.log')
@@ -93,7 +93,7 @@ def build():
     os.chdir('builder')
     os.makedirs('inputs', exist_ok=True)
 
-    subprocess.check_call(['make', '-C', 'inputs/monero/contrib/depends', 'download', 'SOURCES_PATH=' + os.getcwd() + '/cache/common'])
+    subprocess.check_call(['make', '-C', 'inputs/pepenet/contrib/depends', 'download', 'SOURCES_PATH=' + os.getcwd() + '/cache/common'])
 
     rebuild()
 
@@ -104,7 +104,7 @@ def verify():
 
     for i, v in platforms:
         print('\nVerifying v'+args.version+' '+v[0]+'\n')
-        subprocess.check_call(['bin/gverify', '-v', '-d', '../sigs/', '-r', args.version+'-'+v[1], 'inputs/monero/contrib/gitian/gitian-'+v[1]+'.yml'])
+        subprocess.check_call(['bin/gverify', '-v', '-d', '../sigs/', '-r', args.version+'-'+v[1], 'inputs/pepenet/contrib/gitian/gitian-'+v[1]+'.yml'])
     os.chdir(workdir)
 
 def main():
@@ -113,7 +113,7 @@ def main():
     parser = argparse.ArgumentParser(description='Script for running full Gitian builds.', usage='%(prog)s [options] signer version')
     parser.add_argument('-c', '--commit', action='store_true', dest='commit', help='Indicate that the version argument is for a commit or branch')
     parser.add_argument('-p', '--pull', action='store_true', dest='pull', help='Indicate that the version argument is the number of a github repository pull request')
-    parser.add_argument('-u', '--url', dest='url', default='https://github.com/monero-project/monero', help='Specify the URL of the repository. Default is %(default)s')
+    parser.add_argument('-u', '--url', dest='url', default='https://github.com/pepenet-project/pepenet', help='Specify the URL of the repository. Default is %(default)s')
     parser.add_argument('-v', '--verify', action='store_true', dest='verify', help='Verify the Gitian build')
     parser.add_argument('-b', '--build', action='store_true', dest='build', help='Do a Gitian build')
     parser.add_argument('-B', '--buildsign', action='store_true', dest='buildsign', help='Build both signed and unsigned binaries')
@@ -178,8 +178,8 @@ def main():
     if args.setup:
         setup()
 
-    os.makedirs('builder/inputs/monero', exist_ok=True)
-    os.chdir('builder/inputs/monero')
+    os.makedirs('builder/inputs/pepenet', exist_ok=True)
+    os.chdir('builder/inputs/pepenet')
     if args.pull:
         subprocess.check_call(['git', 'fetch', args.url, 'refs/pull/'+args.version+'/merge'])
         args.commit = subprocess.check_output(['git', 'show', '-s', '--format=%H', 'FETCH_HEAD'], universal_newlines=True).strip()

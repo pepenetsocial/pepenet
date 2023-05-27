@@ -30,8 +30,8 @@
 #include "cryptonote_core/tx_verification_utils.h"
 #include "ringct/rctSigs.h"
 
-#undef MONERO_DEFAULT_LOG_CATEGORY
-#define MONERO_DEFAULT_LOG_CATEGORY "blockchain"
+#undef PEPENET_DEFAULT_LOG_CATEGORY
+#define PEPENET_DEFAULT_LOG_CATEGORY "blockchain"
 
 #define VER_ASSERT(cond, msgexpr) CHECK_AND_ASSERT_MES(cond, false, msgexpr)
 

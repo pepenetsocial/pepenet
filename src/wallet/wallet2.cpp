@@ -102,8 +102,8 @@ using namespace std;
 using namespace crypto;
 using namespace cryptonote;
 
-#undef MONERO_DEFAULT_LOG_CATEGORY
-#define MONERO_DEFAULT_LOG_CATEGORY "wallet.wallet2"
+#undef PEPENET_DEFAULT_LOG_CATEGORY
+#define PEPENET_DEFAULT_LOG_CATEGORY "wallet.wallet2"
 
 // used to choose when to stop adding outputs to a tx
 #define APPROXIMATE_INPUT_BYTES 80
@@ -116,7 +116,7 @@ using namespace cryptonote;
 #define MULTISIG_UNSIGNED_TX_PREFIX "Monero multisig unsigned tx set\001"
 
 #define RECENT_OUTPUT_RATIO (0.5) // 50% of outputs are from the recent zone
-#define RECENT_OUTPUT_DAYS (1.8) // last 1.8 day makes up the recent zone (taken from monerolink.pdf, Miller et al)
+#define RECENT_OUTPUT_DAYS (1.8) // last 1.8 day makes up the recent zone (taken from pepenetlink.pdf, Miller et al)
 #define RECENT_OUTPUT_ZONE ((time_t)(RECENT_OUTPUT_DAYS * 86400))
 #define RECENT_OUTPUT_BLOCKS (RECENT_OUTPUT_DAYS * 720)
 
@@ -165,7 +165,7 @@ namespace
   std::string get_default_ringdb_path()
   {
     boost::filesystem::path dir = tools::get_default_data_dir();
-    // remove .bitmonero, replace with .shared-ringdb
+    // remove .bitpepenet, replace with .shared-ringdb
     dir = dir.remove_filename();
     dir /= ".shared-ringdb";
     return dir.string();
@@ -874,7 +874,7 @@ uint64_t estimate_tx_weight(bool use_rct, int n_inputs, int mixin, int n_outputs
 
 uint8_t get_bulletproof_fork()
 {
-  return 8;
+  return HF_VERSION_MIN_MIXIN_10;
 }
 
 uint8_t get_bulletproof_plus_fork()
@@ -1026,7 +1026,7 @@ uint64_t gamma_picker::pick()
     // Our method is to get the average time delta between outputs in the recent past, estimate the number of
     // outputs 'n' that would have appeared between 'chain_tip - x' and 'chain_tip', select the real output at
     // 'current_num_outputs - n', then randomly select an output from the block where that output appears.
-    // Source code to paper: https://github.com/maltemoeser/moneropaper
+    // Source code to paper: https://github.com/maltemoeser/pepenetpaper
     //
     // Due to the 'default spendable age' mechanic in Monero, 'current_num_outputs' only contains
     // currently *unlocked* outputs, which means the earliest output that can be selected is not at the chain tip!
@@ -1870,8 +1870,8 @@ void wallet2::scan_output(const cryptonote::transaction &tx, bool miner_tx, cons
     if (!m_encrypt_keys_after_refresh)
     {
       boost::optional<epee::wipeable_string> pwd = m_callback->on_get_password(pool ? "output found in pool" : "output received");
-      THROW_WALLET_EXCEPTION_IF(!pwd, error::password_needed, tr("Password is needed to compute key image for incoming monero"));
-      THROW_WALLET_EXCEPTION_IF(!verify_password(*pwd), error::password_needed, tr("Invalid password: password is needed to compute key image for incoming monero"));
+      THROW_WALLET_EXCEPTION_IF(!pwd, error::password_needed, tr("Password is needed to compute key image for incoming pepenet"));
+      THROW_WALLET_EXCEPTION_IF(!verify_password(*pwd), error::password_needed, tr("Invalid password: password is needed to compute key image for incoming pepenet"));
       m_encrypt_keys_after_refresh.reset(new wallet_keys_unlocker(*this, m_ask_password == AskPasswordToDecrypt && !m_unattended && !m_watch_only, *pwd));
     }
   }
@@ -3430,7 +3430,7 @@ void wallet2::refresh(bool trusted_daemon, uint64_t start_height, uint64_t & blo
   if(m_light_wallet) {
 
     // MyMonero get_address_info needs to be called occasionally to trigger wallet sync.
-    // This call is not really needed for other purposes and can be removed if mymonero changes their backend.
+    // This call is not really needed for other purposes and can be removed if mypepenet changes their backend.
     tools::COMMAND_RPC_GET_ADDRESS_INFO::response res;
 
     // Get basic info
@@ -7558,9 +7558,9 @@ int wallet2::get_fee_algorithm()
   // changes at v3, v5, v8
   if (use_fork_rules(HF_VERSION_PER_BYTE_FEE, 0))
     return 3;
-  if (use_fork_rules(5, 0))
+  if (use_fork_rules(HF_VERSION_OPTIMAL_FILLING_ALGORITHM, 0))
     return 2;
-  if (use_fork_rules(3, -30 * 14))
+  if (use_fork_rules(HF_VERSION_OUTPUTS_HAVE_ZERO_AMOUNTS, -30 * 14))
    return 1;
   return 0;
 }
@@ -7569,13 +7569,13 @@ uint64_t wallet2::get_min_ring_size()
 {
   if (use_fork_rules(HF_VERSION_MIN_MIXIN_15, 0))
     return 16;
-  if (use_fork_rules(8, 10))
+  if (use_fork_rules(HF_VERSION_MIN_MIXIN_10, 10))
     return 11;
-  if (use_fork_rules(7, 10))
+  if (use_fork_rules(HF_VERSION_MIN_MIXIN_6, 10))
     return 7;
-  if (use_fork_rules(6, 10))
+  if (use_fork_rules(HF_VERSION_MIN_MIXIN_4, 10))
     return 5;
-  if (use_fork_rules(2, 10))
+  if (use_fork_rules(HF_VERSION_FORBID_DUST_OUTPUTS, 10))
     return 3;
   return 0;
 }
@@ -7584,7 +7584,7 @@ uint64_t wallet2::get_max_ring_size()
 {
   if (use_fork_rules(HF_VERSION_MIN_MIXIN_15, 0))
     return 16;
-  if (use_fork_rules(8, 10))
+  if (use_fork_rules(HF_VERSION_MIN_MIXIN_10, 10))
     return 11;
   return 0;
 }
@@ -8627,7 +8627,7 @@ void wallet2::get_outs(std::vector<std::vector<tools::wallet2::get_outs_entry>> 
           [](const get_outputs_out &a, const get_outputs_out &b) { return a.index < b.index; });
     }
 
-    if (ELPP->vRegistry()->allowed(el::Level::Debug, MONERO_DEFAULT_LOG_CATEGORY))
+    if (ELPP->vRegistry()->allowed(el::Level::Debug, PEPENET_DEFAULT_LOG_CATEGORY))
     {
       std::map<uint64_t, std::set<uint64_t>> outs;
       for (const auto &i: req.outputs)
@@ -9681,7 +9681,7 @@ void wallet2::light_wallet_get_address_txs()
   bool r = invoke_http_json("/get_address_txs", ireq, ires, rpc_timeout, "POST");
   m_daemon_rpc_mutex.unlock();
   THROW_WALLET_EXCEPTION_IF(!r, error::no_connection_to_daemon, "get_address_txs");
-  //OpenMonero sends status=success, Mymonero doesn't. 
+  //OpenMonero sends status=success, Mypepenet doesn't. 
   THROW_WALLET_EXCEPTION_IF((!ires.status.empty() && ires.status != "success"), error::no_connection_to_daemon, "get_address_txs");
 
   
@@ -9898,7 +9898,7 @@ bool wallet2::light_wallet_key_image_is_ours(const crypto::key_image& key_image,
   crypto::key_image calculated_key_image;
   cryptonote::keypair in_ephemeral;
   
-  // Subaddresses aren't supported in mymonero/openmonero yet. Roll out the original scheme:
+  // Subaddresses aren't supported in mypepenet/openpepenet yet. Roll out the original scheme:
   //   compute D = a*R
   //   compute P = Hs(D || i)*G + B
   //   compute x = Hs(D || i) + b      (and check if P==x*G)
@@ -10007,7 +10007,7 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_2(std::vector<cryp
   uint64_t needed_fee, available_for_fee = 0;
   uint64_t upper_transaction_weight_limit = get_upper_transaction_weight_limit();
   const bool use_per_byte_fee = use_fork_rules(HF_VERSION_PER_BYTE_FEE, 0);
-  const bool use_rct = use_fork_rules(4, 0);
+  const bool use_rct = use_fork_rules(HF_VERSION_DYNAMIC_FEE, 0);
   const bool bulletproof = use_fork_rules(get_bulletproof_fork(), 0);
   const bool bulletproof_plus = use_fork_rules(get_bulletproof_plus_fork(), 0);
   const bool clsag = use_fork_rules(get_clsag_fork(), 0);
@@ -10601,7 +10601,7 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_all(uint64_t below
 {
   std::vector<size_t> unused_transfers_indices;
   std::vector<size_t> unused_dust_indices;
-  const bool use_rct = use_fork_rules(4, 0);
+  const bool use_rct = use_fork_rules(HF_VERSION_DYNAMIC_FEE, 0);
 
   // determine threshold for fractional amount
   const bool use_per_byte_fee = use_fork_rules(HF_VERSION_PER_BYTE_FEE, 0);
@@ -10674,7 +10674,7 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_single(const crypt
 {
   std::vector<size_t> unused_transfers_indices;
   std::vector<size_t> unused_dust_indices;
-  const bool use_rct = use_fork_rules(4, 0);
+  const bool use_rct = use_fork_rules(HF_VERSION_DYNAMIC_FEE, 0);
   // find output with the given key image
   for (size_t i = 0; i < m_transfers.size(); ++i)
   {
@@ -10717,7 +10717,7 @@ std::vector<wallet2::pending_tx> wallet2::create_transactions_from(const crypton
   std::vector<std::vector<get_outs_entry>> outs;
 
   const bool use_per_byte_fee = use_fork_rules(HF_VERSION_PER_BYTE_FEE);
-  const bool use_rct = fake_outs_count > 0 && use_fork_rules(4, 0);
+  const bool use_rct = fake_outs_count > 0 && use_fork_rules(HF_VERSION_DYNAMIC_FEE, 0);
   const bool bulletproof = use_fork_rules(get_bulletproof_fork(), 0);
   const bool bulletproof_plus = use_fork_rules(get_bulletproof_plus_fork(), 0);
   const bool clsag = use_fork_rules(get_clsag_fork(), 0);
@@ -11035,8 +11035,8 @@ uint64_t wallet2::get_upper_transaction_weight_limit()
 {
   if (m_upper_transaction_weight_limit > 0)
     return m_upper_transaction_weight_limit;
-  uint64_t full_reward_zone = use_fork_rules(5, 10) ? CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V5 : use_fork_rules(2, 10) ? CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V2 : CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V1;
-  if (use_fork_rules(8, 10))
+  uint64_t full_reward_zone = use_fork_rules(HF_VERSION_OPTIMAL_FILLING_ALGORITHM, 10) ? CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V5 : use_fork_rules(HF_VERSION_FORBID_DUST_OUTPUTS, 10) ? CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V2 : CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V1;
+  if (use_fork_rules(HF_VERSION_MIN_MIXIN_10, 10))
     return full_reward_zone / 2 - CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE;
   else
     return full_reward_zone - CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE;
@@ -11167,7 +11167,7 @@ std::vector<size_t> wallet2::select_available_mixable_outputs()
 std::vector<wallet2::pending_tx> wallet2::create_unmixable_sweep_transactions()
 {
   // From hard fork 1, we don't consider small amounts to be dust anymore
-  const bool hf1_rules = use_fork_rules(2, 10); // first hard fork has version 2
+  const bool hf1_rules = use_fork_rules(HF_VERSION_FORBID_DUST_OUTPUTS, 10); // first hard fork has version 2
   tx_dust_policy dust_policy(hf1_rules ? 0 : ::config::DEFAULT_DUST_THRESHOLD);
 
   const uint64_t base_fee  = get_base_fee(1);
@@ -14017,7 +14017,7 @@ std::string wallet2::make_uri(const std::string &address, const std::string &pay
     return std::string();
   }
 
-  std::string uri = "monero:" + address;
+  std::string uri = "pepenet:" + address;
   unsigned int n_fields = 0;
 
   if (!payment_id.empty())
@@ -14046,9 +14046,9 @@ std::string wallet2::make_uri(const std::string &address, const std::string &pay
 //----------------------------------------------------------------------------------------------------
 bool wallet2::parse_uri(const std::string &uri, std::string &address, std::string &payment_id, uint64_t &amount, std::string &tx_description, std::string &recipient_name, std::vector<std::string> &unknown_parameters, std::string &error)
 {
-  if (uri.substr(0, 7) != "monero:")
+  if (uri.substr(0, 7) != "pepenet:")
   {
-    error = std::string("URI has wrong scheme (expected \"monero:\"): ") + uri;
+    error = std::string("URI has wrong scheme (expected \"pepenet:\"): ") + uri;
     return false;
   }
 

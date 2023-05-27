@@ -39,9 +39,9 @@ set(daemon_headers)
 
 monero_find_all_headers(daemon_private_headers "${CMAKE_CURRENT_SOURCE_DIR}")
 
-monero_private_headers(daemon
+pepenet_private_headers(daemon
   ${daemon_private_headers})
-monero_add_executable(daemon
+pepenet_add_executable(daemon
   ${daemon_sources}
   ${daemon_headers}
   ${daemon_private_headers})
@@ -71,5 +71,5 @@ target_link_libraries(daemon
     ${Blocks})
 set_property(TARGET daemon
   PROPERTY
-    OUTPUT_NAME "monerod")
+    OUTPUT_NAME "pepenetd")
 install(TARGETS daemon DESTINATION bin)

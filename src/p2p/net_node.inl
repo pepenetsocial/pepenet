@@ -64,8 +64,8 @@
 #include <miniupnp/miniupnpc/upnpcommands.h>
 #include <miniupnp/miniupnpc/upnperrors.h>
 
-#undef MONERO_DEFAULT_LOG_CATEGORY
-#define MONERO_DEFAULT_LOG_CATEGORY "net.p2p"
+#undef PEPENET_DEFAULT_LOG_CATEGORY
+#define PEPENET_DEFAULT_LOG_CATEGORY "net.p2p"
 
 #define NET_MAKE_IP(b1,b2,b3,b4)  ((LPARAM)(((DWORD)(b1)<<24)+((DWORD)(b2)<<16)+((DWORD)(b3)<<8)+((DWORD)(b4))))
 
@@ -705,32 +705,18 @@ namespace nodetool
     std::set<std::string> full_addrs;
     if (m_nettype == cryptonote::TESTNET)
     {
-      full_addrs.insert("176.9.0.187:28080");
-      full_addrs.insert("88.99.173.38:28080");
-      full_addrs.insert("51.79.173.165:28080");
-      full_addrs.insert("192.99.8.110:28080");
-      full_addrs.insert("37.187.74.171:28080");
+      full_addrs.insert("5.189.149.83:28080");
     }
     else if (m_nettype == cryptonote::STAGENET)
     {
-      full_addrs.insert("176.9.0.187:38080");
-      full_addrs.insert("88.99.173.38:38080");
-      full_addrs.insert("51.79.173.165:38080");
-      full_addrs.insert("192.99.8.110:38080");
-      full_addrs.insert("37.187.74.171:38080");
+      full_addrs.insert("5.189.149.83:38080");
     }
     else if (m_nettype == cryptonote::FAKECHAIN)
     {
     }
     else
     {
-      full_addrs.insert("176.9.0.187:18080");
-      full_addrs.insert("88.198.163.90:18080");
-      full_addrs.insert("66.85.74.134:18080");
-      full_addrs.insert("88.99.173.38:18080");
-      full_addrs.insert("51.79.173.165:18080");
-      full_addrs.insert("192.99.8.110:18080");
-      full_addrs.insert("37.187.74.171:18080");
+      full_addrs.insert("5.189.149.83:18080");
     }
     return full_addrs;
   }
@@ -861,12 +847,6 @@ namespace nodetool
       if (m_nettype == cryptonote::MAINNET)
       {
         return {
-          "xwvz3ekocr3dkyxfkmgm2hvbpzx2ysqmaxgter7znnqrhoicygkfswid.onion:18083",
-          "4pixvbejrvihnkxmduo2agsnmc3rrulrqc7s3cbwwrep6h6hrzsibeqd.onion:18083",
-          "zbjkbsxc5munw3qusl7j2hpcmikhqocdf4pqhnhtpzw5nt5jrmofptid.onion:18083",
-          "qz43zul2x56jexzoqgkx2trzwcfnr6l3hbtfcfx54g4r3eahy3bssjyd.onion:18083",
-          "plowsof3t5hogddwabaeiyrno25efmzfxyro2vligremt7sxpsclfaid.onion:18083",
-          "plowsoffjexmxalw73tkjmf422gq6575fc7vicuu4javzn2ynnte6tyd.onion:18083",
         };
       }
       return {};
@@ -874,10 +854,6 @@ namespace nodetool
       if (m_nettype == cryptonote::MAINNET)
       {
         return {
-          "s3l6ke4ed3df466khuebb4poienoingwof7oxtbo6j4n56sghe3a.b32.i2p:18080",
-          "sel36x6fibfzujwvt4hf5gxolz6kd3jpvbjqg6o3ud2xtionyl2q.b32.i2p:18080",
-          "uqj3aphckqtjsitz7kxx5flqpwjlq5ppr3chazfued7xucv3nheq.b32.i2p:18080",
-          "vdmnehdjkpkg57nthgnjfuaqgku673r5bpbqg56ix6fyqoywgqrq.b32.i2p:18080",
         };
       }
       return {};
@@ -1749,7 +1725,7 @@ namespace nodetool
         {
           // seeds should have hostname converted to IP already
           MDEBUG("Seed node: " << full_addr);
-          server.m_seed_nodes.push_back(MONERO_UNWRAP(net::get_network_address(full_addr, default_port)));
+          server.m_seed_nodes.push_back(PEPENET_UNWRAP(net::get_network_address(full_addr, default_port)));
         }
         MDEBUG("Number of seed nodes: " << server.m_seed_nodes.size());
       }
@@ -2033,13 +2009,13 @@ namespace nodetool
       return true;
 
     static const std::vector<std::string> dns_urls = {
-      "blocklist.moneropulse.se"
-    , "blocklist.moneropulse.org"
-    , "blocklist.moneropulse.net"
-    , "blocklist.moneropulse.no"
-    , "blocklist.moneropulse.fr"
-    , "blocklist.moneropulse.de"
-    , "blocklist.moneropulse.ch"
+      "blocklist.pepenetpulse.se"
+    , "blocklist.pepenetpulse.org"
+    , "blocklist.pepenetpulse.net"
+    , "blocklist.pepenetpulse.no"
+    , "blocklist.pepenetpulse.fr"
+    , "blocklist.pepenetpulse.de"
+    , "blocklist.pepenetpulse.ch"
     };
 
     std::vector<std::string> records;

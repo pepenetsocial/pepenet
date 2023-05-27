@@ -28,7 +28,7 @@
 
 // References:
 // - https://github.com/ArticMine/Monero-Documents/blob/master/MoneroScaling2021.pdf
-// - https://github.com/monero-project/research-lab/issues/70
+// - https://github.com/pepenet-project/research-lab/issues/70
 
 #define IN_UNIT_TESTS
 

@@ -15,7 +15,7 @@ of software solid and usable.
 Patches are preferably to be sent via a GitHub pull request. If that
 can't be done, patches in "git format-patch" format can be sent
 (eg, posted to fpaste.org with a long enough timeout and a link
-posted to #monero-dev on irc.libera.chat).
+posted to #pepenet-dev on irc.libera.chat).
 
 Patches should be self contained. A good rule of thumb is to have
 one patch per separate issue, feature, or logical change. Also, no
@@ -70,7 +70,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 The "Monero Maintainer Team" is defined in this document as the following users:
 - fluffypony
-- moneromooo
+- pepenetmooo
 - hyc
 
 ## Goals

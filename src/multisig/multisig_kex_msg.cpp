@@ -48,8 +48,8 @@ extern "C"
 #include <vector>
 
 
-#undef MONERO_DEFAULT_LOG_CATEGORY
-#define MONERO_DEFAULT_LOG_CATEGORY "multisig"
+#undef PEPENET_DEFAULT_LOG_CATEGORY
+#define PEPENET_DEFAULT_LOG_CATEGORY "multisig"
 
 const boost::string_ref MULTISIG_KEX_V1_MAGIC{"MultisigV1"};
 const boost::string_ref MULTISIG_KEX_MSG_V1_MAGIC{"MultisigxV1"};

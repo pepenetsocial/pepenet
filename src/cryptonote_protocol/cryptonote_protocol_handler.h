@@ -1,5 +1,5 @@
 /// @file
-/// @author rfree (current maintainer/user in monero.cc project - most of code is from CryptoNote)
+/// @author rfree (current maintainer/user in pepenet.cc project - most of code is from CryptoNote)
 /// @brief This is the original cryptonote protocol network-events handler, modified by us
 
 // Copyright (c) 2014-2022, The Monero Project

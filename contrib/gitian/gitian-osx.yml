@@ -1,5 +1,5 @@
 ---
-name: "monero-osx-0.18"
+name: "pepenet-osx-0.18"
 enable_cache: true
 suites:
 - "bionic"
@@ -24,8 +24,8 @@ packages:
 - "python-dev"
 - "python-setuptools"
 remotes:
-- "url": "https://github.com/monero-project/monero.git"
-  "dir": "monero"
+- "url": "https://github.com/pepenet-project/pepenet.git"
+  "dir": "pepenet"
 files: []
 script: |
   WRAP_DIR=$HOME/wrapped
@@ -77,7 +77,7 @@ script: |
   export PATH=${WRAP_DIR}:${PATH}
 
   git config --global core.abbrev 9
-  cd monero
+  cd pepenet
   # Set the version string that gets added to the tar archive name
   version="`git describe`"
   if [[ $version == *"-"*"-"* ]]; then
@@ -110,7 +110,7 @@ script: |
     chmod 755 bin/*
     cp ../LICENSE ../README.md ../docs/ANONYMITY_NETWORKS.md bin
     chmod 644 bin/LICENSE bin/*.md
-    DISTNAME=monero-${i}-${version}
+    DISTNAME=pepenet-${i}-${version}
     mv bin ${DISTNAME}
     find ${DISTNAME}/ | sort | tar --no-recursion --owner=0 --group=0 -c -T - | bzip2 -9 > ${OUTDIR}/${DISTNAME}.tar.bz2
     cd ..

@@ -38,10 +38,10 @@ set(multisig_headers)
 
 monero_find_all_headers(multisig_private_headers "${CMAKE_CURRENT_SOURCE_DIR}")
 
-monero_private_headers(multisig
+pepenet_private_headers(multisig
   ${multisig_private_headers})
 
-monero_add_library(multisig
+pepenet_add_library(multisig
   ${multisig_sources}
   ${multisig_headers}
   ${multisig_private_headers})

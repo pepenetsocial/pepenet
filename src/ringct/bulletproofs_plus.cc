@@ -51,8 +51,8 @@ extern "C"
 #include "multiexp.h"
 #include "bulletproofs_plus.h"
 
-#undef MONERO_DEFAULT_LOG_CATEGORY
-#define MONERO_DEFAULT_LOG_CATEGORY "bulletproof_plus"
+#undef PEPENET_DEFAULT_LOG_CATEGORY
+#define PEPENET_DEFAULT_LOG_CATEGORY "bulletproof_plus"
 
 #define STRAUS_SIZE_LIMIT 232
 #define PIPPENGER_SIZE_LIMIT 0

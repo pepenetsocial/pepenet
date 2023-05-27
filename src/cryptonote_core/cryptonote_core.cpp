@@ -59,8 +59,8 @@ using namespace epee;
 
 #include <boost/filesystem.hpp>
 
-#undef MONERO_DEFAULT_LOG_CATEGORY
-#define MONERO_DEFAULT_LOG_CATEGORY "cn"
+#undef PEPENET_DEFAULT_LOG_CATEGORY
+#define PEPENET_DEFAULT_LOG_CATEGORY "cn"
 
 DISABLE_VS_WARNINGS(4355)
 
@@ -170,7 +170,7 @@ namespace cryptonote
   };
   static const command_line::arg_descriptor<std::string> arg_check_updates = {
     "check-updates"
-  , "Check for new versions of monero: [disabled|notify|download|update]"
+  , "Check for new versions of pepenet: [disabled|notify|download|update]"
   , "notify"
   };
   static const command_line::arg_descriptor<bool> arg_fluffy_blocks  = {
@@ -504,7 +504,7 @@ namespace cryptonote
       {
         MWARNING("Found old-style blockchain.bin in " << old_files.string());
         MWARNING("Monero now uses a new format. You can either remove blockchain.bin to start syncing");
-        MWARNING("the blockchain anew, or use monero-blockchain-export and monero-blockchain-import to");
+        MWARNING("the blockchain anew, or use pepenet-blockchain-export and pepenet-blockchain-import to");
         MWARNING("convert your existing blockchain.bin to the new format. See README.md for instructions.");
         return false;
       }
@@ -1308,7 +1308,7 @@ namespace cryptonote
   //-----------------------------------------------------------------------------------------------
   bool core::check_tx_inputs_ring_members_diff(const transaction& tx, const uint8_t hf_version) const
   {
-    if (hf_version >= 6)
+    if (hf_version >= HF_VERSION_MIN_MIXIN_4)
     {
       for(const auto& in: tx.vin)
       {
@@ -1850,7 +1850,7 @@ namespace cryptonote
   //-----------------------------------------------------------------------------------------------
   bool core::check_updates()
   {
-    static const char software[] = "monero";
+    static const char software[] = "pepenet";
 #ifdef BUILD_TAG
     static const char buildtag[] = BOOST_PP_STRINGIZE(BUILD_TAG);
     static const char subdir[] = "cli"; // because it can never be simple
@@ -1870,7 +1870,7 @@ namespace cryptonote
     if (!tools::check_updates(software, buildtag, version, hash))
       return false;
 
-    if (tools::vercmp(version.c_str(), MONERO_VERSION) <= 0)
+    if (tools::vercmp(version.c_str(), PEPENET_VERSION) <= 0)
     {
       m_update_available = false;
       return true;

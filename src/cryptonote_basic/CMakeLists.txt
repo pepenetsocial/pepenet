@@ -36,7 +36,7 @@ if(APPLE)
   endif()
 endif()
 
-monero_add_library(cryptonote_format_utils_basic
+pepenet_add_library(cryptonote_format_utils_basic
   cryptonote_format_utils_basic.cpp
 )
 target_link_libraries(cryptonote_format_utils_basic
@@ -58,9 +58,9 @@ set(cryptonote_basic_headers)
 
 monero_find_all_headers(cryptonote_basic_private_headers "${CMAKE_CURRENT_SOURCE_DIR}")
 
-monero_private_headers(cryptonote_basic
+pepenet_private_headers(cryptonote_basic
   ${cryptonote_basic_private_headers})
-monero_add_library(cryptonote_basic
+pepenet_add_library(cryptonote_basic
   ${cryptonote_basic_sources}
   ${cryptonote_basic_headers}
   ${cryptonote_basic_private_headers})

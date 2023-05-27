@@ -3,14 +3,14 @@ Description=Monero Full Node
 After=network.target
 
 [Service]
-User=monero
-Group=monero
+User=pepenet
+Group=pepenet
 WorkingDirectory=~
-StateDirectory=monero
-LogsDirectory=monero
+StateDirectory=pepenet
+LogsDirectory=pepenet
 
 Type=simple
-ExecStart=/usr/bin/monerod --config-file /etc/monerod.conf --non-interactive
+ExecStart=/usr/bin/pepenetd --config-file /etc/pepenetd.conf --non-interactive
 StandardOutput=null
 StandardError=null
 

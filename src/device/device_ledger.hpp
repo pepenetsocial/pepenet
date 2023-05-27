@@ -58,7 +58,7 @@ namespace hw {
 
     #ifdef WITH_DEVICE_LEDGER
 
-    // Origin: https://github.com/LedgerHQ/ledger-app-monero/blob/master/src/monero_types.h
+    // Origin: https://github.com/LedgerHQ/ledger-app-pepenet/blob/master/src/pepenet_types.h
     #define SW_OK                                   0x9000
     #define SW_WRONG_LENGTH                         0x6700
     #define SW_SECURITY_PIN_LOCKED                  0x6910

@@ -1,6 +1,6 @@
 /**
 @file
-@author rfree (current maintainer in monero.cc project)
+@author rfree (current maintainer in pepenet.cc project)
 @brief interface for throttling of connection (count and rate-limit speed etc) 
 @details <PRE>
 

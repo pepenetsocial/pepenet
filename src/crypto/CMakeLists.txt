@@ -60,9 +60,9 @@ set(crypto_headers)
 
 monero_find_all_headers(crypto_private_headers "${CMAKE_CURRENT_SOURCE_DIR}")
 
-monero_private_headers(cncrypto
+pepenet_private_headers(cncrypto
   ${crypto_private_headers})
-monero_add_library(cncrypto
+pepenet_add_library(cncrypto
   ${crypto_sources}
   ${crypto_headers}
   ${crypto_private_headers})
