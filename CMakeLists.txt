@@ -200,6 +200,19 @@ macro (monero_find_all_headers headers_found module_root_dir)
 )
 endmacro()
 
+
+# Finds all headers in a directory and its subdirs, to be able to search for them and autosave in IDEs.
+#
+# Parameters:
+# - sources_found:    Output variable, which will hold the found sources
+# - module_root_dir:  The search path for the headers. Typically it will be the module's root dir, so "${CMAKE_CURRENT_SOURCE_DIR}" or a derivative of it.
+macro (pepenet_find_all_sources sources_found module_root_dir)
+  file(GLOB ${headers_found}
+           "${module_root_dir}/*.c*"    # c* will include .c and .cpp files
+           "${module_root_dir}/**/*.c*" # Any number of subdirs will be included.
+)
+endmacro()
+
 # Function to forbid undefined symbols and also verify
 # 1) Test project with all types of libraries and without undefined symbols can compile successfully
 # 2) Test project with all types of libraries and undefined symbols can not compile successfully
@@ -689,6 +702,10 @@ include_directories(${LMDB_INCLUDE})
 # Final setup for libunwind
 include_directories(${LIBUNWIND_INCLUDE})
 link_directories(${LIBUNWIND_LIBRARY_DIRS})
+
+# Final setup for lzma
+include_directories(${LZMA_INCLUDE})
+link_directories(${LZMA_LIBRARY_DIRS})
 
 # Final setup for hid
 if (HIDAPI_FOUND) 
