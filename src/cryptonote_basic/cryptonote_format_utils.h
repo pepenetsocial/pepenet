@@ -71,6 +71,22 @@ namespace cryptonote
     return true;
   }
 
+  template <typename T>
+  bool add_tx_extra_field_to_extra(std::vector<uint8_t> &tx_extra, const T &field, const std::string &error_msg)
+  {
+    // serialize
+    std::ostringstream oss;
+    binary_archive<true> ar(oss);
+    bool r = ::do_serialize(ar, field);
+    CHECK_AND_NO_ASSERT_MES_L1(r, false, error_msg);
+    // append
+    std::string tx_extra_str = oss.str();
+    size_t pos = tx_extra.size();
+    tx_extra.resize(tx_extra.size() + tx_extra_str.size());
+    memcpy(&tx_extra[pos], tx_extra_str.data(), tx_extra_str.size());
+    return true;
+  }
+
   bool parse_tx_extra(const std::vector<uint8_t>& tx_extra, std::vector<tx_extra_field>& tx_extra_fields);
   bool sort_tx_extra(const std::vector<uint8_t>& tx_extra, std::vector<uint8_t> &sorted_tx_extra, bool allow_partial = false);
   crypto::public_key get_tx_pub_key_from_extra(const std::vector<uint8_t>& tx_extra, size_t pk_index = 0);
@@ -84,7 +100,21 @@ namespace cryptonote
   bool add_additional_tx_pub_keys_to_extra(std::vector<uint8_t>& tx_extra, const std::vector<crypto::public_key>& additional_pub_keys);
   bool add_extra_nonce_to_tx_extra(std::vector<uint8_t>& tx_extra, const blobdata& extra_nonce);
   bool add_mm_merkle_root_to_tx_extra(std::vector<uint8_t>& tx_extra, const crypto::hash& mm_merkle_root, size_t mm_merkle_tree_depth);
-  bool remove_field_from_tx_extra(std::vector<uint8_t>& tx_extra, const std::type_info &type);
+  bool add_lzma_pep_to_tx_extra(std::vector<uint8_t> &tx_extra, const std::string &lzma_pep);
+  bool get_lzma_pep_from_tx_extra(const std::vector<uint8_t> &tx_extra, std::string &lzma_pep);
+  bool add_lzma_post_to_tx_extra(std::vector<uint8_t> &tx_extra, const std::string &lzma_pep);
+  bool get_lzma_post_from_tx_extra(const std::vector<uint8_t> &tx_extra, std::string &lzma_post);
+  bool add_post_title_to_tx_extra(std::vector<uint8_t> &tx_extra, const std::string &title);
+  bool get_post_title_from_tx_extra(const std::vector<uint8_t> &tx_extra, std::string &title);
+  bool add_pseudonym_to_tx_extra(std::vector<uint8_t> &tx_extra, const std::string &pseudonym);
+  bool get_pseudonym_from_tx_extra(const std::vector<uint8_t> &tx_extra, std::string &pseudonym);
+  bool add_eddsa_signature_to_tx_extra(std::vector<uint8_t> &tx_extra, const crypto::signature &sig);
+  bool get_eddsa_signature_from_tx_extra(const std::vector<uint8_t> &tx_extra, crypto::signature &sig);
+  bool add_eddsa_pubkey_to_tx_extra(std::vector<uint8_t> &tx_extra, const crypto::public_key &pkey);
+  bool get_eddsa_pubkey_from_tx_extra(const std::vector<uint8_t> &tx_extra, crypto::public_key &pkey);
+  bool add_tx_reference_to_tx_extra(std::vector<uint8_t> &tx_extra, const crypto::hash &tx_hash);
+  bool get_tx_reference_from_tx_extra(const std::vector<uint8_t> &tx_extra, crypto::hash &tx_hash);
+  bool remove_field_from_tx_extra(std::vector<uint8_t> &tx_extra, const std::type_info &type);
   void set_payment_id_to_tx_extra_nonce(blobdata& extra_nonce, const crypto::hash& payment_id);
   void set_encrypted_payment_id_to_tx_extra_nonce(blobdata& extra_nonce, const crypto::hash8& payment_id);
   bool get_payment_id_from_tx_extra_nonce(const blobdata& extra_nonce, crypto::hash& payment_id);
