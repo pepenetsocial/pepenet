@@ -124,3 +124,6 @@ endif()
 
 add_subdirectory(device)
 add_subdirectory(device_trezor)
+
+set(SRC_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/src" CACHE STRING "Src Include path")
+set(EXTERNAL_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/external" CACHE STRING "Src Include path")
