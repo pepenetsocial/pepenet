@@ -201,13 +201,13 @@ macro (monero_find_all_headers headers_found module_root_dir)
 endmacro()
 
 
-# Finds all headers in a directory and its subdirs, to be able to search for them and autosave in IDEs.
+# Finds all source code files in a directory and its subdirs, to be able to search for them and autosave in IDEs.
 #
 # Parameters:
 # - sources_found:    Output variable, which will hold the found sources
 # - module_root_dir:  The search path for the headers. Typically it will be the module's root dir, so "${CMAKE_CURRENT_SOURCE_DIR}" or a derivative of it.
 macro (pepenet_find_all_sources sources_found module_root_dir)
-  file(GLOB ${headers_found}
+  file(GLOB ${sources_found}
            "${module_root_dir}/*.c*"    # c* will include .c and .cpp files
            "${module_root_dir}/**/*.c*" # Any number of subdirs will be included.
 )
@@ -471,7 +471,7 @@ endif()
 # elseif(CMAKE_SYSTEM_NAME MATCHES ".*BSDI.*")
 #   set(BSDI TRUE)
 
-include_directories(external/rapidjson/include external/easylogging++ src contrib/epee/include external external/supercop/include)
+include_directories(external/rapidjson/include external/easylogging++ src contrib/epee/include external external/supercop/include external/lzma)
 
 if(APPLE)
   cmake_policy(SET CMP0042 NEW)

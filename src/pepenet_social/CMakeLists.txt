@@ -38,9 +38,12 @@ monero_enable_coverage()
 
 monero_find_all_headers(PEPENET_SOCIAL_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}")
 pepenet_find_all_sources(PEPENET_SOCIAL_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}")
+
+include_directories(${LZMA_INCLUDE})
+
 pepenet_add_library(pepenet_social
   ${PEPENET_SOCIAL_SOURCES}
   ${PEPENET_SOCIAL_HEADERS}
   )
 
-set_property(TARGET pepenet_social APPEND PROPERTY COMPILE_FLAGS "-fPIC")
+target_link_libraries(pepenet_social PUBLIC lzma)

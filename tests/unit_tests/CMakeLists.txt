@@ -100,7 +100,8 @@ set(unit_tests_sources
   is_hdd.cpp
   aligned.cpp
   rpc_version_str.cpp
-  zmq_rpc.cpp)
+  zmq_rpc.cpp
+  pepenet_social.cpp)
 
 set(unit_tests_headers
   unit_tests_utils.h)
@@ -123,6 +124,7 @@ target_link_libraries(unit_tests
     wallet
     p2p
     version
+    pepenet_social
     ${Boost_CHRONO_LIBRARY}
     ${Boost_THREAD_LIBRARY}
     ${GTEST_LIBRARIES}
