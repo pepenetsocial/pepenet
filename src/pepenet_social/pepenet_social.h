@@ -1,4 +1,4 @@
-#include "LzmaLib.h"
+#include "lzma/C/LzmaLib.h"
 #include "../crypto/crypto.h"
 #include <iostream>
 
