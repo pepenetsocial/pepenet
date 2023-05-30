@@ -30,7 +30,7 @@ cmake_minimum_required(VERSION 3.5)
 
 project(pepenet_social CXX)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -47,3 +47,4 @@ pepenet_add_library(pepenet_social
   )
 
 target_link_libraries(pepenet_social PUBLIC lzma)
+set_property(TARGET pepenet_social APPEND PROPERTY COMPILE_FLAGS "-D_7ZIP_ST")

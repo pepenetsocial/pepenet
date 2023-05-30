@@ -32,17 +32,49 @@
 
 #include "pepenet_social/pepenet_social.h"
 
+#define GTEST_COUT std::cerr << "[          ] [ INFO ]"
+
+TEST(pepenet_social, lzma_bytes_test)
+{
+  testIt("a");
+  testIt("here is a cool string");
+  testIt("here's something that should compress pretty well: abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef");
+}
+
+TEST(pepenet_social, lzma_bytes_eq_test)
+{
+  const char msg[] = "abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef";
+  GTEST_COUT << "msg: " << std::string(msg) << std::endl;
+  char* out;
+  const uint8_t* msg_ = (const uint8_t*)msg;
+  std::size_t msg_len = strlen(msg);
+  uint32_t compressed_size;
+  auto compressedBlob = lzmaCompress(msg_, msg_len, &compressed_size);
+  out = (char*)(compressedBlob.get());
+  GTEST_COUT << "comp: " << std::string(out) << std::endl;
+//decompress
+  uint32_t decompressed_size;
+  auto decompressedBlob = lzmaDecompress((const uint8_t*)out, compressed_size, &decompressed_size);
+  
+  char* decomp_out = (char*)(decompressedBlob.get());
+  GTEST_COUT << "decomp:" << std::string(decomp_out) << std::endl;
+
+  std::string decomp_msg = std::string(decomp_out);
+  decomp_msg.pop_back();
+  ASSERT_TRUE(std::string(msg) == decomp_msg);
+}
 
 TEST(pepenet_social, lzma_compress_decompress)
 {
   std::string msg = "THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS AS IS ANDHIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDEHIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDEHIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDEHIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDE";
-
+  GTEST_COUT << "msg: " << msg << std::endl;
   std::string out;
   ASSERT_TRUE(lzma_compress_msg(msg, out));
   ASSERT_TRUE(out.size() < msg.size());
-  std::cout << "compressed" << std::endl;
+  GTEST_COUT << "compressed: " << out << std::endl;
 
   std::string msg_decopressed;
   ASSERT_TRUE(lzma_decompress_msg(out, msg_decopressed));
+  GTEST_COUT << "decompressed: " << msg_decopressed << std::endl;
   ASSERT_TRUE(msg_decopressed == msg);
 }
