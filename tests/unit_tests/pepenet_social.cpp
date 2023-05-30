@@ -52,7 +52,9 @@ TEST(pepenet_social, lzma_bytes_eq_test)
   auto compressedBlob = lzmaCompress(msg_, msg_len, &compressed_size);
   out = (char*)(compressedBlob.get());
   GTEST_COUT << "comp: " << std::string(out) << std::endl;
-//decompress
+  GTEST_COUT << "comp_strlen: " << std::string(out).size() << std::endl;
+  GTEST_COUT << "compressed size(ret. val): " << compressed_size << std::endl;
+  //decompress
   uint32_t decompressed_size;
   auto decompressedBlob = lzmaDecompress((const uint8_t*)out, compressed_size, &decompressed_size);
   
@@ -61,6 +63,33 @@ TEST(pepenet_social, lzma_bytes_eq_test)
 
   std::string decomp_msg = std::string(decomp_out);
   decomp_msg.pop_back();
+  ASSERT_TRUE(std::string(msg) == decomp_msg);
+}
+
+TEST(pepenet_social, lzma_bytes_eq_test_with_strings)
+{
+  std::string input_message = "abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef";
+  const char* msg = input_message.c_str();
+  GTEST_COUT << "msg: " << std::string(msg) << std::endl;
+  char* out;
+  const uint8_t* msg_ = (const uint8_t*)msg;
+  std::size_t msg_len = strlen(msg);
+  uint32_t compressed_size;
+  auto compressedBlob = lzmaCompress(msg_, msg_len, &compressed_size);
+  out = (char*)(compressedBlob.get());
+  GTEST_COUT << "comp: " << std::string(out, compressed_size) << std::endl;
+  GTEST_COUT << "comp_strlen: " << std::string(out, compressed_size).size() << std::endl;
+  GTEST_COUT << "compressed size(ret. val): " << compressed_size << std::endl;
+  //convert to string
+  std::string converted_compressed(out, compressed_size);
+  //decompress
+  uint32_t decompressed_size;
+  auto decompressedBlob = lzmaDecompress((const uint8_t*)converted_compressed.c_str(), converted_compressed.size(), &decompressed_size);
+
+  char* decomp_out = (char*)(decompressedBlob.get());
+  GTEST_COUT << "decomp:" << std::string(decomp_out) << std::endl;
+
+  std::string decomp_msg = std::string(decomp_out, decompressed_size);
   ASSERT_TRUE(std::string(msg) == decomp_msg);
 }
 
