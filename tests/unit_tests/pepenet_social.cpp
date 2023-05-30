@@ -40,6 +40,7 @@ TEST(pepenet_social, lzma_compress_decompress)
   std::string out;
   ASSERT_TRUE(lzma_compress_msg(msg, out));
   ASSERT_TRUE(out.size() < msg.size());
+  std::cout << "compressed" << std::endl;
 
   std::string msg_decopressed;
   ASSERT_TRUE(lzma_decompress_msg(out, msg_decopressed));

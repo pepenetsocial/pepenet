@@ -76,8 +76,8 @@ file(COPY
   data/wallet_9svHk1.keys
   data/wallet_9svHk1
   data/outputs
-  data/unsigned_pepenet_tx
-  data/signed_pepenet_tx
+  data/unsigned_monero_tx
+  data/signed_monero_tx
   data/sha256sum
   DESTINATION data)
 
@@ -142,15 +142,15 @@ list(REMOVE_DUPLICATES PEPENET_WALLET_CRYPTO_BENCH)
 list(REMOVE_ITEM PEPENET_WALLET_CRYPTO_BENCH "cn") # always used for comparison
 set(PEPENET_WALLET_CRYPTO_BENCH_NAMES "(cn)")
 foreach(BENCH IN LISTS PEPENET_WALLET_CRYPTO_BENCH)
-  pepenet_crypto_valid(${BENCH} VALID)
+  monero_crypto_valid(${BENCH} VALID)
   if (NOT VALID)
     message(FATAL_ERROR "Invalid PEPENET_WALLET_CRYPTO_BENCH option ${BENCH}")
   endif ()
 
-  pepenet_crypto_get_target(${BENCH} BENCH_LIBRARY)
+  monero_crypto_get_target(${BENCH} BENCH_LIBRARY)
   list(APPEND BENCH_OBJECTS $<TARGET_OBJECTS:${BENCH_LIBRARY}>)
 
-  pepenet_crypto_get_namespace(${BENCH} BENCH_NAMESPACE)
+  monero_crypto_get_namespace(${BENCH} BENCH_NAMESPACE)
   set(PEPENET_WALLET_CRYPTO_BENCH_NAMES "${PEPENET_WALLET_CRYPTO_BENCH_NAMES}(${BENCH_NAMESPACE})")
 endforeach ()
 
