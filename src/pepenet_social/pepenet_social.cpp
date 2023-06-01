@@ -160,8 +160,6 @@ namespace pepenet_social {
     else if (pep_missing) //valid tx - just without a pep
       return false;
     //construct full pep for sig. verification
-    if (!pep.value().pk.has_value())
-      pep.value().pk = ver_pk;
     
     if (pep.value().pk.has_value())
     {
@@ -169,6 +167,16 @@ namespace pepenet_social {
       std::string pk_s = std::string(pep.value().pk.value().data, 32);
       std::string full_pep = pep.value().msg + pep.value().pseudonym.value_or("") + tr_s + pk_s;
       bool valid = pepenet_social::check_msg_sig(full_pep, pep.value().sig.value(), pep.value().pk.value());
+      if (!valid)
+        pep.reset(); //invalid tx - pep signature is invalid !
+      return valid;
+    }
+    else if (ver_pk.has_value())
+    {
+      std::string tr_s = pep.value().tx_ref.has_value() ? std::string(pep.value().tx_ref.value().data, 32) : "";
+      std::string pk_s = "";
+      std::string full_pep = pep.value().msg + pep.value().pseudonym.value_or("") + tr_s + pk_s;
+      bool valid = pepenet_social::check_msg_sig(full_pep, pep.value().sig.value(), ver_pk.value());
       if (!valid)
         pep.reset(); //invalid tx - pep signature is invalid !
       return valid;
@@ -198,9 +206,6 @@ namespace pepenet_social {
     else if (post_missing && title_missing) //valid tx - just without a post
       return false;
     //construct full post for sig. verification
-    if (!post.value().pk.has_value())
-      post.value().pk = ver_pk;
-    
     if (post.value().pk.has_value())
     {
       std::string tr_s = post.value().tx_ref.has_value() ? std::string(post.value().tx_ref.value().data, 32) : "";
@@ -209,6 +214,16 @@ namespace pepenet_social {
       bool valid = pepenet_social::check_msg_sig(full_post, post.value().sig.value(), post.value().pk.value());
       if (!valid)
         post.reset(); //invalid tx - post signature is invalid !
+      return valid;
+    }
+    else if (ver_pk.has_value())
+    {
+      std::string tr_s = post.value().tx_ref.has_value() ? std::string(post.value().tx_ref.value().data, 32) : "";
+      std::string pk_s = "";
+      std::string full_pep = post.value().msg + post.value().pseudonym.value_or("") + tr_s + pk_s;
+      bool valid = pepenet_social::check_msg_sig(full_pep, post.value().sig.value(), ver_pk.value());
+      if (!valid)
+        post.reset(); //invalid tx - pep signature is invalid !
       return valid;
     }
     return true;
