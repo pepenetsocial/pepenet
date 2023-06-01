@@ -93,13 +93,13 @@ namespace cryptonote
   bool add_post_title_to_tx_extra(std::vector<uint8_t> &tx_extra, const std::string &title);
   bool get_post_title_from_tx_extra(const std::vector<uint8_t> &tx_extra, std::string &title);
   bool add_pseudonym_to_tx_extra(std::vector<uint8_t> &tx_extra, const std::string &pseudonym);
-  bool get_pseudonym_from_tx_extra(const std::vector<uint8_t> &tx_extra, std::string &pseudonym);
+  bool get_pseudonym_from_tx_extra(const std::vector<uint8_t> &tx_extra, boost::optional<std::string> &pseudonym);
   bool add_eddsa_signature_to_tx_extra(std::vector<uint8_t> &tx_extra, const crypto::signature &sig);
-  bool get_eddsa_signature_from_tx_extra(const std::vector<uint8_t> &tx_extra, crypto::signature &sig);
+  bool get_eddsa_signature_from_tx_extra(const std::vector<uint8_t>& tx_extra, boost::optional<crypto::signature>& sig);
   bool add_eddsa_pubkey_to_tx_extra(std::vector<uint8_t> &tx_extra, const crypto::public_key &pkey);
-  bool get_eddsa_pubkey_from_tx_extra(const std::vector<uint8_t> &tx_extra, crypto::public_key &pkey);
+  bool get_eddsa_pubkey_from_tx_extra(const std::vector<uint8_t>& tx_extra, boost::optional<crypto::public_key>& pkey);
   bool add_tx_reference_to_tx_extra(std::vector<uint8_t> &tx_extra, const crypto::hash &tx_hash);
-  bool get_tx_reference_from_tx_extra(const std::vector<uint8_t> &tx_extra, crypto::hash &tx_hash);
+  bool get_tx_reference_from_tx_extra(const std::vector<uint8_t>& tx_extra, boost::optional<crypto::hash>& tx_hash);
   bool remove_field_from_tx_extra(std::vector<uint8_t> &tx_extra, const std::type_info &type);
   void set_payment_id_to_tx_extra_nonce(blobdata& extra_nonce, const crypto::hash& payment_id);
   void set_encrypted_payment_id_to_tx_extra_nonce(blobdata& extra_nonce, const crypto::hash8& payment_id);

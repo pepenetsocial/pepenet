@@ -790,7 +790,6 @@ namespace cryptonote
   }
   //---------------------------------------------------------------
   bool get_lzma_pep_from_tx_extra(const std::vector<uint8_t> &tx_extra, std::string &lzma_pep){
-    CHECK_AND_NO_ASSERT_MES_L1(!(lzma_pep.size() > LZMA_PEP_MAX_SIZE), false, "lzma pep exceeds LZMA_PEP_MAX_SIZE");
     // parse
     std::vector<tx_extra_field> tx_extra_fields;
     parse_tx_extra(tx_extra, tx_extra_fields);
@@ -799,6 +798,7 @@ namespace cryptonote
     if (!find_tx_extra_field_by_type(tx_extra_fields, field))
       return false;
     lzma_pep = field.data;
+    CHECK_AND_NO_ASSERT_MES_L1(!(lzma_pep.size() > LZMA_PEP_MAX_SIZE), false, "lzma pep exceeds LZMA_PEP_MAX_SIZE");
     return true;
   }
   //---------------------------------------------------------------
@@ -811,7 +811,6 @@ namespace cryptonote
   }
   //---------------------------------------------------------------
   bool get_lzma_post_from_tx_extra(const std::vector<uint8_t> &tx_extra, std::string &lzma_post){
-    CHECK_AND_NO_ASSERT_MES_L1(!(lzma_post.size() > LZMA_POST_MAX_SIZE), false, "lzma post exceeds LZMA_POST_MAX_SIZE");
     // parse
     std::vector<tx_extra_field> tx_extra_fields;
     parse_tx_extra(tx_extra, tx_extra_fields);
@@ -820,6 +819,7 @@ namespace cryptonote
     if (!find_tx_extra_field_by_type(tx_extra_fields, field))
       return false;
     lzma_post = field.data;
+    CHECK_AND_NO_ASSERT_MES_L1(!(lzma_post.size() > LZMA_POST_MAX_SIZE), false, "lzma post exceeds LZMA_POST_MAX_SIZE");
     return true;
   }
   //---------------------------------------------------------------
@@ -832,7 +832,6 @@ namespace cryptonote
   }
   //---------------------------------------------------------------
   bool get_post_title_from_tx_extra(const std::vector<uint8_t> &tx_extra, std::string &title){
-    CHECK_AND_NO_ASSERT_MES_L1(!(title.size() > POST_TITLE_MAX_SIZE), false, "post title exceeds POST_TITLE_MAX_SIZE");
     // parse
     std::vector<tx_extra_field> tx_extra_fields;
     parse_tx_extra(tx_extra, tx_extra_fields);
@@ -841,6 +840,7 @@ namespace cryptonote
     if (!find_tx_extra_field_by_type(tx_extra_fields, field))
       return false;
     title = field.data;
+    CHECK_AND_NO_ASSERT_MES_L1(!(title.size() > POST_TITLE_MAX_SIZE), false, "post title exceeds POST_TITLE_MAX_SIZE");
     return true;
   }
   //---------------------------------------------------------------
@@ -852,8 +852,8 @@ namespace cryptonote
     return add_tx_extra_field_to_extra(tx_extra, field, "failed to serialize tx extra pseudonym string");
   }
   //---------------------------------------------------------------
-  bool get_pseudonym_from_tx_extra(const std::vector<uint8_t> &tx_extra, std::string &pseudonym){
-    CHECK_AND_NO_ASSERT_MES_L1(!(pseudonym.size() > PSEUDONYM_MAX_SIZE), false, "pseudonym exceeds PSEUDONYM_MAX_SIZE");
+  bool get_pseudonym_from_tx_extra(const std::vector<uint8_t>& tx_extra, boost::optional<std::string>& pseudonym)
+  {
     // parse
     std::vector<tx_extra_field> tx_extra_fields;
     parse_tx_extra(tx_extra, tx_extra_fields);
@@ -862,6 +862,7 @@ namespace cryptonote
     if (!find_tx_extra_field_by_type(tx_extra_fields, field))
       return false;
     pseudonym = field.data;
+    CHECK_AND_NO_ASSERT_MES_L1(!(pseudonym.value().size() > PSEUDONYM_MAX_SIZE), false, "pseudonym exceeds PSEUDONYM_MAX_SIZE");
     return true;
   }
   //---------------------------------------------------------------
@@ -872,7 +873,8 @@ namespace cryptonote
     return add_tx_extra_field_to_extra(tx_extra, field, "failed to serialize tx extra eddsa signature");
   }
   //---------------------------------------------------------------
-  bool get_eddsa_signature_from_tx_extra(const std::vector<uint8_t> &tx_extra, crypto::signature &sig){
+  bool get_eddsa_signature_from_tx_extra(const std::vector<uint8_t>& tx_extra, boost::optional<crypto::signature>& sig)
+  {
     // parse
     std::vector<tx_extra_field> tx_extra_fields;
     parse_tx_extra(tx_extra, tx_extra_fields);
@@ -891,7 +893,8 @@ namespace cryptonote
     return add_tx_extra_field_to_extra(tx_extra, field, "failed to serialize tx extra eddsa pubkey");
   }
   //---------------------------------------------------------------
-  bool get_eddsa_pubkey_from_tx_extra(const std::vector<uint8_t> &tx_extra, crypto::public_key &pkey){
+  bool get_eddsa_pubkey_from_tx_extra(const std::vector<uint8_t>& tx_extra, boost::optional<crypto::public_key>& pkey)
+  {
     // parse
     std::vector<tx_extra_field> tx_extra_fields;
     parse_tx_extra(tx_extra, tx_extra_fields);
@@ -910,7 +913,8 @@ namespace cryptonote
     return add_tx_extra_field_to_extra(tx_extra, field, "failed to serialize tx extra tx reference");
   }
   //---------------------------------------------------------------
-  bool get_tx_reference_from_tx_extra(const std::vector<uint8_t> &tx_extra, crypto::hash &tx_hash){
+  bool get_tx_reference_from_tx_extra(const std::vector<uint8_t>& tx_extra, boost::optional<crypto::hash>& tx_hash)
+  {
     // parse
     std::vector<tx_extra_field> tx_extra_fields;
     parse_tx_extra(tx_extra, tx_extra_fields);

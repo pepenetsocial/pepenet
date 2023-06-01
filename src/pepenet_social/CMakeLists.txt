@@ -47,5 +47,5 @@ pepenet_add_library(pepenet_social
   ${PEPENET_SOCIAL_HEADERS}
   )
 
-target_link_libraries(pepenet_social PUBLIC lzma epee cncrypto)
+target_link_libraries(pepenet_social PUBLIC lzma epee cncrypto cryptonote_format_utils_basic cryptonote_basic)
 set_property(TARGET pepenet_social APPEND PROPERTY COMPILE_FLAGS "-D_7ZIP_ST")
