@@ -146,10 +146,21 @@ namespace pepenet_social {
     pep = pepenet_social::pep();
     std::string lzma_pep;
     bool pep_missing = !cryptonote::get_lzma_pep_from_tx_extra(tx_extra, lzma_pep);
-    CHECK_AND_NO_ASSERT_MES_L1(pepenet_social::lzma_decompress_msg(lzma_pep, pep.value().msg), false, "failed to decompress lzma pep from tx_extra");
+    if (!pep_missing)
+    {
+      bool decomp = pepenet_social::lzma_decompress_msg(lzma_pep, pep.value().msg);
+      if (!decomp)
+        pep.reset(); //decompression failed - invalid tx
+      CHECK_AND_NO_ASSERT_MES_L1(decomp, false, "failed to decompress lzma pep from tx_extra");
+    }
     cryptonote::get_pseudonym_from_tx_extra(tx_extra, pep.value().pseudonym);
-    cryptonote::get_eddsa_pubkey_from_tx_extra(tx_extra, pep.value().pk);
-    cryptonote::get_eddsa_signature_from_tx_extra(tx_extra, pep.value().sig);
+    bool pk_present = cryptonote::get_eddsa_pubkey_from_tx_extra(tx_extra, pep.value().pk);
+    bool sig_present = cryptonote::get_eddsa_signature_from_tx_extra(tx_extra, pep.value().sig);
+    if ((pk_present && !sig_present)) // if pk is present, sig has to be too!
+    {
+      pep.reset(); //invalid tx extra
+      return false;
+    }
     cryptonote::get_tx_reference_from_tx_extra(tx_extra, pep.value().tx_ref);
     //check if tx_extra is valid
     if (pep_missing && (pep.value().pseudonym.has_value() || pep.value().pk.has_value() || pep.value().sig.has_value() || pep.value().tx_ref.has_value()))
@@ -191,11 +202,21 @@ namespace pepenet_social {
     std::string lzma_post;
     bool post_missing = !cryptonote::get_lzma_post_from_tx_extra(tx_extra, lzma_post);
     bool title_missing = !cryptonote::get_post_title_from_tx_extra(tx_extra, post.value().title);
-    
-    CHECK_AND_NO_ASSERT_MES_L1(pepenet_social::lzma_decompress_msg(lzma_post, post.value().msg), false, "failed to decompress lzma post from tx_extra");
+    if (!post_missing)
+    {
+      bool decomp = pepenet_social::lzma_decompress_msg(lzma_post, post.value().msg);
+      if (!decomp)
+        post.reset(); //decompression failed - invalid tx
+      CHECK_AND_NO_ASSERT_MES_L1(decomp, false, "failed to decompress lzma post from tx_extra");
+    }
     cryptonote::get_pseudonym_from_tx_extra(tx_extra, post.value().pseudonym);
-    cryptonote::get_eddsa_pubkey_from_tx_extra(tx_extra, post.value().pk);
-    cryptonote::get_eddsa_signature_from_tx_extra(tx_extra, post.value().sig);
+    bool pk_present = cryptonote::get_eddsa_pubkey_from_tx_extra(tx_extra, post.value().pk);
+    bool sig_present = cryptonote::get_eddsa_signature_from_tx_extra(tx_extra, post.value().sig);
+    if ((pk_present && !sig_present)) // if pk is present, sig has to be too!
+    {
+      post.reset(); //invalid tx extra
+      return false;
+    }
     cryptonote::get_tx_reference_from_tx_extra(tx_extra, post.value().tx_ref);
     //check if tx_extra is valid
     if ((post_missing || title_missing) && (post.value().pseudonym.has_value() || post.value().pk.has_value() || post.value().sig.has_value() || post.value().tx_ref.has_value()))
@@ -220,7 +241,7 @@ namespace pepenet_social {
     {
       std::string tr_s = post.value().tx_ref.has_value() ? std::string(post.value().tx_ref.value().data, 32) : "";
       std::string pk_s = "";
-      std::string full_pep = post.value().msg + post.value().pseudonym.value_or("") + tr_s + pk_s;
+      std::string full_pep = post.value().msg + post.value().title + post.value().pseudonym.value_or("") + tr_s + pk_s;
       bool valid = pepenet_social::check_msg_sig(full_pep, post.value().sig.value(), ver_pk.value());
       if (!valid)
         post.reset(); //invalid tx - pep signature is invalid !

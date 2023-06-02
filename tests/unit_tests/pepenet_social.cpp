@@ -108,7 +108,7 @@ TEST(pepenet_social, pep_to_from_extra)
   ASSERT_TRUE(pepenet_social::check_msg_sig(full_pep_, full_pep_sig_.value(), pk_.value()));
 }
 
-TEST(pepenet_social, pep_to_extra_verification_validity_1)
+TEST(pepenet_social_valid_pep, pep_to_extra_verification_validity_1)
 {
   std::string tx_h_in = "slslls";
   std::string sk_seed = "1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93";
@@ -120,14 +120,13 @@ TEST(pepenet_social, pep_to_extra_verification_validity_1)
   p.tx_ref = crypto::cn_fast_hash(tx_h_in.data(), tx_h_in.size());
   cryptonote::transaction tx;
   ASSERT_TRUE(pepenet_social::add_pep_to_tx_extra(p, tx.extra));
-  GTEST_COUT << "added pep passed" << std::endl;
 
   boost::optional<pepenet_social::pep> pep;
   boost::optional<crypto::public_key> null_pk;
   ASSERT_TRUE(pepenet_social::get_and_verify_pep_from_tx_extra(null_pk, pep, tx.extra) && pep.has_value());
 }
 
-TEST(pepenet_social, pep_to_extra_verification_validity_2)
+TEST(pepenet_social_valid_pep, pep_to_extra_verification_validity_2)
 {
   std::string tx_h_in = "slslls";
   std::string sk_seed = "1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93";
@@ -138,14 +137,13 @@ TEST(pepenet_social, pep_to_extra_verification_validity_2)
   p.tx_ref = crypto::cn_fast_hash(tx_h_in.data(), tx_h_in.size());
   cryptonote::transaction tx;
   ASSERT_TRUE(pepenet_social::add_pep_to_tx_extra(p, tx.extra));
-  GTEST_COUT << "added pep passed" << std::endl;
 
   boost::optional<pepenet_social::pep> pep;
   boost::optional<crypto::public_key> null_pk;
   ASSERT_TRUE(pepenet_social::get_and_verify_pep_from_tx_extra(null_pk, pep, tx.extra) && pep.has_value());
 }
 
-TEST(pepenet_social, pep_to_extra_verification_validity_3)
+TEST(pepenet_social_valid_pep, pep_to_extra_verification_validity_3)
 {
   std::string tx_h_in = "slslls";
   std::string sk_seed = "1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93";
@@ -155,14 +153,13 @@ TEST(pepenet_social, pep_to_extra_verification_validity_3)
   p.tx_ref = crypto::cn_fast_hash(tx_h_in.data(), tx_h_in.size());
   cryptonote::transaction tx;
   ASSERT_TRUE(pepenet_social::add_pep_to_tx_extra(p, tx.extra));
-  GTEST_COUT << "added pep passed" << std::endl;
 
   boost::optional<pepenet_social::pep> pep;
   boost::optional<crypto::public_key> null_pk;
   ASSERT_TRUE(pepenet_social::get_and_verify_pep_from_tx_extra(null_pk, pep, tx.extra) && pep.has_value());
 }
 
-TEST(pepenet_social, pep_to_extra_verification_validity_4)
+TEST(pepenet_social_valid_pep, pep_to_extra_verification_validity_4)
 {
   std::string tx_h_in = "slslls";
   std::string sk_seed = "1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93";
@@ -171,14 +168,13 @@ TEST(pepenet_social, pep_to_extra_verification_validity_4)
   p.tx_ref = crypto::cn_fast_hash(tx_h_in.data(), tx_h_in.size());
   cryptonote::transaction tx;
   ASSERT_TRUE(pepenet_social::add_pep_to_tx_extra(p, tx.extra));
-  GTEST_COUT << "added pep passed" << std::endl;
 
   boost::optional<pepenet_social::pep> pep;
   boost::optional<crypto::public_key> null_pk;
   ASSERT_TRUE(pepenet_social::get_and_verify_pep_from_tx_extra(null_pk, pep, tx.extra) && pep.has_value());
 }
 
-TEST(pepenet_social, pep_to_extra_verification_validity_5)
+TEST(pepenet_social_valid_pep, pep_to_extra_verification_validity_5)
 {
   std::string tx_h_in = "slslls";
   std::string sk_seed = "1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93";
@@ -186,14 +182,13 @@ TEST(pepenet_social, pep_to_extra_verification_validity_5)
   p.msg = "2992993390";
   cryptonote::transaction tx;
   ASSERT_TRUE(pepenet_social::add_pep_to_tx_extra(p, tx.extra));
-  GTEST_COUT << "added pep passed" << std::endl;
 
   boost::optional<pepenet_social::pep> pep;
   boost::optional<crypto::public_key> null_pk;
   ASSERT_TRUE(pepenet_social::get_and_verify_pep_from_tx_extra(null_pk, pep, tx.extra) && pep.has_value());
 }
 
-TEST(pepenet_social, pep_to_extra_verification_validity_6)
+TEST(pepenet_social_valid_pep, pep_to_extra_verification_validity_6)
 {
   std::string tx_h_in = "slslls";
   std::string sk_seed = "1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93";
@@ -205,7 +200,6 @@ TEST(pepenet_social, pep_to_extra_verification_validity_6)
   p.tx_ref = crypto::cn_fast_hash(tx_h_in.data(), tx_h_in.size());
   cryptonote::transaction tx;
   ASSERT_TRUE(pepenet_social::add_pep_to_tx_extra(p, tx.extra));
-  GTEST_COUT << "added pep passed" << std::endl;
 
   boost::optional<pepenet_social::pep> pep;
   //get sk and pk
@@ -215,4 +209,341 @@ TEST(pepenet_social, pep_to_extra_verification_validity_6)
   crypto::secret_key_to_public_key(sk, pk);
   ASSERT_TRUE(pepenet_social::get_and_verify_pep_from_tx_extra(pk, pep, tx.extra) && pep.has_value());
   ASSERT_FALSE(pep.value().pk.has_value());
+}
+
+TEST(pepenet_social_valid_tx, no_pep_extra_verification_validity)
+{
+  cryptonote::transaction tx;
+
+  boost::optional<pepenet_social::pep> pep;
+  boost::optional<crypto::public_key> null_pk;
+  ASSERT_TRUE(!pepenet_social::get_and_verify_pep_from_tx_extra(null_pk, pep, tx.extra) && pep.has_value());
+}
+
+TEST(pepenet_social_valid_post, post_to_extra_verification_validity_1)
+{
+  std::string tx_h_in = "slslls";
+  std::string sk_seed = "1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93";
+  pepenet_social::post_args p;
+  p.msg = "2992993390";
+  p.title = "good day for pepe";
+  p.pseudonym = "jsaiiwjskis";
+  p.sk_seed = sk_seed;
+  p.post_pk = true;
+  p.tx_ref = crypto::cn_fast_hash(tx_h_in.data(), tx_h_in.size());
+  cryptonote::transaction tx;
+  ASSERT_TRUE(pepenet_social::add_post_to_tx_extra(p, tx.extra));
+
+  boost::optional<pepenet_social::post> post;
+  boost::optional<crypto::public_key> null_pk;
+  ASSERT_TRUE(pepenet_social::get_and_verify_post_from_tx_extra(null_pk, post, tx.extra) && post.has_value());
+}
+
+TEST(pepenet_social_valid_post, post_to_extra_verification_validity_2)
+{
+  std::string tx_h_in = "slslls";
+  std::string sk_seed = "1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93";
+  pepenet_social::post_args p;
+  p.msg = "2992993390";
+  p.title = "good day for pepe";
+  p.sk_seed = sk_seed;
+  p.post_pk = true;
+  p.tx_ref = crypto::cn_fast_hash(tx_h_in.data(), tx_h_in.size());
+  cryptonote::transaction tx;
+  ASSERT_TRUE(pepenet_social::add_post_to_tx_extra(p, tx.extra));
+
+  boost::optional<pepenet_social::post> post;
+  boost::optional<crypto::public_key> null_pk;
+  ASSERT_TRUE(pepenet_social::get_and_verify_post_from_tx_extra(null_pk, post, tx.extra) && post.has_value());
+}
+
+TEST(pepenet_social_valid_post, post_to_extra_verification_validity_3)
+{
+  std::string tx_h_in = "slslls";
+  std::string sk_seed = "1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93";
+  pepenet_social::post_args p;
+  p.msg = "2992993390";
+  p.title = "good day for pepe";
+  p.post_pk = true;
+  p.tx_ref = crypto::cn_fast_hash(tx_h_in.data(), tx_h_in.size());
+  cryptonote::transaction tx;
+  ASSERT_TRUE(pepenet_social::add_post_to_tx_extra(p, tx.extra));
+
+  boost::optional<pepenet_social::post> post;
+  boost::optional<crypto::public_key> null_pk;
+  ASSERT_TRUE(pepenet_social::get_and_verify_post_from_tx_extra(null_pk, post, tx.extra) && post.has_value());
+}
+
+TEST(pepenet_social_valid_post, post_to_extra_verification_validity_4)
+{
+  std::string tx_h_in = "slslls";
+  std::string sk_seed = "1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93";
+  pepenet_social::post_args p;
+  p.msg = "2992993390";
+  p.title = "good day for pepe";
+  p.tx_ref = crypto::cn_fast_hash(tx_h_in.data(), tx_h_in.size());
+  cryptonote::transaction tx;
+  ASSERT_TRUE(pepenet_social::add_post_to_tx_extra(p, tx.extra));
+
+  boost::optional<pepenet_social::post> post;
+  boost::optional<crypto::public_key> null_pk;
+  ASSERT_TRUE(pepenet_social::get_and_verify_post_from_tx_extra(null_pk, post, tx.extra) && post.has_value());
+}
+
+TEST(pepenet_social_valid_post, post_to_extra_verification_validity_5)
+{
+  std::string tx_h_in = "slslls";
+  std::string sk_seed = "1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93";
+  pepenet_social::post_args p;
+  p.msg = "2992993390";
+  p.title = "good day for pepe";
+  cryptonote::transaction tx;
+  ASSERT_TRUE(pepenet_social::add_post_to_tx_extra(p, tx.extra));
+
+  boost::optional<pepenet_social::post> post;
+  boost::optional<crypto::public_key> null_pk;
+  ASSERT_TRUE(pepenet_social::get_and_verify_post_from_tx_extra(null_pk, post, tx.extra) && post.has_value());
+}
+
+TEST(pepenet_social_valid_post, post_to_extra_verification_validity_6)
+{
+  std::string tx_h_in = "slslls";
+  std::string sk_seed = "1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93";
+  pepenet_social::post_args p;
+  p.msg = "2992993390";
+  p.title = "good day for pepe";
+  p.pseudonym = "jsaiiwjskis";
+  p.sk_seed = sk_seed;
+  p.post_pk = false;
+  p.tx_ref = crypto::cn_fast_hash(tx_h_in.data(), tx_h_in.size());
+  cryptonote::transaction tx;
+  ASSERT_TRUE(pepenet_social::add_post_to_tx_extra(p, tx.extra));
+
+  boost::optional<pepenet_social::post> post;
+  //get sk and pk
+  crypto::secret_key sk;
+  crypto::public_key pk;
+  pepenet_social::secret_key_from_seed(sk_seed, sk);
+  crypto::secret_key_to_public_key(sk, pk);
+  ASSERT_TRUE(pepenet_social::get_and_verify_post_from_tx_extra(pk, post, tx.extra) && post.has_value());
+  ASSERT_FALSE(post.value().pk.has_value());
+}
+
+TEST(pepenet_social_valid_tx, no_post_extra_verification_validity)
+{
+  cryptonote::transaction tx;
+
+  boost::optional<pepenet_social::post> post;
+  boost::optional<crypto::public_key> null_pk;
+  ASSERT_TRUE(!pepenet_social::get_and_verify_post_from_tx_extra(null_pk, post, tx.extra) && post.has_value());
+}
+
+TEST(pepenet_social_invalid_pep, pep_from_extra_missing_msg)
+{
+  std::string tx_h_in = "slslls";
+  std::string sk_seed = "1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93";
+  pepenet_social::pep_args p;
+  p.msg = "2992993390";
+  p.pseudonym = "jsaiiwjskis";
+  p.sk_seed = sk_seed;
+  p.post_pk = true;
+  p.tx_ref = crypto::cn_fast_hash(tx_h_in.data(), tx_h_in.size());
+  cryptonote::transaction tx;
+  ASSERT_TRUE(pepenet_social::add_pep_to_tx_extra(p, tx.extra));
+  //remove field from extra
+  cryptonote::remove_field_from_tx_extra(tx.extra, typeid(cryptonote::tx_extra_lzma_pep));
+
+  boost::optional<pepenet_social::pep> pep;
+  boost::optional<crypto::public_key> null_pk;
+  ASSERT_FALSE(pepenet_social::get_and_verify_pep_from_tx_extra(null_pk, pep, tx.extra));
+  ASSERT_FALSE(pep.has_value());
+}
+
+TEST(pepenet_social_invalid_pep, pep_from_extra_lzma_failed)
+{
+  std::string tx_h_in = "slslls";
+  std::string sk_seed = "1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93";
+  pepenet_social::pep_args p;
+  p.msg = "2992993390";
+  p.pseudonym = "jsaiiwjskis";
+  p.sk_seed = sk_seed;
+  p.post_pk = true;
+  p.tx_ref = crypto::cn_fast_hash(tx_h_in.data(), tx_h_in.size());
+  cryptonote::transaction tx;
+  ASSERT_TRUE(pepenet_social::add_pep_to_tx_extra(p, tx.extra));
+  //remove field from extra
+  cryptonote::remove_field_from_tx_extra(tx.extra, typeid(cryptonote::tx_extra_lzma_pep));
+  cryptonote::add_lzma_pep_to_tx_extra(tx.extra, "");
+
+  boost::optional<pepenet_social::pep> pep;
+  boost::optional<crypto::public_key> null_pk;
+  ASSERT_FALSE(pepenet_social::get_and_verify_pep_from_tx_extra(null_pk, pep, tx.extra));
+  ASSERT_FALSE(pep.has_value());
+}
+
+TEST(pepenet_social_invalid_pep, pep_from_extra_invalid_sig)
+{
+  std::string tx_h_in = "slslls";
+  std::string sk_seed = "1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93";
+  pepenet_social::pep_args p;
+  p.msg = "2992993390";
+  p.pseudonym = "jsaiiwjskis";
+  p.sk_seed = sk_seed;
+  p.post_pk = true;
+  p.tx_ref = crypto::cn_fast_hash(tx_h_in.data(), tx_h_in.size());
+  cryptonote::transaction tx;
+  ASSERT_TRUE(pepenet_social::add_pep_to_tx_extra(p, tx.extra));
+  //remove field from extra - causes invalid sig. verification
+  cryptonote::remove_field_from_tx_extra(tx.extra, typeid(cryptonote::tx_extra_tx_reference));
+
+  boost::optional<pepenet_social::pep> pep;
+  boost::optional<crypto::public_key> null_pk;
+  ASSERT_FALSE(pepenet_social::get_and_verify_pep_from_tx_extra(null_pk, pep, tx.extra) || pep.has_value());
+}
+
+TEST(pepenet_social_invalid_pep, pep_from_extra_pk_present_sig_not)
+{
+  std::string tx_h_in = "slslls";
+  std::string sk_seed = "1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93";
+  pepenet_social::pep_args p;
+  p.msg = "2992993390";
+  p.pseudonym = "jsaiiwjskis";
+  p.sk_seed = sk_seed;
+  p.post_pk = true;
+  p.tx_ref = crypto::cn_fast_hash(tx_h_in.data(), tx_h_in.size());
+  cryptonote::transaction tx;
+  ASSERT_TRUE(pepenet_social::add_pep_to_tx_extra(p, tx.extra));
+  //remove field from extra - pk present, sig not present - invalid tx !
+  cryptonote::remove_field_from_tx_extra(tx.extra, typeid(cryptonote::tx_extra_eddsa_signature));
+
+  boost::optional<pepenet_social::pep> pep;
+  boost::optional<crypto::public_key> null_pk;
+  ASSERT_FALSE(pepenet_social::get_and_verify_pep_from_tx_extra(null_pk, pep, tx.extra) || pep.has_value());
+}
+
+TEST(pepenet_social_invalid_post, post_from_extra_missing_msg)
+{
+  std::string tx_h_in = "slslls";
+  std::string sk_seed = "1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93";
+  pepenet_social::post_args p;
+  p.title = "pepe has a good day!";
+  p.pseudonym = "jsaiiwjskis";
+  p.sk_seed = sk_seed;
+  p.post_pk = true;
+  p.tx_ref = crypto::cn_fast_hash(tx_h_in.data(), tx_h_in.size());
+  cryptonote::transaction tx;
+  ASSERT_TRUE(pepenet_social::add_post_to_tx_extra(p, tx.extra));
+  //remove field from extra
+  cryptonote::remove_field_from_tx_extra(tx.extra, typeid(cryptonote::tx_extra_lzma_post));
+
+  boost::optional<pepenet_social::post> post;
+  boost::optional<crypto::public_key> null_pk;
+  ASSERT_FALSE(pepenet_social::get_and_verify_post_from_tx_extra(null_pk, post, tx.extra));
+  ASSERT_FALSE(post.has_value());
+}
+
+TEST(pepenet_social_invalid_post, post_from_extra_missing_title)
+{
+  std::string tx_h_in = "slslls";
+  std::string sk_seed = "1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93";
+  pepenet_social::post_args p;
+  p.msg = "2992993390";
+  p.pseudonym = "jsaiiwjskis";
+  p.sk_seed = sk_seed;
+  p.post_pk = true;
+  p.tx_ref = crypto::cn_fast_hash(tx_h_in.data(), tx_h_in.size());
+  cryptonote::transaction tx;
+  ASSERT_TRUE(pepenet_social::add_post_to_tx_extra(p, tx.extra));
+  //remove field from extra
+  cryptonote::remove_field_from_tx_extra(tx.extra, typeid(cryptonote::tx_extra_lzma_post));
+
+  boost::optional<pepenet_social::post> post;
+  boost::optional<crypto::public_key> null_pk;
+  ASSERT_FALSE(pepenet_social::get_and_verify_post_from_tx_extra(null_pk, post, tx.extra));
+  ASSERT_FALSE(post.has_value());
+}
+
+TEST(pepenet_social_invalid_post, post_from_extra_missing_msg_and_title)
+{
+  std::string tx_h_in = "slslls";
+  std::string sk_seed = "1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93";
+  pepenet_social::post_args p;
+  p.pseudonym = "jsaiiwjskis";
+  p.sk_seed = sk_seed;
+  p.post_pk = true;
+  p.tx_ref = crypto::cn_fast_hash(tx_h_in.data(), tx_h_in.size());
+  cryptonote::transaction tx;
+  ASSERT_TRUE(pepenet_social::add_post_to_tx_extra(p, tx.extra));
+  //remove field from extra
+  cryptonote::remove_field_from_tx_extra(tx.extra, typeid(cryptonote::tx_extra_lzma_post));
+
+  boost::optional<pepenet_social::post> post;
+  boost::optional<crypto::public_key> null_pk;
+  ASSERT_FALSE(pepenet_social::get_and_verify_post_from_tx_extra(null_pk, post, tx.extra));
+  ASSERT_FALSE(post.has_value());
+}
+
+TEST(pepenet_social_invalid_post, post_from_extra_lzma_failed)
+{
+  std::string tx_h_in = "slslls";
+  std::string sk_seed = "1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93";
+  pepenet_social::post_args p;
+  p.msg = "2992993390";
+  p.title = "pepe has a good day!";
+  p.pseudonym = "jsaiiwjskis";
+  p.sk_seed = sk_seed;
+  p.post_pk = true;
+  p.tx_ref = crypto::cn_fast_hash(tx_h_in.data(), tx_h_in.size());
+  cryptonote::transaction tx;
+  ASSERT_TRUE(pepenet_social::add_post_to_tx_extra(p, tx.extra));
+  //remove field from extra
+  cryptonote::remove_field_from_tx_extra(tx.extra, typeid(cryptonote::tx_extra_lzma_post));
+  cryptonote::add_lzma_post_to_tx_extra(tx.extra, "");
+
+  boost::optional<pepenet_social::post> post;
+  boost::optional<crypto::public_key> null_pk;
+  ASSERT_FALSE(pepenet_social::get_and_verify_post_from_tx_extra(null_pk, post, tx.extra));
+  ASSERT_FALSE(post.has_value());
+}
+
+TEST(pepenet_social_invalid_post, post_from_extra_invalid_sig)
+{
+  std::string tx_h_in = "slslls";
+  std::string sk_seed = "1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93";
+  pepenet_social::post_args p;
+  p.msg = "2992993390";
+  p.title = "pepe has a good day!";
+  p.pseudonym = "jsaiiwjskis";
+  p.sk_seed = sk_seed;
+  p.post_pk = true;
+  p.tx_ref = crypto::cn_fast_hash(tx_h_in.data(), tx_h_in.size());
+  cryptonote::transaction tx;
+  ASSERT_TRUE(pepenet_social::add_post_to_tx_extra(p, tx.extra));
+  //remove field from extra - causes invalid sig. verification
+  cryptonote::remove_field_from_tx_extra(tx.extra, typeid(cryptonote::tx_extra_tx_reference));
+
+  boost::optional<pepenet_social::post> post;
+  boost::optional<crypto::public_key> null_pk;
+  ASSERT_FALSE(pepenet_social::get_and_verify_post_from_tx_extra(null_pk, post, tx.extra) || post.has_value());
+}
+
+TEST(pepenet_social_invalid_post, post_from_extra_pk_present_sig_not)
+{
+  std::string tx_h_in = "slslls";
+  std::string sk_seed = "1498b5467a63dffa2dc9d9e069caf075d16fc33fdd4c3b01bfadae6433767d93";
+  pepenet_social::post_args p;
+  p.msg = "2992993390";
+  p.title = "pepe has a good day!";
+  p.pseudonym = "jsaiiwjskis";
+  p.sk_seed = sk_seed;
+  p.post_pk = true;
+  p.tx_ref = crypto::cn_fast_hash(tx_h_in.data(), tx_h_in.size());
+  cryptonote::transaction tx;
+  ASSERT_TRUE(pepenet_social::add_post_to_tx_extra(p, tx.extra));
+  //remove field from extra - pk present, sig not present - invalid tx !
+  cryptonote::remove_field_from_tx_extra(tx.extra, typeid(cryptonote::tx_extra_eddsa_signature));
+
+  boost::optional<pepenet_social::post> post;
+  boost::optional<crypto::public_key> null_pk;
+  ASSERT_FALSE(pepenet_social::get_and_verify_post_from_tx_extra(null_pk, post, tx.extra) || post.has_value());
 }
