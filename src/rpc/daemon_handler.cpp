@@ -422,6 +422,11 @@ namespace rpc
         if (!res.error_details.empty()) res.error_details += " and ";
         res.error_details += "too few outputs";
       }
+      if (tvc.m_invalid_social)
+      {
+        if (!res.error_details.empty()) res.error_details += " and ";
+        res.error_details += "invalid pep or post";
+      }
       if (res.error_details.empty())
       {
         res.error_details = "an unknown issue was found with the transaction";

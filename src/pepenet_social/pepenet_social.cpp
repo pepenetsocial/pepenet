@@ -264,7 +264,7 @@ namespace pepenet_social {
     return true;
   }
 
-  bool check_tx_social_validity(cryptonote::transaction& tx)
+  bool check_tx_social_validity(const cryptonote::transaction& tx)
   {
     boost::optional<pepenet_social::pep> pep;
     boost::optional<pepenet_social::post> post;

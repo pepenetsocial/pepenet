@@ -253,6 +253,14 @@ namespace cryptonote
       return false;
     }
 
+    if (!pepenet_social::check_tx_social_validity(tx))
+    {
+      LOG_PRINT_L1("Transaction with id= " << id << " has invalid pep or post");
+      tvc.m_verifivation_failed = true;
+      tvc.m_invalid_social = true;
+      return false;
+    }
+
     // assume failure during verification steps until success is certain
     tvc.m_verifivation_failed = true;
 

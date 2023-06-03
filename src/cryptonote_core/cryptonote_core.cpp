@@ -1200,6 +1200,12 @@ namespace cryptonote
       return false;
     }
 
+    if (!pepenet_social::check_tx_social_validity(tx))
+    {
+      MERROR_VER("tx invalid pep or post");
+      return false;
+    }
+
     return true;
   }
   //-----------------------------------------------------------------------------------------------

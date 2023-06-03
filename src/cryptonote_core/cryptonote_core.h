@@ -50,6 +50,7 @@
 #include "crypto/hash.h"
 #include "span.h"
 #include "rpc/fwd.h"
+#include "pepenet_social/pepenet_social.h"
 
 PUSH_WARNINGS
 DISABLE_VS_WARNINGS(4355)
