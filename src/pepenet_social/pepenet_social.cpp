@@ -144,6 +144,13 @@ namespace pepenet_social {
   {
     //init pep optional
     pep = pepenet_social::pep();
+    //reject if post features are present (post title, lzma post) - peps don't have titles and posts!
+    std::string title, lzma_post;
+    if (cryptonote::get_post_title_from_tx_extra(tx_extra, title) || cryptonote::get_lzma_post_from_tx_extra(tx_extra, lzma_post))
+    {
+      pep.reset();
+      return false;
+    }
     std::string lzma_pep;
     bool pep_missing = !cryptonote::get_lzma_pep_from_tx_extra(tx_extra, lzma_pep);
     if (!pep_missing)
@@ -199,6 +206,13 @@ namespace pepenet_social {
   {
     //init post optional
     post = pepenet_social::post();
+    //reject if pep features are present (lzma pep) - posts don't have peps!
+    std::string lzma_pep;
+    if (cryptonote::get_lzma_pep_from_tx_extra(tx_extra, lzma_pep))
+    {
+      post.reset();
+      return false;
+    }
     std::string lzma_post;
     bool post_missing = !cryptonote::get_lzma_post_from_tx_extra(tx_extra, lzma_post);
     bool title_missing = !cryptonote::get_post_title_from_tx_extra(tx_extra, post.value().title);
@@ -248,6 +262,22 @@ namespace pepenet_social {
       return valid;
     }
     return true;
+  }
+
+  bool check_tx_social_validity(cryptonote::transaction& tx)
+  {
+    boost::optional<pepenet_social::pep> pep;
+    boost::optional<pepenet_social::post> post;
+    boost::optional<crypto::public_key> null_pk;
+    bool post_v = pepenet_social::get_and_verify_post_from_tx_extra(null_pk, post, tx.extra);
+    bool pep_v = pepenet_social::get_and_verify_pep_from_tx_extra(null_pk, pep, tx.extra);
+
+    if ((post_v && post.has_value()) || (pep_v && pep.has_value())) //valid pep or valid post
+      return true;
+    if ((!post_v && post.has_value()) && (!pep_v && pep.has_value())) //missing pep and missing post
+      return true;
+    //other cases are invalid
+    return false;
   }
 
 }
