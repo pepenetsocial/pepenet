@@ -1,4 +1,6 @@
 //credit to: https://gist.github.com/Treeki/f431a2ff44aff984590a97a5c09f6f28
+#pragma once
+
 #include "lzma/C/LzmaEnc.h"
 #include "lzma/C/LzmaDec.h"
 #include <stdio.h>

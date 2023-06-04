@@ -2076,6 +2076,12 @@ bool Blockchain::handle_alternative_block(const block& b, const crypto::hash& id
           bvc.m_verifivation_failed = true;
           return false;
         }
+        if (!pepenet_social::check_tx_social_validity(tx))
+        {
+          MERROR_VER("Block with id: " << epee::string_tools::pod_to_hex(id) << " (as alternative) refers to transaction hash with invalid social features " << txid << ".");
+          bvc.m_verifivation_failed = true;
+          return false;
+        }
         bei.block_cumulative_weight += cryptonote::get_pruned_transaction_weight(tx);
       }
       else
@@ -2678,6 +2684,7 @@ bool Blockchain::get_transactions(const t_ids_container& txs_ids, t_tx_container
       {
         txs.push_back(transaction());
         res = pruned ? parse_and_validate_tx_base_from_blob(tx, txs.back()) : parse_and_validate_tx_from_blob(tx, txs.back());
+        res = res && pepenet_social::check_tx_social_validity(txs.back());
         if (!res)
         {
           LOG_ERROR("Invalid transaction");
@@ -5248,6 +5255,8 @@ bool Blockchain::prepare_handle_incoming_blocks(const std::vector<block_complete
 
       if (!parse_and_validate_tx_base_from_blob(tx_blob.blob, tx))
         SCAN_TABLE_QUIT("Could not parse tx from incoming blocks.");
+      if (!pepenet_social::check_tx_social_validity(tx))
+        SCAN_TABLE_QUIT("Tx in incoming blocks has invalid pep or post.");
       cryptonote::get_transaction_prefix_hash(tx, tx_prefix_hash);
 
       auto its = m_scan_table.find(tx_prefix_hash);

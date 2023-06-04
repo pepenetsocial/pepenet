@@ -1,3 +1,5 @@
+#pragma once
+
 #include "lzma.h"
 #include "crypto/crypto.h"
 #include "../contrib/epee/include/hex.h"
