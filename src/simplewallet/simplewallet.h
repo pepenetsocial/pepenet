@@ -49,6 +49,7 @@
 #include "common/i18n.h"
 #include "common/password.h"
 #include "crypto/crypto.h"  // for definition of crypto::secret_key
+#include "pepenet_social/pepenet_social.h"
 
 #undef PEPENET_DEFAULT_LOG_CATEGORY
 #define PEPENET_DEFAULT_LOG_CATEGORY "wallet.simplewallet"

@@ -6541,12 +6541,96 @@ bool simple_wallet::on_command(bool (simple_wallet::*cmd)(const std::vector<std:
 //----------------------------------------------------------------------------------------------------
 bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::string> &args_, bool called_by_mms)
 {
-//  "transfer [index=<N1>[,<N2>,...]] [<priority>] [<ring_size>] <address> <amount> [<payment_id>]"
+//  "transfer [pep=<msg>] [post=<msg>] [post_title=<msg>] [pseudonym=<str>] [sk_seed=<str>] [post_pk=<1/0>] [tx_reference=<tx hash>] [index=<N1>[,<N2>,...]] [<priority>] [<ring_size>] <address> <amount> [<payment_id>]"
   if (!try_connect_to_daemon())
     return false;
 
   std::vector<std::string> local_args = args_;
-
+  //parse social args
+  bool parse_str = [](const std::string& target_arg, std::string& val, std::vector<string>& local_args, bool& arg_missing)
+  {
+    if (local_args.size() > 0 && local_args[0].substr(0, target_arg.length()) == target_arg)
+    {
+      std::string val = local_args[0].substr(target_arg.length());
+      if (!val.length())
+        return false;
+      local_args.erase(local_args.begin());
+      return true;
+    }
+    arg_missing = true;
+    return false;
+  };
+  
+  pepenet_social::pep_args pep_args;
+  pepenet_social::post_args post_args;
+  bool arg_missing;
+  bool pep_arg = parse_str("pep=", pep_args.msg, local_args, arg_missing);
+  bool post_arg = parse_str("post=", post_args.msg, local_args, arg_missing);
+  bool post_title_arg = parse_str("post_title=", post_args.title, local_args, arg_missing);
+  if (((pep_arg) || (post_arg && post_title_arg)) && (!(pep_arg && post_arg))) //dummy check
+  {
+    std::string pseudonym;
+    if (!parse_str("pseudonym=", pseudonym, local_args, arg_missing) && !arg_missing)
+    {
+      fail_msg_writer() << tr("empty pseudonym value");
+      return false;
+    }
+    std::string sk_seed;
+    if (!parse_str("sk_seed=", sk_seed, local_args, arg_missing) && !arg_missing)
+    {
+      fail_msg_writer() << tr("empty sk_seed value");
+      return false;
+    }
+    bool sk_seed_arg_missing = arg_missing;
+    std::string post_pk_;
+    if (!parse_str("post_pk=", post_pk_, local_args, arg_missing) && !arg_missing)
+    {
+      fail_msg_writer() << tr("empty post_pk value");
+      return false;
+    }
+    if (!sk_seed_arg_missing && arg_missing)
+    {
+      fail_msg_writer() << tr("sk_seed specified, posk_pk argument is required!");
+      return false;
+    }
+    bool post_pk = std::stoul(post_pk_) == 1;
+    
+    crypto::hash tx_reference;
+    std::string tx_ref_hex;
+    if (!parse_str("tx_reference=", tx_ref_hex, local_args, arg_missing) && !arg_missing)
+    {
+      fail_msg_writer() << tr("empty tx_reference value");
+      return false;
+    }
+    if (!epee::string_tools::hex_to_pod(tx_ref_hex, tx_reference))
+    {
+      fail_msg_writer() << tr("invalid tx hash value");
+      return false;
+    }
+    //TODO: check if tx exists in db
+    //construct args
+    if (pep_arg)
+    {
+      pep_args.pseudonym = pseudonym;
+      pep_args.sk_seed = sk_seed;
+      pep_args.post_pk = post_pk;
+      pep_args.tx_ref = tx_reference;
+    }
+    if (post_arg && post_title_arg)
+    {
+      post_args.pseudonym = pseudonym;
+      post_args.sk_seed = sk_seed;
+      post_args.post_pk = post_pk;
+      post_args.tx_ref = tx_reference;
+    }
+    
+  }
+  else if ((pep_arg && (post_arg || post_title_arg)))
+  {
+    fail_msg_writer() << tr("post and pep args defined at the same time");
+    return false;
+  }
+  //
   std::set<uint32_t> subaddr_indices;
   if (local_args.size() > 0 && local_args[0].substr(0, 6) == "index=")
   {
@@ -6599,6 +6683,24 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
   }
 
   std::vector<uint8_t> extra;
+  //add pep or post
+  if (pep_arg)
+  {
+    if (!pepenet_social::add_pep_to_tx_extra(pep_args, extra))
+    {
+      fail_msg_writer() << tr("invalid pep arguments");
+      return false;
+    }
+  }
+  else if (post_arg && post_title_arg)
+  {
+    if (!pepenet_social::add_post_to_tx_extra(post_args, extra))
+    {
+      fail_msg_writer() << tr("invalid post arguments");
+      return false;
+    }
+  }
+  
   bool payment_id_seen = false;
   if (!local_args.empty())
   {
