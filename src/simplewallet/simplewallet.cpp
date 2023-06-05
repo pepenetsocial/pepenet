@@ -6547,11 +6547,12 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
 
   std::vector<std::string> local_args = args_;
   //parse social args
-  bool parse_str = [](const std::string& target_arg, std::string& val, std::vector<string>& local_args, bool& arg_missing)
+  auto parse_str = [](const std::string& target_arg, std::string& val, std::vector<string>& local_args, bool& arg_missing)
   {
+    arg_missing = false;
     if (local_args.size() > 0 && local_args[0].substr(0, target_arg.length()) == target_arg)
     {
-      std::string val = local_args[0].substr(target_arg.length());
+      val = local_args[0].substr(target_arg.length());
       if (!val.length())
         return false;
       local_args.erase(local_args.begin());
@@ -6567,7 +6568,18 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
   bool pep_arg = parse_str("pep=", pep_args.msg, local_args, arg_missing);
   bool post_arg = parse_str("post=", post_args.msg, local_args, arg_missing);
   bool post_title_arg = parse_str("post_title=", post_args.title, local_args, arg_missing);
-  if (((pep_arg) || (post_arg && post_title_arg)) && (!(pep_arg && post_arg))) //dummy check
+  
+  if ((post_arg && !post_title_arg) || (!post_arg && post_title_arg))
+  {
+    fail_msg_writer() << tr("post_title and post have to be defined at the same time");
+    return false;
+  }
+  if ((pep_arg && (post_arg || post_title_arg)))
+  {
+    fail_msg_writer() << tr("post and pep args defined at the same time");
+    return false;
+  }
+  else if ((pep_arg) || (post_arg && post_title_arg))
   {
     std::string pseudonym;
     if (!parse_str("pseudonym=", pseudonym, local_args, arg_missing) && !arg_missing)
@@ -6593,8 +6605,22 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
       fail_msg_writer() << tr("sk_seed specified, posk_pk argument is required!");
       return false;
     }
-    bool post_pk = std::stoul(post_pk_) == 1;
-    
+    bool post_pk;
+    if(!sk_seed_arg_missing){
+      if (post_pk_ == "1")
+      {
+        post_pk = true;
+      }
+      else if (post_pk_ == "0"){
+        post_pk = false;
+      }
+      else
+      {
+        fail_msg_writer() << tr("Invalid post_pk value. Only '0' or '1' is valid");
+        return false;
+      }
+    }
+
     crypto::hash tx_reference;
     std::string tx_ref_hex;
     if (!parse_str("tx_reference=", tx_ref_hex, local_args, arg_missing) && !arg_missing)
@@ -6624,11 +6650,6 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
       post_args.tx_ref = tx_reference;
     }
     
-  }
-  else if ((pep_arg && (post_arg || post_title_arg)))
-  {
-    fail_msg_writer() << tr("post and pep args defined at the same time");
-    return false;
   }
   //
   std::set<uint32_t> subaddr_indices;
@@ -6686,17 +6707,19 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
   //add pep or post
   if (pep_arg)
   {
-    if (!pepenet_social::add_pep_to_tx_extra(pep_args, extra))
+    boost::optional<std::string> err;
+    if (!pepenet_social::add_pep_to_tx_extra(pep_args, extra, err))
     {
-      fail_msg_writer() << tr("invalid pep arguments");
+      fail_msg_writer() << tr("invalid pep arguments: ") << err.value_or("unknown reason");
       return false;
     }
   }
   else if (post_arg && post_title_arg)
   {
-    if (!pepenet_social::add_post_to_tx_extra(post_args, extra))
+    boost::optional<std::string> err;
+    if (!pepenet_social::add_post_to_tx_extra(post_args, extra, err))
     {
-      fail_msg_writer() << tr("invalid post arguments");
+      fail_msg_writer() << tr("invalid post arguments: ") << err.value_or("unknown reason");
       return false;
     }
   }

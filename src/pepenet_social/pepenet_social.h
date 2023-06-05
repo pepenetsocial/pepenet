@@ -45,10 +45,18 @@ namespace pepenet_social {
   bool sign_msg(const std::string& msg, crypto::signature& sig, const crypto::public_key& pk, const crypto::secret_key& sk);
   bool check_msg_sig(const std::string& msg, crypto::signature& sig, const crypto::public_key& pk);
 
-  bool add_pep_to_tx_extra(const pepenet_social::pep_args pep_args, std::vector<uint8_t>& tx_extra);
-  bool add_post_to_tx_extra(const pepenet_social::post_args post_args, std::vector<uint8_t>& tx_extra);
+  bool add_pep_to_tx_extra(const pepenet_social::pep_args pep_args, std::vector<uint8_t>& tx_extra, boost::optional<std::string>& err);
+  bool add_post_to_tx_extra(const pepenet_social::post_args post_args, std::vector<uint8_t>& tx_extra, boost::optional<std::string>& err);
 
-  bool get_and_verify_pep_from_tx_extra(const boost::optional<crypto::public_key>& ver_pk, boost::optional<pepenet_social::pep>& pep, const std::vector<uint8_t>& tx_extra);
-  bool get_and_verify_post_from_tx_extra(const boost::optional<crypto::public_key>& ver_pk, boost::optional<pepenet_social::post>& post, const std::vector<uint8_t>& tx_extra);
+  bool get_and_verify_pep_from_tx_extra(const boost::optional<crypto::public_key>& ver_pk, boost::optional<pepenet_social::pep>& pep, const std::vector<uint8_t>& tx_extra, boost::optional<std::string>& err);
+  bool get_and_verify_post_from_tx_extra(const boost::optional<crypto::public_key>& ver_pk, boost::optional<pepenet_social::post>& post, const std::vector<uint8_t>& tx_extra, boost::optional<std::string>& err);
   bool check_tx_social_validity(const cryptonote::transaction& tx);
 }
+
+#ifndef CHECK_AND_NO_ASSERT_MES_SOCIAL_ERR_L
+#define CHECK_AND_NO_ASSERT_MES_SOCIAL_ERR_L(expr, fail_ret_val, l, message)   do{if(!(expr)) {err = message; LOG_PRINT_L##l(message); /*LOCAL_ASSERT(expr);*/ return fail_ret_val;};}while(0)
+#endif
+
+#ifndef CHECK_AND_NO_ASSERT_MES_SOCIAL_ERR_L1
+#define CHECK_AND_NO_ASSERT_MES_SOCIAL_ERR_L1(expr, fail_ret_val, message) CHECK_AND_NO_ASSERT_MES_SOCIAL_ERR_L(expr, fail_ret_val, 1, message)
+#endif
