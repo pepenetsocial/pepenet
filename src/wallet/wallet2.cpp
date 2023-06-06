@@ -3029,6 +3029,110 @@ void wallet2::pull_and_parse_next_blocks(uint64_t start_height, uint64_t &blocks
   }
 }
 
+void wallet2::pull_and_parse_blocks(uint64_t start_height, uint64_t& end_height, std::vector<parsed_block>& parsed_blocks, bool& last, bool& error, std::exception_ptr& exception)
+{
+  error = false;
+  last = false;
+  exception = NULL;
+
+  try
+  {
+    // pull the blocks by height
+    COMMAND_RPC_GET_BLOCKS_BY_HEIGHT::request req;
+    COMMAND_RPC_GET_BLOCKS_BY_HEIGHT::response res;
+    std::vector<cryptonote::block_complete_entry> blocks;
+    //add heights to req
+    for (uint64_t h = start_height; h <= end_height; ++h)
+    {
+      req.heights.push_back(h);
+    }
+    //make req
+    bool r;
+    {
+      const boost::lock_guard<boost::recursive_mutex> lock{m_daemon_rpc_mutex};
+      uint64_t pre_call_credits = m_rpc_payment_state.credits;
+      req.client = get_client_signature();
+      r = net_utils::invoke_http_bin("/getblocks_by_height.bin", req, res, *m_http_client, rpc_timeout);
+      if (r && res.status == CORE_RPC_STATUS_OK)
+        check_rpc_cost("/getblocks_by_height.bin", res.credits, pre_call_credits, 3 * COST_PER_BLOCK);
+      else if (!r || res.status != CORE_RPC_STATUS_OK)
+      {
+        std::ostringstream oss;
+        oss << "failed to get blocks by heights: ";
+        for (auto height : req.heights)
+          oss << height << ' ';
+        oss << endl << "reason: ";
+        if (!r)
+          oss << "possibly lost connection to daemon";
+        else if (res.status == CORE_RPC_STATUS_BUSY)
+          oss << "daemon is busy";
+        else
+          oss << get_rpc_status(res.status);
+        throw std::runtime_error(oss.str());
+      }
+    }
+    blocks = res.blocks;
+
+
+    tools::threadpool& tpool = tools::threadpool::getInstanceForCompute();
+    tools::threadpool::waiter waiter(tpool);
+    parsed_blocks.resize(blocks.size());
+    for (size_t i = 0; i < blocks.size(); ++i)
+    {
+      tpool.submit(&waiter, boost::bind(&wallet2::parse_block_round, this, std::cref(blocks[i].block),
+        std::ref(parsed_blocks[i].block), std::ref(parsed_blocks[i].hash), std::ref(parsed_blocks[i].error)), true);
+    }
+    THROW_WALLET_EXCEPTION_IF(!waiter.wait(), error::wallet_internal_error, "Exception in thread pool");
+    for (size_t i = 0; i < blocks.size(); ++i)
+    {
+      if (parsed_blocks[i].error)
+      {
+        error = true;
+        break;
+      }
+
+      if (!m_allow_mismatched_daemon_version)
+      {
+        // make sure block's hard fork version is expected at the block's height
+        uint8_t hf_version = parsed_blocks[i].block.major_version;
+        uint64_t height = start_height + i;
+        bool wallet_is_outdated = false;
+        bool daemon_is_outdated = false;
+        check_block_hard_fork_version(m_nettype, hf_version, height, wallet_is_outdated, daemon_is_outdated);
+        THROW_WALLET_EXCEPTION_IF(wallet_is_outdated || daemon_is_outdated, error::incorrect_fork_version,
+          "Unexpected hard fork version v" + std::to_string(hf_version) + " at height " + std::to_string(height) + ". " +
+          (wallet_is_outdated
+            ? "Make sure your wallet is up to date"
+            : "Make sure the node you are connected to is running the latest version")
+        );
+      }
+    }
+
+    boost::mutex error_lock;
+    for (size_t i = 0; i < blocks.size(); ++i)
+    {
+      parsed_blocks[i].txes.resize(blocks[i].txs.size());
+      for (size_t j = 0; j < blocks[i].txs.size(); ++j)
+      {
+        tpool.submit(&waiter, [&, i, j](){
+          if (!parse_and_validate_tx_base_from_blob(blocks[i].txs[j].blob, parsed_blocks[i].txes[j]))
+          {
+            boost::unique_lock<boost::mutex> lock(error_lock);
+            error = true;
+          }
+        }, true);
+      }
+    }
+    THROW_WALLET_EXCEPTION_IF(!waiter.wait(), error::wallet_internal_error, "Exception in thread pool");
+    last = !blocks.empty() && cryptonote::get_block_height(parsed_blocks.back().block) == end_height;
+  }
+  catch(...)
+  {
+    error = true;
+    exception = std::current_exception();
+  }
+}
+
 void wallet2::remove_obsolete_pool_txs(const std::vector<crypto::hash> &tx_hashes)
 {
   // remove pool txes to us that aren't in the pool anymore

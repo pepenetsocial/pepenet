@@ -1523,7 +1523,7 @@ private:
     bool parse_uri(const std::string &uri, std::string &address, std::string &payment_id, uint64_t &amount, std::string &tx_description, std::string &recipient_name, std::vector<std::string> &unknown_parameters, std::string &error);
 
     uint64_t get_blockchain_height_by_date(uint16_t year, uint8_t month, uint8_t day);    // 1<=month<=12, 1<=day<=31
-
+    void pull_and_parse_blocks(uint64_t start_height, uint64_t& end_height, std::vector<parsed_block>& parsed_blocks, bool& last, bool& error, std::exception_ptr& exception);
     bool is_synced();
 
     std::vector<std::pair<uint64_t, uint64_t>> estimate_backlog(const std::vector<std::pair<double, double>> &fee_levels);

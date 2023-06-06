@@ -291,6 +291,7 @@ namespace
   const char* USAGE_HELP("help [<command> | all]");
   const char* USAGE_APROPOS("apropos <keyword> [<keyword> ...]");
   const char* USAGE_SCAN_TX("scan_tx <txid> [<txid> ...]");
+  const char* USAGE_SHOW_SOCIAL_ACTIVITY("show_social_activity [num_of_recent_blocks=<N>] [from_block_height=<height>] [to_block_height=<height>] <show_comments>");
 
   std::string input_line(const std::string& prompt, bool yesno = false)
   {
@@ -2277,6 +2278,129 @@ bool simple_wallet::public_nodes(const std::vector<std::string> &args)
   return true;
 }
 
+bool simple_wallet::show_social_activity(const std::vector<std::string> &args){
+  //"show_social_activity [num_of_recent_blocks=<N>] [from_block_height=<height>] [to_block_height=<height>] <show_comments>"
+  std::vector<std::string> local_args = args;
+  bool arg_missing;
+
+  auto parse_str = [](const std::string& target_arg, std::string& val, std::vector<string>& local_args, bool& arg_missing)
+  {
+    arg_missing = false;
+    if (local_args.size() > 0 && local_args[0].substr(0, target_arg.length()) == target_arg)
+    {
+      val = local_args[0].substr(target_arg.length());
+      if (!val.length())
+        return false;
+      local_args.erase(local_args.begin());
+      return true;
+    }
+    arg_missing = true;
+    return false;
+  };
+
+  bool recent_blocks_arg;
+  std::string recent_blocks_;
+  if (!parse_str("num_of_recent_blocks=", recent_blocks_, local_args, arg_missing) && !arg_missing)
+  {
+    fail_msg_writer() << tr("empty num_of_recent_blocks value");
+    return false;
+  }
+  recent_blocks_arg = !arg_missing;
+  std::size_t recent_blocks;
+  if (!epee::string_tools::get_xtype_from_string(recent_blocks, recent_blocks_) && !arg_missing)
+  {
+    fail_msg_writer() << tr("invalid num_of_recent_blocks value");
+    return false;
+  }
+  recent_blocks = arg_missing ? 10 : recent_blocks;
+  
+  bool from_block_height_arg, to_block_height_arg;
+  std::string from_block_height_, to_block_height_;
+  std::size_t from_block_height, to_block_height;
+  
+  if (!parse_str("from_block_height=", from_block_height_, local_args, arg_missing) && !arg_missing)
+  {
+    fail_msg_writer() << tr("empty from_block_height value");
+    return false;
+  }
+  from_block_height_arg = !arg_missing;
+  
+  if (!epee::string_tools::get_xtype_from_string(from_block_height, from_block_height_) && !arg_missing)
+  {
+    fail_msg_writer() << tr("invalid from_block_height value");
+    return false;
+  }
+
+  if (!parse_str("to_block_height=", to_block_height_, local_args, arg_missing) && !arg_missing)
+  {
+    fail_msg_writer() << tr("empty to_block_height value");
+    return false;
+  }
+  to_block_height_arg = !arg_missing;
+
+  if (!epee::string_tools::get_xtype_from_string(to_block_height, to_block_height_) && !arg_missing)
+  {
+    fail_msg_writer() << tr("invalid from_block_height value");
+    return false;
+  }
+
+  if (!(to_block_height_arg && from_block_height_arg))
+  {
+    fail_msg_writer() << tr("'from_block_height=' and 'to_block_height=' need to be defined at the same time");
+    return false;
+  }
+
+  if (recent_blocks_arg && (to_block_height_arg || from_block_height_arg))
+  {
+    fail_msg_writer() << tr("choose recent_blocks or the from-to option. Not both!");
+    return false;
+  }
+
+  bool show_comments;
+  if (!local_args.size())
+  {
+    fail_msg_writer() << tr("show_comments arg is required ('0' or '1')");
+    return false;
+  }
+  else
+  {
+    std::size_t show_comments_;
+    if (!epee::string_tools::get_xtype_from_string(show_comments_, local_args[0]) && (show_comments_ <= 1))
+    {
+      fail_msg_writer() << tr("invalid show_comments value - must be ('0' or '1')");
+      return false;
+    }
+  }
+  //extract blocks and tx's from database
+  std::size_t current_block_height;
+  
+  //check and correct block height
+  {
+    COMMAND_RPC_GET_INFO::request req;
+    COMMAND_RPC_GET_INFO::response res;
+    bool r = m_wallet->invoke_http_json("/get_info", req, res);
+    std::string err = interpret_rpc_response(r, res.status);
+    if (r && err.empty() && (res.was_bootstrap_ever_used || !res.bootstrap_daemon_address.empty()))
+      message_writer(console_color_red, true) << boost::format(tr("Moreover, a daemon is also less secure when running in bootstrap mode"));
+
+    current_block_height = res.height;
+  }
+  
+  if (to_block_height_arg)
+  {
+    to_block_height = to_block_height > current_block_height ? current_block_height : to_block_height;
+  }
+  //get requested blocks
+  //COMMAND_RPC_GET_BLOCKS_FAST
+  std::vector<tools::wallet2::parsed_block> blocks;
+  bool last;
+  bool error;
+  std::exception_ptr ex;
+  m_wallet->pull_and_parse_blocks(from_block_height, to_block_height, blocks, last, error, ex);
+  //print social txs
+  return true;
+}
+
 bool simple_wallet::welcome(const std::vector<std::string> &args)
 {
   message_writer() << tr("Welcome to Monero, the private cryptocurrency.");
@@ -3787,7 +3911,11 @@ simple_wallet::simple_wallet()
                            boost::bind(&simple_wallet::on_command, this, &simple_wallet::scan_tx, _1),
                            tr(USAGE_SCAN_TX),
                            tr("Scan the transactions given by <txid>(s), processing them and looking for outputs"));
-  m_cmd_binder.set_unknown_command_handler(boost::bind(&simple_wallet::on_command, this, &simple_wallet::on_unknown_command, _1));
+ m_cmd_binder.set_handler("show_social_activity",
+                           boost::bind(&simple_wallet::on_command, this, &simple_wallet::show_social_activity, _1),
+                           tr(USAGE_SHOW_SOCIAL_ACTIVITY),
+                           tr("Shows peps, (comments) and posts in (recent) blocks"));
+ m_cmd_binder.set_unknown_command_handler(boost::bind(&simple_wallet::on_command, this, &simple_wallet::on_unknown_command, _1));
   m_cmd_binder.set_empty_command_handler(boost::bind(&simple_wallet::on_empty_command, this));
   m_cmd_binder.set_cancel_handler(boost::bind(&simple_wallet::on_cancelled_command, this));
 }
