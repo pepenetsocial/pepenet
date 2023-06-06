@@ -6628,7 +6628,7 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
       fail_msg_writer() << tr("empty tx_reference value");
       return false;
     }
-    if (!epee::string_tools::hex_to_pod(tx_ref_hex, tx_reference))
+    if (!epee::string_tools::hex_to_pod(tx_ref_hex, tx_reference) && !arg_missing)
     {
       fail_msg_writer() << tr("invalid tx hash value");
       return false;
