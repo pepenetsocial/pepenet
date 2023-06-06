@@ -2344,7 +2344,7 @@ bool simple_wallet::show_social_activity(const std::vector<std::string> &args){
     return false;
   }
 
-  if (!(to_block_height_arg && from_block_height_arg))
+  if ((!to_block_height_arg && from_block_height_arg) || (to_block_height_arg && !from_block_height_arg))
   {
     fail_msg_writer() << tr("'from_block_height=' and 'to_block_height=' need to be defined at the same time");
     return false;
@@ -2372,23 +2372,23 @@ bool simple_wallet::show_social_activity(const std::vector<std::string> &args){
     }
   }
   //extract blocks and tx's from database
-  std::size_t current_block_height;
-  
-  //check and correct block height
+  std::string err;
+  std::size_t current_block_height = m_wallet->get_daemon_blockchain_height(err) - 1;
+  if (!err.empty())
   {
-    COMMAND_RPC_GET_INFO::request req;
-    COMMAND_RPC_GET_INFO::response res;
-    bool r = m_wallet->invoke_http_json("/get_info", req, res);
-    std::string err = interpret_rpc_response(r, res.status);
-    if (r && err.empty() && (res.was_bootstrap_ever_used || !res.bootstrap_daemon_address.empty()))
-      message_writer(console_color_red, true) << boost::format(tr("Moreover, a daemon is also less secure when running in bootstrap mode"));
-
-    current_block_height = res.height;
+    fail_msg_writer() << tr("failed to get blockchain height");
+    return false;
   }
   
   if (to_block_height_arg)
   {
     to_block_height = to_block_height > current_block_height ? current_block_height : to_block_height;
+  }
+  
+  if (!from_block_height_arg && !to_block_height_arg)
+  {
+    from_block_height = current_block_height - recent_blocks;
+    to_block_height = current_block_height;
   }
   //get requested blocks
   //COMMAND_RPC_GET_BLOCKS_FAST
@@ -2397,7 +2397,69 @@ bool simple_wallet::show_social_activity(const std::vector<std::string> &args){
   bool error;
   std::exception_ptr ex;
   m_wallet->pull_and_parse_blocks(from_block_height, to_block_height, blocks, last, error, ex);
+  if (error || ex || !last)
+  {
+    fail_msg_writer() << tr("Failed to get requested blocks for social acticity");
+    return false;
+  }
   //print social txs
+  std::size_t height_counter = from_block_height;
+  message_writer() << (boost::format(tr("Displaying social activity from block height %u to block height %u"))
+  % from_block_height % to_block_height).str();
+  message_writer(console_color_red, true) << boost::format(tr("Moreover, a daemon is also less secure when running in bootstrap mode"));
+  for (const auto& block : blocks)
+  {
+    message_writer(console_color_yellow, true) << (boost::format(tr("Displaying social activity from block height %u and block hash %s)"))
+      % height_counter % epee::string_tools::pod_to_hex(block.hash)).str();
+    for (const auto& tx : block.txes)
+    {
+      if (!pepenet_social::check_tx_social_validity(tx))
+      {
+        fail_msg_writer() << tr("invalid tx found");
+        return false;
+      }
+      boost::optional<pepenet_social::pep> pep;
+      boost::optional<pepenet_social::post> post;
+      boost::optional<crypto::public_key> null_pk;
+      boost::optional<std::string> err;
+      pepenet_social::get_and_verify_pep_from_tx_extra(null_pk, pep, tx.extra, err);
+      pepenet_social::get_and_verify_post_from_tx_extra(null_pk, post, tx.extra, err);
+      
+      if (err.has_value() && (!pep.has_value() && !post.has_value()))
+      {
+        fail_msg_writer() << tr("Could not get social feature from extra: ") << err.value();
+        return false;
+      }
+      else if (!pep.has_value() && !post.has_value())
+      {
+        continue;
+      }
+      else
+      {
+        message_writer(console_color_green, true) << (boost::format(tr("txid %s)"))
+          % epee::string_tools::pod_to_hex(tx.hash)).str();
+        if (pep.has_value())
+        {
+          message_writer() << (boost::format(tr("pep: %s")) % pep.value().msg).str();
+          if (pep.value().pseudonym.has_value())
+            message_writer() << (boost::format(tr("pseudonym: %s")) % pep.value().pseudonym.value()).str();
+          if (pep.value().tx_ref.has_value())
+            message_writer() << (boost::format(tr("tx reference: %s")) % pep.value().tx_ref.value()).str();
+        }
+        else if (post.has_value())
+        {
+          message_writer() << (boost::format(tr("post title: %s")) % post.value().title).str();
+          message_writer() << (boost::format(tr("post: %s")) % post.value().msg).str();
+          if (post.value().pseudonym.has_value())
+            message_writer() << (boost::format(tr("pseudonym: %s")) % post.value().pseudonym.value()).str();
+          if (post.value().tx_ref.has_value())
+            message_writer() << (boost::format(tr("tx reference: %s")) % post.value().tx_ref.value()).str();
+        }
+        message_writer() << tr("");
+      }
+    }
+    ++height_counter;
+  }
   return true;
 }
 
