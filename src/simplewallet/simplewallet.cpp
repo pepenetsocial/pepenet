@@ -2399,7 +2399,7 @@ bool simple_wallet::show_social_activity(const std::vector<std::string> &args){
   
   if (!from_block_height_arg && !to_block_height_arg)
   {
-    from_block_height = current_block_height - recent_blocks;
+    from_block_height = current_block_height - recent_blocks +1;
     to_block_height = current_block_height;
   }
   //get requested blocks

@@ -1441,7 +1441,5 @@ TEST(pepenet_social_pep_optional_fields, pep_to_extra_optional_fields_1)
 
   //hash
   crypto::hash tx_hash = cryptonote::get_transaction_hash(tx);
-  GTEST_COUT << epee::string_tools::pod_to_hex(tx_hash) << std::endl;
   crypto::hash empty_hash;
-  GTEST_COUT << epee::string_tools::pod_to_hex(empty_hash) << std::endl;
 }
