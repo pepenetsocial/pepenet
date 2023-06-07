@@ -2344,15 +2344,15 @@ bool simple_wallet::show_social_activity(const std::vector<std::string> &args){
     return false;
   }
 
-  if ((!to_block_height_arg && from_block_height_arg) || (to_block_height_arg && !from_block_height_arg))
-  {
-    fail_msg_writer() << tr("'from_block_height=' and 'to_block_height=' need to be defined at the same time");
-    return false;
-  }
-
   if (recent_blocks_arg && (to_block_height_arg || from_block_height_arg))
   {
     fail_msg_writer() << tr("choose recent_blocks or the from-to option. Not both!");
+    return false;
+  }
+
+  if ((!to_block_height_arg && from_block_height_arg) || (to_block_height_arg && !from_block_height_arg))
+  {
+    fail_msg_writer() << tr("'from_block_height=' and 'to_block_height=' need to be defined at the same time");
     return false;
   }
 
@@ -2370,6 +2370,18 @@ bool simple_wallet::show_social_activity(const std::vector<std::string> &args){
       fail_msg_writer() << tr("invalid show_comments value - must be ('0' or '1')");
       return false;
     }
+    local_args.erase(local_args.begin());
+  }
+
+  if (local_args.size() > 0)
+  {
+    std::string redundant_args = local_args[0];
+    local_args.erase(local_args.begin());
+    for (const auto& a : local_args)
+      redundant_args += "," + a;
+
+    message_writer(console_color_red, true) << (boost::format(tr("WARNING: redundant or invalid arguments: %s"))
+      % redundant_args).str();
   }
   //extract blocks and tx's from database
   std::string err;
@@ -2404,13 +2416,14 @@ bool simple_wallet::show_social_activity(const std::vector<std::string> &args){
   }
   //print social txs
   std::size_t height_counter = from_block_height;
-  message_writer() << (boost::format(tr("Displaying social activity from block height %u to block height %u"))
+  bool no_social_activity_in_range = true;
+  
+  message_writer(console_color_magenta, true) << (boost::format(tr("Displaying social activity from block height %u to block height %u"))
   % from_block_height % to_block_height).str();
-  message_writer(console_color_red, true) << boost::format(tr("Moreover, a daemon is also less secure when running in bootstrap mode"));
+
   for (const auto& block : blocks)
   {
-    message_writer(console_color_yellow, true) << (boost::format(tr("Displaying social activity from block height %u and block hash %s)"))
-      % height_counter % epee::string_tools::pod_to_hex(block.hash)).str();
+    bool block_activity_logged = false;
     for (const auto& tx : block.txes)
     {
       if (!pepenet_social::check_tx_social_validity(tx))
@@ -2436,7 +2449,14 @@ bool simple_wallet::show_social_activity(const std::vector<std::string> &args){
       }
       else
       {
-        message_writer(console_color_green, true) << (boost::format(tr("txid %s)"))
+        no_social_activity_in_range = false;
+        if (!block_activity_logged)
+        {
+          block_activity_logged = true;
+          message_writer(console_color_yellow, true) << (boost::format(tr("Displaying social activity from block height %u and block hash %s"))
+          % height_counter % epee::string_tools::pod_to_hex(block.hash)).str();
+        }
+        message_writer(console_color_green, true) << (boost::format(tr("txid <%s>"))
           % epee::string_tools::pod_to_hex(tx.hash)).str();
         if (pep.has_value())
         {
@@ -2459,6 +2479,11 @@ bool simple_wallet::show_social_activity(const std::vector<std::string> &args){
       }
     }
     ++height_counter;
+  }
+  if (no_social_activity_in_range)
+  {
+      message_writer(console_color_cyan, true) << (boost::format(tr("No social activity found from block height %u to block height %u"))
+  % from_block_height % to_block_height).str();
   }
   return true;
 }
