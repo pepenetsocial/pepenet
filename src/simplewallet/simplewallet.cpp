@@ -2456,8 +2456,17 @@ bool simple_wallet::show_social_activity(const std::vector<std::string> &args){
           message_writer(console_color_yellow, true) << (boost::format(tr("Displaying social activity from block height %u and block hash %s"))
           % height_counter % epee::string_tools::pod_to_hex(block.hash)).str();
         }
+        
+        crypto::hash tx_hash;
+        bool hashing_passed;
+        if (!cryptonote::get_transaction_hash(tx, tx_hash))
+        {
+          fail_msg_writer() << tr("Could not get tx hash ");
+          return false;
+        }
+        
         message_writer(console_color_green, true) << (boost::format(tr("txid <%s>"))
-          % epee::string_tools::pod_to_hex(tx.hash)).str();
+          % epee::string_tools::pod_to_hex(tx_hash)).str();
         if (pep.has_value())
         {
           message_writer() << (boost::format(tr("pep: %s")) % pep.value().msg).str();
@@ -6776,7 +6785,22 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
     arg_missing = true;
     return false;
   };
-  
+
+  auto parse_str_opt = [](const std::string& target_arg, boost::optional<std::string>& val, std::vector<std::string>& local_args, bool& arg_missing)
+  {
+    arg_missing = false;
+    if (local_args.size() > 0 && local_args[0].substr(0, target_arg.length()) == target_arg)
+    {
+      val = local_args[0].substr(target_arg.length());
+      if (!val.value().length())
+        return false;
+      local_args.erase(local_args.begin());
+      return true;
+    }
+    arg_missing = true;
+    return false;
+  };
+
   pepenet_social::pep_args pep_args;
   pepenet_social::post_args post_args;
   bool arg_missing;
@@ -6796,14 +6820,14 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
   }
   else if ((pep_arg) || (post_arg && post_title_arg))
   {
-    std::string pseudonym;
-    if (!parse_str("pseudonym=", pseudonym, local_args, arg_missing) && !arg_missing)
+    boost::optional<std::string> pseudonym;
+    if (!parse_str_opt("pseudonym=", pseudonym, local_args, arg_missing) && !arg_missing)
     {
       fail_msg_writer() << tr("empty pseudonym value");
       return false;
     }
-    std::string sk_seed;
-    if (!parse_str("sk_seed=", sk_seed, local_args, arg_missing) && !arg_missing)
+    boost::optional<std::string> sk_seed;
+    if (!parse_str_opt("sk_seed=", sk_seed, local_args, arg_missing) && !arg_missing)
     {
       fail_msg_writer() << tr("empty sk_seed value");
       return false;
@@ -6836,7 +6860,7 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
       }
     }
 
-    crypto::hash tx_reference;
+    boost::optional<crypto::hash> tx_reference;
     std::string tx_ref_hex;
     if (!parse_str("tx_reference=", tx_ref_hex, local_args, arg_missing) && !arg_missing)
     {

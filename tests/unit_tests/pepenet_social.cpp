@@ -1289,3 +1289,159 @@ TEST(pepenet_social_transfer, parse_transfer_main_args_post_and_pep_args_5)
     ASSERT_TRUE(false);
   }
 }
+
+TEST(pepenet_social_pep_optional_fields, pep_to_extra_optional_fields_1)
+{
+  //  "transfer [pep=<msg>] [post=<msg>] [post_title=<msg>] [pseudonym=<str>] [sk_seed=<str>] [post_pk=<1/0>] [tx_reference=<tx hash>] [index=<N1>[,<N2>,...]] [<priority>] [<ring_size>] <address> <amount> [<payment_id>]"
+  std::vector<std::string> args_ = { "pep=hello pepe", "pseudonym=pepe1"};
+  std::vector<std::string> local_args = args_;
+  //parse social args
+  auto parse_str = [](const std::string& target_arg, std::string& val, std::vector<std::string>& local_args, bool& arg_missing)
+  {
+    arg_missing = false;
+
+    if (local_args.size() > 0 && local_args[0].substr(0, target_arg.length()) == target_arg)
+    {
+      val = local_args[0].substr(target_arg.length());
+      if (!val.length())
+        return false;
+      local_args.erase(local_args.begin());
+
+      return true;
+    }
+    arg_missing = true;
+    return false;
+  };
+
+  auto parse_str_opt = [](const std::string& target_arg, boost::optional<std::string>& val, std::vector<std::string>& local_args, bool& arg_missing)
+  {
+    arg_missing = false;
+    if (local_args.size() > 0 && local_args[0].substr(0, target_arg.length()) == target_arg)
+    {
+      val = local_args[0].substr(target_arg.length());
+      if (!val.value().length())
+        return false;
+      local_args.erase(local_args.begin());
+      return true;
+    }
+    arg_missing = true;
+    return false;
+  };
+
+  pepenet_social::pep_args pep_args;
+  pepenet_social::post_args post_args;
+  bool arg_missing;
+  bool pep_arg = parse_str("pep=", pep_args.msg, local_args, arg_missing);
+  bool post_arg = parse_str("post=", post_args.msg, local_args, arg_missing);
+  bool post_title_arg = parse_str("post_title=", post_args.title, local_args, arg_missing);
+
+  if ((post_arg && !post_title_arg) || (!post_arg && post_title_arg))
+  {
+    ASSERT_TRUE(false);
+  }
+  if ((pep_arg && (post_arg || post_title_arg)))
+  {
+    ASSERT_TRUE(false);
+  }
+  else if ((pep_arg) || (post_arg && post_title_arg))
+  {
+    boost::optional<std::string> pseudonym;
+    if (!parse_str_opt("pseudonym=", pseudonym, local_args, arg_missing) && !arg_missing)
+    {
+      ASSERT_TRUE(false);
+    }
+    boost::optional<std::string> sk_seed;
+    if (!parse_str_opt("sk_seed=", sk_seed, local_args, arg_missing) && !arg_missing)
+    {
+      ASSERT_TRUE(false);
+    }
+    bool sk_seed_arg_missing = arg_missing;
+    std::string post_pk_;
+    if (!parse_str("post_pk=", post_pk_, local_args, arg_missing) && !arg_missing)
+    {
+      ASSERT_TRUE(false);
+    }
+    if (!sk_seed_arg_missing && arg_missing)
+    {
+      ASSERT_TRUE(false);
+    }
+    GTEST_COUT << "post_pk: " << post_pk_ << std::endl;
+
+    bool post_pk;
+    if (!sk_seed_arg_missing)
+    {
+      if (post_pk_ == "1")
+      {
+        post_pk = true;
+      }
+      else if (post_pk_ == "0")
+      {
+        post_pk = false;
+      }
+      else
+      {
+        ASSERT_TRUE(false);
+      }
+    }
+
+    boost::optional<crypto::hash> tx_reference;
+    std::string tx_ref_hex;
+    if (!parse_str("tx_reference=", tx_ref_hex, local_args, arg_missing) && !arg_missing)
+    {
+      ASSERT_TRUE(false);
+    }
+    if (!epee::string_tools::hex_to_pod(tx_ref_hex, tx_reference))
+    {
+      ASSERT_FALSE(false);
+    }
+    //TODO: check if tx exists in db
+    //construct args
+    if (pep_arg)
+    {
+      pep_args.pseudonym = pseudonym;
+      pep_args.sk_seed = sk_seed;
+      pep_args.post_pk = post_pk;
+      pep_args.tx_ref = tx_reference;
+    }
+    if (post_arg && post_title_arg)
+    {
+      post_args.pseudonym = pseudonym;
+      post_args.sk_seed = sk_seed;
+      post_args.post_pk = post_pk;
+      post_args.tx_ref = tx_reference;
+    }
+
+  }
+  cryptonote::transaction tx;
+  //add pep or post to tx
+  if (pep_arg)
+  {
+    boost::optional<std::string> err;
+    if (!pepenet_social::add_pep_to_tx_extra(pep_args, tx.extra, err))
+    {
+      ASSERT_TRUE(false);
+    }
+  }
+  else if (post_arg && post_title_arg)
+  {
+    boost::optional<std::string> err;
+    if (!pepenet_social::add_post_to_tx_extra(post_args, tx.extra, err))
+    {
+      ASSERT_TRUE(false);
+    }
+  }
+  //verify tx
+  ASSERT_TRUE(pepenet_social::check_tx_social_validity(tx));
+  boost::optional<crypto::public_key> null_pk;
+  boost::optional<pepenet_social::pep> pep;
+  boost::optional<std::string> err;
+  ASSERT_TRUE(get_and_verify_pep_from_tx_extra(null_pk, pep, tx.extra, err));
+  ASSERT_TRUE(!pep.value().sig.has_value());
+  ASSERT_TRUE(!pep.value().tx_ref.has_value());
+
+  //hash
+  crypto::hash tx_hash = cryptonote::get_transaction_hash(tx);
+  GTEST_COUT << epee::string_tools::pod_to_hex(tx_hash) << std::endl;
+  crypto::hash empty_hash;
+  GTEST_COUT << epee::string_tools::pod_to_hex(empty_hash) << std::endl;
+}
