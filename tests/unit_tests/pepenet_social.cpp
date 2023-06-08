@@ -1565,3 +1565,24 @@ TEST(pepenet_social_msg_args, pep_msg_arg_parse_msg_tag_test)
   bool pep_arg = check_arg("pep=", local_args);
   ASSERT_TRUE(parse_msg_tag("pep=", msg_str, local_args));
 }
+
+TEST(pepenet_social_social_msg_args, pk_filter_1)
+{
+  crypto::public_key pk_filter;
+  boost::optional<crypto::public_key> pk_filter_opt;
+  std::string pk_filter_hex;
+  bool arg_missing;
+  std::vector<std::string> local_args = { "pubkey_filter=dceb95b3eb74c38c371d5772311cc32acba6ebd0e7d97e4ffb338c947e6bac14" };
+  if (!parse_str("pubkey_filter=", pk_filter_hex, local_args, arg_missing) && !arg_missing)
+  {
+    ASSERT_TRUE(false);
+  }
+  if (!epee::string_tools::hex_to_pod(pk_filter_hex, pk_filter) && !arg_missing)
+  {
+    ASSERT_TRUE(false);
+  }
+  else
+  {
+    pk_filter_opt = pk_filter;
+  }
+}

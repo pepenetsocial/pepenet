@@ -291,7 +291,7 @@ namespace
   const char* USAGE_HELP("help [<command> | all]");
   const char* USAGE_APROPOS("apropos <keyword> [<keyword> ...]");
   const char* USAGE_SCAN_TX("scan_tx <txid> [<txid> ...]");
-  const char* USAGE_SHOW_SOCIAL_ACTIVITY("show_social_activity [num_of_recent_blocks=<N>] [from_block_height=<height>] [to_block_height=<height>] <show_comments>");
+  const char* USAGE_SHOW_SOCIAL_ACTIVITY("show_social_activity [num_of_recent_blocks=<N>] [from_block_height=<height>] [to_block_height=<height>] [pubkey_filter=<hex public key>] <show_comments>");
 
   std::string input_line(const std::string& prompt, bool yesno = false)
   {
@@ -2279,7 +2279,7 @@ bool simple_wallet::public_nodes(const std::vector<std::string> &args)
 }
 
 bool simple_wallet::show_social_activity(const std::vector<std::string> &args){
-  //"show_social_activity [num_of_recent_blocks=<N>] [from_block_height=<height>] [to_block_height=<height>] <show_comments>"
+  //"show_social_activity [num_of_recent_blocks=<N>] [from_block_height=<height>] [to_block_height=<height>] [pubkey_filter=<hex public key>] <show_comments>"
   std::vector<std::string> local_args = args;
   bool arg_missing;
 
@@ -2355,6 +2355,24 @@ bool simple_wallet::show_social_activity(const std::vector<std::string> &args){
     fail_msg_writer() << tr("'from_block_height=' and 'to_block_height=' need to be defined at the same time");
     return false;
   }
+  //pk filter
+  crypto::public_key pk_filter_parsed;
+  boost::optional<crypto::public_key> pk_filter;
+  std::string pk_filter_hex;
+  if (!parse_str("pubkey_filter=", pk_filter_hex, local_args, arg_missing) && !arg_missing)
+  {
+    fail_msg_writer() << tr("empty pubkey_filter value");
+    return false;
+  }
+  if (!epee::string_tools::hex_to_pod(pk_filter_hex, pk_filter_parsed) && !arg_missing)
+  {
+    fail_msg_writer() << tr("invalid pubkey filter value");
+    return false;
+  }
+  else if (!arg_missing)
+  {
+    pk_filter = pk_filter_parsed;
+  }
 
   bool show_comments;
   if (!local_args.size())
@@ -2370,6 +2388,7 @@ bool simple_wallet::show_social_activity(const std::vector<std::string> &args){
       fail_msg_writer() << tr("invalid show_comments value - must be ('0' or '1')");
       return false;
     }
+    show_comments = show_comments_ == 1 ? true : false;
     local_args.erase(local_args.begin());
   }
 
@@ -2443,11 +2462,41 @@ bool simple_wallet::show_social_activity(const std::vector<std::string> &args){
         fail_msg_writer() << tr("Could not get social feature from extra: ") << err.value();
         return false;
       }
-      else if (!pep.has_value() && !post.has_value())
+      //FILTERS
+      if (!show_comments) //comment filter
+      {
+        if (pep.has_value())
+        {
+          if (pep.value().tx_ref.has_value())
+            continue;
+        }
+
+        if (post.has_value())
+        {
+          if (post.value().tx_ref.has_value())
+            continue;
+        }
+      }
+      if (pk_filter.has_value()) //public key filter
+      {
+        if (pep.has_value())
+        {
+          if (pk_filter.value() != pep.value().pk)
+            continue;
+        }
+
+        if (post.has_value())
+        {
+          if (pk_filter.value() != post.value().pk)
+            continue;
+        }
+      }
+      
+      if (!pep.has_value() && !post.has_value()) //no social features
       {
         continue;
       }
-      else
+      else //has social features
       {
         no_social_activity_in_range = false;
         if (!block_activity_logged)
@@ -2469,29 +2518,29 @@ bool simple_wallet::show_social_activity(const std::vector<std::string> &args){
           % epee::string_tools::pod_to_hex(tx_hash)).str();
         if (pep.has_value())
         {
-          message_writer() << (boost::format(tr("pep: %s")) % pep.value().msg).str();
+          message_writer() << (boost::format(tr("[pep: ] %s")) % pep.value().msg).str();
           if (pep.value().pseudonym.has_value())
-            message_writer() << (boost::format(tr("pseudonym: %s")) % pep.value().pseudonym.value()).str();
+            message_writer() << (boost::format(tr("[pseudonym: ] %s")) % pep.value().pseudonym.value()).str();
           if (pep.value().tx_ref.has_value())
-            message_writer() << (boost::format(tr("tx reference: %s")) % pep.value().tx_ref.value()).str();
+            message_writer() << (boost::format(tr("[tx reference: ] %s")) % pep.value().tx_ref.value()).str();
           if (pep.value().pk.has_value())
           {
             std::string pk_hex = epee::string_tools::pod_to_hex(pep.value().pk.value());
-            message_writer() << (boost::format(tr("pubkey: %s")) % pk_hex).str();
+            message_writer() << (boost::format(tr("[pubkey: ] %s")) % pk_hex).str();
           }
         }
         else if (post.has_value())
         {
-          message_writer() << (boost::format(tr("post title: %s")) % post.value().title).str();
-          message_writer() << (boost::format(tr("post: %s")) % post.value().msg).str();
+          message_writer() << (boost::format(tr("[post title: ] %s")) % post.value().title).str();
+          message_writer() << (boost::format(tr("[post: ] %s")) % post.value().msg).str();
           if (post.value().pseudonym.has_value())
-            message_writer() << (boost::format(tr("pseudonym: %s")) % post.value().pseudonym.value()).str();
+            message_writer() << (boost::format(tr("[pseudonym: ] %s")) % post.value().pseudonym.value()).str();
           if (post.value().tx_ref.has_value())
-            message_writer() << (boost::format(tr("tx reference: %s")) % post.value().tx_ref.value()).str();
+            message_writer() << (boost::format(tr("[tx reference: ] %s")) % post.value().tx_ref.value()).str();
           if (post.value().pk.has_value())
           {
             std::string pk_hex = epee::string_tools::pod_to_hex(post.value().pk.value());
-            message_writer() << (boost::format(tr("pubkey: %s")) % pk_hex).str();
+            message_writer() << (boost::format(tr("[pubkey: ] %s")) % pk_hex).str();
           }
         }
         message_writer() << tr("");
@@ -6917,6 +6966,7 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
       }
     }
 
+    crypto::hash tx_reference_parsed;
     boost::optional<crypto::hash> tx_reference;
     std::string tx_ref_hex;
     if (!parse_str("tx_reference=", tx_ref_hex, local_args, arg_missing) && !arg_missing)
@@ -6924,10 +6974,14 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
       fail_msg_writer() << tr("empty tx_reference value");
       return false;
     }
-    if (!epee::string_tools::hex_to_pod(tx_ref_hex, tx_reference) && !arg_missing)
+    if (!epee::string_tools::hex_to_pod(tx_ref_hex, tx_reference_parsed) && !arg_missing)
     {
       fail_msg_writer() << tr("invalid tx hash value");
       return false;
+    }
+    else if (!arg_missing)
+    {
+      tx_reference = tx_reference_parsed;
     }
     //TODO: check if tx exists in db
     //construct args
