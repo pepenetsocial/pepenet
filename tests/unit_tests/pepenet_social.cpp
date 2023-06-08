@@ -34,6 +34,10 @@
 #include "cryptonote_basic/cryptonote_basic.h"
 #include "cryptonote_basic/cryptonote_format_utils.h"
 #include "../contrib/epee/include/string_tools.h"
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string/replace.hpp>
 
 #define GTEST_COUT std::cerr << "[          ] [ INFO ]"
 
@@ -1442,4 +1446,122 @@ TEST(pepenet_social_pep_optional_fields, pep_to_extra_optional_fields_1)
   //hash
   crypto::hash tx_hash = cryptonote::get_transaction_hash(tx);
   crypto::hash empty_hash;
+}
+
+TEST(pepenet_social_msg_args, pep_msg_arg)
+{
+  //  "transfer [pep=<msg>] [post=<msg>] [post_title=<msg>] [pseudonym=<str>] [sk_seed=<str>] [post_pk=<1/0>] [tx_reference=<tx hash>] [index=<N1>[,<N2>,...]] [<priority>] [<ring_size>] <address> <amount> [<payment_id>]"
+  std::string pep_arg_string = "pep=<msg>I had a great day today. Feels good man :D. I should try this more often.It might even benefit me some day !</msg> pseudonym=pepe1";
+  std::string target_pep_content = "I had a great day today. Feels good man :D. I should try this more often.It might even benefit me some day !";
+  
+  std::vector<std::string> args_ = {pep_arg_string };
+  args_ = boost::split(args_, pep_arg_string, boost::is_any_of(" "), boost::token_compress_on);
+  std::vector<std::string> local_args = args_;
+  //parse social args
+  auto parse_str = [](const std::string& target_arg, std::string& val, std::vector<std::string>& local_args, bool& arg_missing)
+  {
+    arg_missing = false;
+
+    if (local_args.size() > 0 && local_args[0].substr(0, target_arg.length()) == target_arg)
+    {
+      val = local_args[0].substr(target_arg.length());
+      if (!val.length())
+        return false;
+      local_args.erase(local_args.begin());
+
+      return true;
+    }
+    arg_missing = true;
+    return false;
+  };
+
+  std::string pep_begin;
+  bool arg_missing;
+  ASSERT_TRUE(parse_str("pep=<msg>", pep_begin, local_args, arg_missing));
+  pep_begin += " ";
+  std::vector<std::string>::iterator it = std::find_if(local_args.begin(), local_args.end(), [](const std::string& s)
+    {return boost::algorithm::ends_with(s, "</msg>");}
+  );
+  ASSERT_TRUE(it != local_args.end());
+  //remove end 
+  boost::algorithm::replace_all(*it, "</msg>", "");
+  // add spaces
+  for (auto it_ = local_args.begin(); it_ != it; ++it_)
+    *it_ += " ";
+  
+  std::string pep_content = std::accumulate(local_args.begin(), it, pep_begin);
+  pep_content += *it;
+  
+  ASSERT_TRUE(pep_content == target_pep_content);
+  local_args.erase(local_args.begin(), it +1);
+  
+  ASSERT_TRUE(local_args.size() == 1 && local_args[0] == "pseudonym=pepe1");
+}
+
+bool parse_str(const std::string& target_arg, std::string& val, std::vector<std::string>& local_args, bool& arg_missing)
+{
+  arg_missing = false;
+  if (local_args.size() > 0 && local_args[0].substr(0, target_arg.length()) == target_arg)
+  {
+    val = local_args[0].substr(target_arg.length());
+    if (!val.length())
+      return false;
+    local_args.erase(local_args.begin());
+    return true;
+  }
+  arg_missing = true;
+  return false;
+}
+
+bool check_arg(const std::string& target_arg, const std::vector<std::string>& local_args)
+{
+  if (local_args.size() > 0 && local_args[0].substr(0, target_arg.length()) == target_arg)
+    return true;
+  return false;
+};
+
+bool parse_msg_tag(const std::string& arg_with_msg_tag, std::string& result, std::vector<std::string>& local_args) {
+  std::string msg_begin;
+  bool arg_missing = false;
+  std::string target = arg_with_msg_tag + "<msg>";
+  if (!parse_str(target, msg_begin, local_args, arg_missing))
+  {
+    return false;
+  }
+  msg_begin += " ";
+  std::vector<std::string>::iterator it = std::find_if(local_args.begin(), local_args.end(), [](const std::string& s)
+    {return boost::algorithm::ends_with(s, "</msg>");}
+  );
+  if (it == local_args.end())
+  {
+    return false;
+  }
+  //remove end 
+  boost::algorithm::replace_all(*it, "</msg>", "");
+  // add spaces
+  for (auto it_ = local_args.begin(); it_ != it; ++it_)
+    *it_ += " ";
+
+  result = std::accumulate(local_args.begin(), it, msg_begin);
+  result += *it;
+  local_args.erase(local_args.begin(), it + 1);
+  return true;
+}
+
+TEST(pepenet_social_msg_args, pep_msg_arg_parse_msg_tag_test)
+{
+  //  "transfer [pep=<msg>] [post=<msg>] [post_title=<msg>] [pseudonym=<str>] [sk_seed=<str>] [post_pk=<1/0>] [tx_reference=<tx hash>] [index=<N1>[,<N2>,...]] [<priority>] [<ring_size>] <address> <amount> [<payment_id>]"
+  std::string pep_arg_string = "pep=<msg>I had a great day today. Feels good man :D. I should try this more often.It might even benefit me some day !</msg> pseudonym=pepe1";
+  std::string target_pep_content = "I had a great day today. Feels good man :D. I should try this more often.It might even benefit me some day !";
+
+  std::vector<std::string> args_ = { pep_arg_string };
+  args_ = boost::split(args_, pep_arg_string, boost::is_any_of(" "), boost::token_compress_on);
+  std::vector<std::string> local_args = args_;
+  //parse social args
+  bool arg_missing;
+  bool pep_tag_missing = false;
+  std::string msg_str;
+
+  bool pep_arg = check_arg("pep=", local_args);
+  ASSERT_TRUE(parse_msg_tag("pep=", msg_str, local_args));
 }

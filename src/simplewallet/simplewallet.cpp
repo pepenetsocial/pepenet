@@ -2474,6 +2474,11 @@ bool simple_wallet::show_social_activity(const std::vector<std::string> &args){
             message_writer() << (boost::format(tr("pseudonym: %s")) % pep.value().pseudonym.value()).str();
           if (pep.value().tx_ref.has_value())
             message_writer() << (boost::format(tr("tx reference: %s")) % pep.value().tx_ref.value()).str();
+          if (pep.value().pk.has_value())
+          {
+            std::string pk_hex = epee::string_tools::pod_to_hex(pep.value().pk.value());
+            message_writer() << (boost::format(tr("pubkey: %s")) % pk_hex).str();
+          }
         }
         else if (post.has_value())
         {
@@ -2483,6 +2488,11 @@ bool simple_wallet::show_social_activity(const std::vector<std::string> &args){
             message_writer() << (boost::format(tr("pseudonym: %s")) % post.value().pseudonym.value()).str();
           if (post.value().tx_ref.has_value())
             message_writer() << (boost::format(tr("tx reference: %s")) % post.value().tx_ref.value()).str();
+          if (post.value().pk.has_value())
+          {
+            std::string pk_hex = epee::string_tools::pod_to_hex(post.value().pk.value());
+            message_writer() << (boost::format(tr("pubkey: %s")) % pk_hex).str();
+          }
         }
         message_writer() << tr("");
       }
@@ -6771,7 +6781,7 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
 
   std::vector<std::string> local_args = args_;
   //parse social args
-  auto parse_str = [](const std::string& target_arg, std::string& val, std::vector<string>& local_args, bool& arg_missing)
+  auto parse_str = [](const std::string& target_arg, std::string& val, std::vector<std::string>& local_args, bool& arg_missing)
   {
     arg_missing = false;
     if (local_args.size() > 0 && local_args[0].substr(0, target_arg.length()) == target_arg)
@@ -6801,12 +6811,59 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
     return false;
   };
 
+  auto check_arg = [](const std::string& target_arg, const std::vector<std::string>& local_args)
+  {
+    if (local_args.size() > 0 && local_args[0].substr(0, target_arg.length()) == target_arg)
+      return true;
+    return false;
+  };
+
+  auto parse_msg_tag = [parse_str](const std::string& arg_with_msg_tag, std::string& result, std::vector<std::string>& local_args) {
+    std::string msg_begin;
+    bool arg_missing = false;
+    std::string target = arg_with_msg_tag + "<msg>";
+    if (!parse_str(target, msg_begin, local_args, arg_missing))
+    {
+      return false;
+    }
+    msg_begin += " ";
+    std::vector<std::string>::iterator it = std::find_if(local_args.begin(), local_args.end(), [](const std::string& s)
+      {return boost::algorithm::ends_with(s, "</msg>");}
+    );
+    if (it == local_args.end())
+    {
+      return false;
+    }
+    //remove end 
+    boost::algorithm::replace_all(*it, "</msg>", "");
+    // add spaces
+    for (auto it_ = local_args.begin(); it_ != it; ++it_)
+      *it_ += " ";
+    
+    result = std::accumulate(local_args.begin(), it, msg_begin);
+    result += *it;
+    local_args.erase(local_args.begin(), it +1);
+    return true;
+  };
+
   pepenet_social::pep_args pep_args;
   pepenet_social::post_args post_args;
   bool arg_missing;
-  bool pep_arg = parse_str("pep=", pep_args.msg, local_args, arg_missing);
-  bool post_arg = parse_str("post=", post_args.msg, local_args, arg_missing);
-  bool post_title_arg = parse_str("post_title=", post_args.title, local_args, arg_missing);
+  bool pep_tag_missing = false, post_tag_missing = false, post_title_tag_missing = false;
+  std::string dummy_str;
+
+  bool pep_arg = check_arg("pep=", local_args);
+  pep_tag_missing = !parse_msg_tag("pep=", pep_args.msg, local_args);
+  bool post_arg = check_arg("post=", local_args);
+  post_tag_missing = !parse_msg_tag("post=", post_args.msg, local_args);
+  bool post_title_arg = check_arg("post_title=", local_args);
+  post_title_tag_missing = !parse_msg_tag("post_title=", post_args.title, local_args);
+
+  if ((pep_arg && pep_tag_missing) || (post_arg && post_tag_missing)  || (post_title_arg && post_title_tag_missing))
+  {
+    fail_msg_writer() << tr("pep=<msg>....</msg>, post=<msg>....</msg>, post_title=<msg>....</msg> -> put your message in the place of ....");
+    return false;
+  }
   
   if ((post_arg && !post_title_arg) || (!post_arg && post_title_arg))
   {
