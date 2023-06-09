@@ -291,7 +291,7 @@ namespace
   const char* USAGE_HELP("help [<command> | all]");
   const char* USAGE_APROPOS("apropos <keyword> [<keyword> ...]");
   const char* USAGE_SCAN_TX("scan_tx <txid> [<txid> ...]");
-  const char* USAGE_SHOW_SOCIAL_ACTIVITY("show_social_activity [num_of_recent_blocks=<N>] [from_block_height=<height>] [to_block_height=<height>] [pubkey_filter=<hex public key>] <show_comments>");
+  const char* USAGE_SHOW_SOCIAL_ACTIVITY("show_social_activity [recent_blocks=<N>] [from_block_height=<height>] [to_block_height=<height>] [pubkey_filter=<hex public key>] [pseudonym_filter=<pseudonym>] <show_comments>");
 
   std::string input_line(const std::string& prompt, bool yesno = false)
   {
@@ -2278,8 +2278,14 @@ bool simple_wallet::public_nodes(const std::vector<std::string> &args)
   return true;
 }
 
-bool simple_wallet::show_social_activity(const std::vector<std::string> &args){
-  //"show_social_activity [num_of_recent_blocks=<N>] [from_block_height=<height>] [to_block_height=<height>] [pubkey_filter=<hex public key>] <show_comments>"
+bool simple_wallet::show_social_activity(const std::vector<std::string>& args)
+{
+  if (args.empty())
+  {
+    PRINT_USAGE(USAGE_SHOW_SOCIAL_ACTIVITY);
+    return true;
+  }
+  //"show_social_activity [recent_blocks=<N>] [from_block_height=<height>] [to_block_height=<height>] [pubkey_filter=<hex public key>] <show_comments>"
   std::vector<std::string> local_args = args;
   bool arg_missing;
 
@@ -2298,18 +2304,33 @@ bool simple_wallet::show_social_activity(const std::vector<std::string> &args){
     return false;
   };
 
+  auto parse_str_opt = [](const std::string& target_arg, boost::optional<std::string>& val, std::vector<std::string>& local_args, bool& arg_missing)
+  {
+    arg_missing = false;
+    if (local_args.size() > 0 && local_args[0].substr(0, target_arg.length()) == target_arg)
+    {
+      val = local_args[0].substr(target_arg.length());
+      if (!val.value().length())
+        return false;
+      local_args.erase(local_args.begin());
+      return true;
+    }
+    arg_missing = true;
+    return false;
+  };
+
   bool recent_blocks_arg;
   std::string recent_blocks_;
-  if (!parse_str("num_of_recent_blocks=", recent_blocks_, local_args, arg_missing) && !arg_missing)
+  if (!parse_str("recent_blocks=", recent_blocks_, local_args, arg_missing) && !arg_missing)
   {
-    fail_msg_writer() << tr("empty num_of_recent_blocks value");
+    fail_msg_writer() << tr("empty recent_blocks value");
     return false;
   }
   recent_blocks_arg = !arg_missing;
   std::size_t recent_blocks;
   if (!epee::string_tools::get_xtype_from_string(recent_blocks, recent_blocks_) && !arg_missing)
   {
-    fail_msg_writer() << tr("invalid num_of_recent_blocks value");
+    fail_msg_writer() << tr("invalid recent_blocks value");
     return false;
   }
   recent_blocks = arg_missing ? 10 : recent_blocks;
@@ -2372,6 +2393,13 @@ bool simple_wallet::show_social_activity(const std::vector<std::string> &args){
   else if (!arg_missing)
   {
     pk_filter = pk_filter_parsed;
+  }
+  //pseudonym filter
+  boost::optional<std::string> pseudonym_filter;
+  if (!parse_str_opt("pseudonym_filter=", pseudonym_filter, local_args, arg_missing) && !arg_missing)
+  {
+    fail_msg_writer() << tr("empty pseudonym_filter value");
+    return false;
   }
 
   bool show_comments;
@@ -2481,13 +2509,27 @@ bool simple_wallet::show_social_activity(const std::vector<std::string> &args){
       {
         if (pep.has_value())
         {
-          if (pk_filter.value() != pep.value().pk)
+          if (pk_filter != pep.value().pk)
             continue;
         }
 
         if (post.has_value())
         {
-          if (pk_filter.value() != post.value().pk)
+          if (pk_filter != post.value().pk)
+            continue;
+        }
+      }
+      if (pseudonym_filter.has_value()) //pseudonym filter
+      {
+        if (pep.has_value())
+        {
+          if (pseudonym_filter != pep.value().pseudonym)
+            continue;
+        }
+
+        if (post.has_value())
+        {
+          if (pseudonym_filter != post.value().pseudonym)
             continue;
         }
       }
@@ -2507,7 +2549,6 @@ bool simple_wallet::show_social_activity(const std::vector<std::string> &args){
         }
         
         crypto::hash tx_hash;
-        bool hashing_passed;
         if (!cryptonote::get_transaction_hash(tx, tx_hash))
         {
           fail_msg_writer() << tr("Could not get tx hash ");
@@ -6982,8 +7023,15 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
     else if (!arg_missing)
     {
       tx_reference = tx_reference_parsed;
+      //check if tx exists
+      cryptonote::transaction check_tx;
+      if (!m_wallet->get_transaction(tx_reference.value(), check_tx))
+      {
+        fail_msg_writer() << (boost::format(tr("transaction with txid<%s> does not exist"))
+          % epee::string_tools::pod_to_hex(tx_reference.value())).str();
+        return false;
+      }
     }
-    //TODO: check if tx exists in db
     //construct args
     if (pep_arg)
     {

@@ -86,6 +86,12 @@
 #define THROW_ON_RPC_RESPONSE_ERROR_GENERIC(r, err, res, method) \
   THROW_ON_RPC_RESPONSE_ERROR(r, err, res, method, tools::error::wallet_generic_rpc_error, method, res.status)
 
+#define RETURN_FALSE_IF(cond)                                                                               \
+  if (cond)                                                                                                 \
+  {                                                                                                         \
+    return false;                                                                                           \
+  }
+
 class Serialization_portability_wallet_Test;
 class wallet_accessor_test;
 
@@ -1377,7 +1383,7 @@ private:
     std::string get_tx_proof(const cryptonote::transaction &tx, const crypto::secret_key &tx_key, const std::vector<crypto::secret_key> &additional_tx_keys, const cryptonote::account_public_address &address, bool is_subaddress, const std::string &message) const;
     bool check_tx_proof(const crypto::hash &txid, const cryptonote::account_public_address &address, bool is_subaddress, const std::string &message, const std::string &sig_str, uint64_t &received, bool &in_pool, uint64_t &confirmations);
     bool check_tx_proof(const cryptonote::transaction &tx, const cryptonote::account_public_address &address, bool is_subaddress, const std::string &message, const std::string &sig_str, uint64_t &received) const;
-
+    bool get_transaction(const crypto::hash& txid, cryptonote::transaction& tx);
     std::string get_spend_proof(const crypto::hash &txid, const std::string &message);
     bool check_spend_proof(const crypto::hash &txid, const std::string &message, const std::string &sig_str);
 
