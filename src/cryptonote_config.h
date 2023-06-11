@@ -212,8 +212,12 @@
 
 //The limit is enough for the mandatory transaction content with 16 outputs (547 bytes),
 //a custom tag (1 byte) and up to 32 bytes of custom data for each recipient.
-// (1+32) + (1+1+16*32) + (1+16*32) = 1060
-#define MAX_TX_EXTRA_SIZE                       1060
+// monero's base max case: (1+32) + (1+1+16*32) + (1+16*32) = 1060
+
+//+ pepenet social max case: (1+4096) + (1+128) +  (1+32) +  (1+32) + (1+32) + (1+64) + (1+32) +    (1+108) = 4532
+//                            post      p.title   pseudonym  pepetag  tx ref.   sig      pk    integrated address
+//final max case: 1060 + 4532 = 5592
+#define MAX_TX_EXTRA_SIZE                       5592
 
 // New constants are intended to go here
 namespace config
@@ -223,9 +227,9 @@ namespace config
   uint64_t const DEFAULT_DUST_THRESHOLD = ((uint64_t)2000000000); // 2 * pow(10, 9)
   uint64_t const BASE_REWARD_CLAMP_THRESHOLD = ((uint64_t)100000000); // pow(10, 8)
 
-  uint64_t const CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX = 18;
-  uint64_t const CRYPTONOTE_PUBLIC_INTEGRATED_ADDRESS_BASE58_PREFIX = 19;
-  uint64_t const CRYPTONOTE_PUBLIC_SUBADDRESS_BASE58_PREFIX = 42;
+  uint64_t const CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX = 132;
+  uint64_t const CRYPTONOTE_PUBLIC_INTEGRATED_ADDRESS_BASE58_PREFIX = 246;
+  uint64_t const CRYPTONOTE_PUBLIC_SUBADDRESS_BASE58_PREFIX = 150;
   uint16_t const P2P_DEFAULT_PORT = 18080;
   uint16_t const RPC_DEFAULT_PORT = 18081;
   uint16_t const ZMQ_RPC_DEFAULT_PORT = 18082;

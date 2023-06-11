@@ -18,6 +18,8 @@ namespace pepenet_social {
     boost::optional<std::string> sk_seed;
     bool post_pk;
     boost::optional<crypto::hash> tx_ref;
+    boost::optional<std::string> pepetag;
+    boost::optional<std::string> donation_address;
   };
 
   struct post_args : public pep_args {
@@ -30,6 +32,8 @@ namespace pepenet_social {
     boost::optional<crypto::public_key> pk;
     boost::optional<crypto::signature> sig;
     boost::optional<crypto::hash> tx_ref;
+    boost::optional<std::string> pepetag;
+    boost::optional<std::string> donation_address;
   };
 
   struct post : public pep {

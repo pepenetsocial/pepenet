@@ -35,6 +35,11 @@
 #include "common/base58.cpp"
 #include "cryptonote_basic/cryptonote_basic_impl.h"
 #include "serialization/binary_utils.h"
+#include "cryptonote_basic/cryptonote_format_utils.h"
+#include "wallet/api/wallet2_api.h"
+#include "wallet/wallet2.h"
+
+#define GTEST_COUT std::cerr << "[          ] [ INFO ]"
 
 using namespace tools;
 
@@ -537,4 +542,73 @@ TEST(get_account_address_from_str, parses_old_address_format)
 {
   cryptonote::address_parse_info info;
   ASSERT_TRUE(cryptonote::get_account_address_from_str(info, cryptonote::MAINNET, "002391bbbb24dea6fd95232e97594a27769d0153d053d2102b789c498f57a2b00b69cd6f2f5c529c1660f2f4a2b50178d6640c20ce71fe26373041af97c5b10236fc"));
+}
+
+TEST(pepenet_prefix, works)
+{
+    std::string test_serialized_k = MAKE_STR(
+      "\xf7\x24\xbc\x5c\x6c\xfb\xb9\xd9\x76\x02\xc3\x00\x42\x3a\x2f\x28"
+      "\x64\x18\x74\x51\x3a\x03\x57\x78\xa0\xc1\x77\x8d\x83\x32\x01\xe9"
+      "\x22\x09\x39\x68\x9e\xdf\x1a\xbd\x5b\xc1\xd0\x31\xf7\x3e\xcd\x6c"
+      "\x99\x3a\xdd\x66\xd6\x80\x88\x70\x45\x6a\xfe\xb8\xe7\xee\xb6\x8d");
+    // DON'T ever use this as a destination for funds, as the keys are right above this comment...
+    std::string test_k_addr_str = "4AzKEX4gXdJdNeM6dfiBFL7kqund3HYGvMBF3ttsNd9SfzgYB6L7ep1Yg1osYJzLdaKAYSLVh6e6jKnAuzj3bw1oGy9kXCb";
+
+    cryptonote::account_public_address addr;
+    ASSERT_TRUE(serialization::parse_binary(test_serialized_k, addr));
+    //ASSERT_EQ(addr_str, test_k_addr_str);
+    auto get_address = [](
+      uint64_t address_prefix
+      , bool subaddress
+      , cryptonote::account_public_address const& adr
+      )
+    {
+      return tools::base58::encode_addr(address_prefix, cryptonote::t_serializable_object_to_blob(adr));
+    };
+
+    auto get_integrated_address = [](
+      uint64_t address_prefix
+      , cryptonote::account_public_address const& adr
+      , crypto::hash8 const& payment_id
+      )
+    {
+
+      cryptonote::integrated_address iadr = {
+        adr, payment_id
+      };
+      return tools::base58::encode_addr(address_prefix, cryptonote::t_serializable_object_to_blob(iadr));
+    };
+
+    std::string payment_id = "1212121212121212";
+    crypto::hash8 pid;
+    if (!tools::wallet2::parse_short_payment_id(payment_id, pid))
+    {
+      ASSERT_TRUE(false);
+    }
+  
+    bool found_i = false;
+    bool found_m = false;
+    bool found_s = false;
+    for (auto prefix = 0; prefix < 40000; ++prefix)
+    {
+      std::string m = get_address(prefix, false, addr);
+      std::string s = get_address(prefix, true, addr);
+      std::string i = get_integrated_address(prefix, addr, pid);
+
+      if (m[0] == 'P' && !found_m)
+      {
+        found_m = true;
+        GTEST_COUT << "main prefix: " << prefix << " addr: " << m << std::endl;
+      }
+      if (s[0] == 'S' && !found_s)
+      {
+        found_s = true;
+        GTEST_COUT << "sub prefix: " << prefix << " addr: " << s << std::endl;
+      }
+      if (i[0] == 'i' && !found_i)
+      {
+        found_i = true;
+        GTEST_COUT << "integrated prefix: " << prefix << " addr: " << i << std::endl;
+      }
+    }
 }
