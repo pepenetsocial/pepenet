@@ -952,6 +952,7 @@ namespace cryptonote
   //---------------------------------------------------------------
   bool add_donation_address_to_tx_extra(std::vector<uint8_t>& tx_extra, const std::string& donation_address)
   {
+    CHECK_AND_NO_ASSERT_MES_L1(!(donation_address.size() > DONATION_ADDRESS_MAX_SIZE), false, "donaiton address size exceeds DONATION_ADDRESS_MAX_SIZE");
     // convert to variant
     tx_extra_field field = tx_extra_donation_address { donation_address };
     return add_tx_extra_field_to_extra(tx_extra, field, "failed to serialize tx extra donation_address string");
@@ -967,6 +968,7 @@ namespace cryptonote
     if (!find_tx_extra_field_by_type(tx_extra_fields, field))
       return false;
     donation_address = field.data;
+    CHECK_AND_NO_ASSERT_MES_L1(!(donation_address.value().size() > DONATION_ADDRESS_MAX_SIZE), false, "donaiton address size exceeds DONATION_ADDRESS_MAX_SIZE");
     return true;
   }
   //---------------------------------------------------------------

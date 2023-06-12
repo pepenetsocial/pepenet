@@ -59,6 +59,7 @@
 #define POST_TITLE_MAX_SIZE 128
 #define PSEUDONYM_MAX_SIZE 32
 #define PEPETAG_MAX_SIZE 32
+#define DONATION_ADDRESS_MAX_SIZE 108
 
 namespace cryptonote
 {
