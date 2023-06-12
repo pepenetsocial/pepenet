@@ -48,14 +48,18 @@
 #define TX_EXTRA_EDDSA_SIGNATURE            0x09
 #define TX_EXTRA_EDDSA_PUB_KEY              0x0A
 #define TX_EXTRA_TX_REFERENCE               0x0B
+#define TX_EXTRA_PEPETAG                    0x0C
+#define TX_EXTRA_DONATION_ADDRESS           0x0D
 
 #define TX_EXTRA_NONCE_PAYMENT_ID           0x00
 #define TX_EXTRA_NONCE_ENCRYPTED_PAYMENT_ID 0x01
-//feture limits - size in bytes
-#define LZMA_PEP_MAX_SIZE 256
-#define LZMA_POST_MAX_SIZE 1024
-#define POST_TITLE_MAX_SIZE 100
-#define PSEUDONYM_MAX_SIZE 30
+//feature limits - size in bytes
+#define LZMA_PEP_MAX_SIZE 512
+#define LZMA_POST_MAX_SIZE 4096
+#define POST_TITLE_MAX_SIZE 128
+#define PSEUDONYM_MAX_SIZE 32
+#define PEPETAG_MAX_SIZE 32
+#define DONATION_ADDRESS_MAX_SIZE 108
 
 namespace cryptonote
 {
@@ -250,11 +254,29 @@ namespace cryptonote
     END_SERIALIZE()
   };
 
+  struct tx_extra_pepetag
+  {
+    std::string data;
+
+    BEGIN_SERIALIZE()
+      FIELD(data)
+      END_SERIALIZE()
+  };
+
+  struct tx_extra_donation_address
+  {
+    std::string data;
+
+    BEGIN_SERIALIZE()
+    FIELD(data)
+    END_SERIALIZE()
+  };
+
   // tx_extra_field format, except tx_extra_padding and tx_extra_pub_key:
   //   varint tag;
   //   varint size;
   //   varint data[];
-  typedef boost::variant<tx_extra_padding, tx_extra_pub_key, tx_extra_nonce, tx_extra_merge_mining_tag, tx_extra_additional_pub_keys, tx_extra_mysterious_minergate, tx_extra_lzma_pep, tx_extra_lzma_post, tx_extra_post_title, tx_extra_pseudonym, tx_extra_eddsa_signature, tx_extra_eddsa_pubkey, tx_extra_tx_reference> tx_extra_field;
+  typedef boost::variant<tx_extra_padding, tx_extra_pub_key, tx_extra_nonce, tx_extra_merge_mining_tag, tx_extra_additional_pub_keys, tx_extra_mysterious_minergate, tx_extra_lzma_pep, tx_extra_lzma_post, tx_extra_post_title, tx_extra_pseudonym, tx_extra_eddsa_signature, tx_extra_eddsa_pubkey, tx_extra_tx_reference, tx_extra_pepetag, tx_extra_donation_address> tx_extra_field;
 }
 
 VARIANT_TAG(binary_archive, cryptonote::tx_extra_padding, TX_EXTRA_TAG_PADDING);
@@ -271,3 +293,5 @@ VARIANT_TAG(binary_archive, cryptonote::tx_extra_pseudonym, TX_EXTRA_PSEUDONYM);
 VARIANT_TAG(binary_archive, cryptonote::tx_extra_eddsa_signature, TX_EXTRA_EDDSA_SIGNATURE);
 VARIANT_TAG(binary_archive, cryptonote::tx_extra_eddsa_pubkey, TX_EXTRA_EDDSA_PUB_KEY);
 VARIANT_TAG(binary_archive, cryptonote::tx_extra_tx_reference, TX_EXTRA_TX_REFERENCE);
+VARIANT_TAG(binary_archive, cryptonote::tx_extra_pepetag, TX_EXTRA_PEPETAG);
+VARIANT_TAG(binary_archive, cryptonote::tx_extra_donation_address, TX_EXTRA_DONATION_ADDRESS);

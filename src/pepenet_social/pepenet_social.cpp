@@ -88,7 +88,8 @@ namespace pepenet_social {
     {
       std::string tr_s = pep_args.tx_ref.has_value() ? std::string(pep_args.tx_ref.value().data, 32) : "";
       std::string pk_s = (pep_args.sk_seed.has_value() && pep_args.post_pk) ? std::string(pk.data, 32) : "";
-      std::string full_pep = pep_args.msg + pep_args.pseudonym.value_or("") + tr_s + pk_s;
+      std::string full_pep = pep_args.msg + pep_args.pseudonym.value_or("") + tr_s + pk_s
+        + pep_args.pepetag.value_or("") + pep_args.donation_address.value_or("");
       pepenet_social::sign_msg(full_pep, full_pep_sig, pk, sk);
     }
     //add all fields to extra
@@ -101,6 +102,10 @@ namespace pepenet_social {
       CHECK_AND_NO_ASSERT_MES_SOCIAL_ERR_L1(cryptonote::add_eddsa_signature_to_tx_extra(tx_extra, full_pep_sig), false, "failed to add full pep signature to tx_extra");
     if (pep_args.tx_ref.has_value())
       CHECK_AND_NO_ASSERT_MES_SOCIAL_ERR_L1(cryptonote::add_tx_reference_to_tx_extra(tx_extra, pep_args.tx_ref.value()), false, "failed to add tx reference to tx_extra");
+    if (pep_args.pepetag.has_value())
+      CHECK_AND_NO_ASSERT_MES_SOCIAL_ERR_L1(cryptonote::add_pepetag_to_tx_extra(tx_extra, pep_args.pepetag.value()), false, "failed to add pepetag to tx_extra");
+    if (pep_args.donation_address.has_value())
+      CHECK_AND_NO_ASSERT_MES_SOCIAL_ERR_L1(cryptonote::add_donation_address_to_tx_extra(tx_extra, pep_args.donation_address.value()), false, "failed to add donation address to tx_extra");
     //if we are here its ok.
     return true;
   }
@@ -124,7 +129,8 @@ namespace pepenet_social {
     {
       std::string tr_s = post_args.tx_ref.has_value() ? std::string(post_args.tx_ref.value().data, 32) : "";
       std::string pk_s = (post_args.sk_seed.has_value() && post_args.post_pk) ? std::string(pk.data, 32) : "";
-      std::string full_pep = post_args.msg + post_args.title + post_args.pseudonym.value_or("") + tr_s + pk_s;
+      std::string full_pep = post_args.msg + post_args.title + post_args.pseudonym.value_or("") + tr_s + pk_s
+        + post_args.pepetag.value_or("") + post_args.donation_address.value_or("");
       pepenet_social::sign_msg(full_pep, full_post_sig, pk, sk);
     }
     //add all fields to extra
@@ -138,6 +144,10 @@ namespace pepenet_social {
       CHECK_AND_NO_ASSERT_MES_SOCIAL_ERR_L1(cryptonote::add_eddsa_signature_to_tx_extra(tx_extra, full_post_sig), false, "failed to add full pep signature to tx_extra");
     if (post_args.tx_ref.has_value())
       CHECK_AND_NO_ASSERT_MES_SOCIAL_ERR_L1(cryptonote::add_tx_reference_to_tx_extra(tx_extra, post_args.tx_ref.value()), false, "failed to add tx reference to tx_extra");
+    if (post_args.pepetag.has_value())
+      CHECK_AND_NO_ASSERT_MES_SOCIAL_ERR_L1(cryptonote::add_pepetag_to_tx_extra(tx_extra, post_args.pepetag.value()), false, "failed to add pepetag to tx_extra");
+    if (post_args.donation_address.has_value())
+      CHECK_AND_NO_ASSERT_MES_SOCIAL_ERR_L1(cryptonote::add_donation_address_to_tx_extra(tx_extra, post_args.donation_address.value()), false, "failed to add donation address to tx_extra");
     //if we are here its ok.
     return true;
   }
@@ -174,8 +184,10 @@ namespace pepenet_social {
       return false;
     }
     cryptonote::get_tx_reference_from_tx_extra(tx_extra, pep.value().tx_ref);
+    cryptonote::get_pepetag_from_tx_extra(tx_extra, pep.value().pepetag);
+    cryptonote::get_donation_address_from_tx_extra(tx_extra, pep.value().donation_address);
     //check if tx_extra is valid
-    if (pep_missing && (pep.value().pseudonym.has_value() || pep.value().pk.has_value() || pep.value().sig.has_value() || pep.value().tx_ref.has_value()))
+    if (pep_missing && (pep.value().pseudonym.has_value() || pep.value().pk.has_value() || pep.value().sig.has_value() || pep.value().tx_ref.has_value() || pep.value().pepetag.has_value() || pep.value().donation_address.has_value()))
     {
       err = "pep msg is not present while one or more pep fields are present";
       pep.reset(); //invalid tx - pep tag is not present while one or more pep fields are present 
@@ -189,7 +201,8 @@ namespace pepenet_social {
     {
       std::string tr_s = pep.value().tx_ref.has_value() ? std::string(pep.value().tx_ref.value().data, 32) : "";
       std::string pk_s = std::string(pep.value().pk.value().data, 32);
-      std::string full_pep = pep.value().msg + pep.value().pseudonym.value_or("") + tr_s + pk_s;
+      std::string full_pep = pep.value().msg + pep.value().pseudonym.value_or("") + tr_s + pk_s
+        + pep.value().pepetag.value_or("") + pep.value().donation_address.value_or("");
       bool valid = pepenet_social::check_msg_sig(full_pep, pep.value().sig.value(), pep.value().pk.value());
       if (!valid)
       {
@@ -202,7 +215,8 @@ namespace pepenet_social {
     {
       std::string tr_s = pep.value().tx_ref.has_value() ? std::string(pep.value().tx_ref.value().data, 32) : "";
       std::string pk_s = "";
-      std::string full_pep = pep.value().msg + pep.value().pseudonym.value_or("") + tr_s + pk_s;
+      std::string full_pep = pep.value().msg + pep.value().pseudonym.value_or("") + tr_s + pk_s
+        + pep.value().pepetag.value_or("") + pep.value().donation_address.value_or("");
       bool valid = pepenet_social::check_msg_sig(full_pep, pep.value().sig.value(), ver_pk.value());
       if (!valid)
       {
@@ -247,8 +261,10 @@ namespace pepenet_social {
       return false;
     }
     cryptonote::get_tx_reference_from_tx_extra(tx_extra, post.value().tx_ref);
+    cryptonote::get_pepetag_from_tx_extra(tx_extra, post.value().pepetag);
+    cryptonote::get_donation_address_from_tx_extra(tx_extra, post.value().donation_address);
     //check if tx_extra is valid
-    if ((post_missing || title_missing) && (post.value().pseudonym.has_value() || post.value().pk.has_value() || post.value().sig.has_value() || post.value().tx_ref.has_value()))
+    if ((post_missing || title_missing) && (post.value().pseudonym.has_value() || post.value().pk.has_value() || post.value().sig.has_value() || post.value().tx_ref.has_value() || post.value().pepetag.has_value() || post.value().donation_address.has_value()))
     {
       err = "post msg or post title are not present while one or more post fields are present";
       post.reset(); //invalid tx - post or title tag is not present while one or more post fields are present 
@@ -261,7 +277,8 @@ namespace pepenet_social {
     {
       std::string tr_s = post.value().tx_ref.has_value() ? std::string(post.value().tx_ref.value().data, 32) : "";
       std::string pk_s = std::string(post.value().pk.value().data, 32);
-      std::string full_post = post.value().msg + post.value().title + post.value().pseudonym.value_or("") + tr_s + pk_s;
+      std::string full_post = post.value().msg + post.value().title + post.value().pseudonym.value_or("") + tr_s + pk_s
+        + post.value().pepetag.value_or("") + post.value().donation_address.value_or("");
       bool valid = pepenet_social::check_msg_sig(full_post, post.value().sig.value(), post.value().pk.value());
       if (!valid)
       {
@@ -274,7 +291,8 @@ namespace pepenet_social {
     {
       std::string tr_s = post.value().tx_ref.has_value() ? std::string(post.value().tx_ref.value().data, 32) : "";
       std::string pk_s = "";
-      std::string full_pep = post.value().msg + post.value().title + post.value().pseudonym.value_or("") + tr_s + pk_s;
+      std::string full_pep = post.value().msg + post.value().title + post.value().pseudonym.value_or("") + tr_s + pk_s
+        + post.value().pepetag.value_or("") + post.value().donation_address.value_or("");
       bool valid = pepenet_social::check_msg_sig(full_pep, post.value().sig.value(), ver_pk.value());
       if (!valid)
       {
