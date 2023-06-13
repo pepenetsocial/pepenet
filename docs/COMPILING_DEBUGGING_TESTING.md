@@ -73,14 +73,14 @@ If everything looks fine, then after setting some breakpoints of your choice, th
 
 ## To be done (and merged):
 ### Multihost parallel compilation
-https://github.com/pepenet-project/pepenet/pull/7160
+https://github.com/azx19/pepenet/pull/7160
 
 ### Faster core_tests with caching
-https://github.com/pepenet-project/pepenet/pull/5821
+https://github.com/azx19/pepenet/pull/5821
 
 ### Precompiled headers
-https://github.com/pepenet-project/pepenet/pull/7216
+https://github.com/azx19/pepenet/pull/7216
 
 ### Unity builds
-https://github.com/pepenet-project/pepenet/pull/7217
+https://github.com/azx19/pepenet/pull/7217
 
