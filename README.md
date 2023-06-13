@@ -67,12 +67,17 @@ The vast majority of pepenet (~100%) is based on the monero project (https://git
 
 Users will be able to post their ideas with the ability to disclose(or retain) as much private information as they want.
 
-Who is pepenet for: in short everyone but there are some people that will benefit from it the most:
--Journalists by utilizing posts that allow ~1200 word articles and 128 character titles
--Whistleblowers
--Bloggers
--People banned on traditional social media
--People who are afraid/not allowed to express their views publicly
+Who is pepenet for ? in short everyone but there are some people that will benefit from it the most:
+
+1.) Journalists by utilizing posts that allow ~1200 word articles and 128 character titles
+
+2.) Whistleblowers
+
+3.) Bloggers
+
+4.) People banned on traditional social media
+
+5.) People who are afraid/not allowed to express their views publicly
 
 ## About this project
 
