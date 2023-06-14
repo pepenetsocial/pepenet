@@ -487,7 +487,7 @@ bool message_store::get_signer_index_by_pepenet_address(const cryptonote::accoun
       return true;
     }
   }
-  MWARNING("No authorized signer with Monero address " << account_address_to_string(pepenet_address));
+  MWARNING("No authorized signer with pepenet address " << account_address_to_string(pepenet_address));
   return false;
 }
 
