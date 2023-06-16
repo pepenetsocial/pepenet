@@ -184,7 +184,7 @@ namespace cryptonote
   {
     if (nettype == TESTNET)
     {
-      ADD_CHECKPOINT2(0,       "48ca7cd3c8de5b6a4d53d2861fbdaedca141553559f9be9520068053cda8430b", "0x1");
+      ADD_CHECKPOINT2(0,       "a573aea83ddc7becd1cac54fb9cd7b27c63e1dc81876975b3b096081678a4d68", "0x1");
       return true;
     }
     if (nettype == STAGENET)
@@ -192,7 +192,7 @@ namespace cryptonote
       ADD_CHECKPOINT2(0,       "76ee3cc98646292206cd3e86f74d88b4dcc1d937088645e9b0cbca84b7ce74eb", "0x1");
       return true;
     }
-    ADD_CHECKPOINT2(0,         "418015bb9ae982a1975da7d79277c2705727a56894ba0fb246adaabb1f4632e3", "0x1");
+    ADD_CHECKPOINT2(0,         "c4ee123224a653e20cbac64b7f2b280b9e1e43d557417b43d8586d00192b80c3", "0x1");
     return true;
   }
 
