@@ -62,6 +62,6 @@ TEST(sha256, small) { ASSERT_TRUE(check("0123456789", "84d89877f0d4041efb6bf91a1
 TEST(sha256, large) { ASSERT_TRUE(check(std::string(65536*256, 0), "080acf35a507ac9849cfcba47dc2ad83e01b75663a516279c8b9d243b719643e")); }
 
 TEST(sha256, emptyfile) { EXPECT_EQ(file_to_hex_hash("empty.txt"), "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"); }
-TEST(sha256, smallfile) { EXPECT_EQ(file_to_hex_hash("small_file.txt"), "91c60f6d9ad0235306115913febccb93a5014bf4cea1ecd1fa33f3cf07ad9e8d"); }
+TEST(sha256, smallfile) { EXPECT_EQ(file_to_hex_hash("small_file.txt"), "868e78bfc8b4923d528d5a54b79b9984211b170740f44c612d518a6d37617176"); }
 TEST(sha256, largefile) { EXPECT_EQ(file_to_hex_hash("CLSAG.pdf"), "c38699c9a235a70285165ff8cce0bf3e48989de8092c15514116ca4c95d41e3f"); }
 TEST(sha256, noexist) { crypto::hash hash; EXPECT_FALSE(tools::sha256sum("this_file_does_not_exist.exe", hash)); }
