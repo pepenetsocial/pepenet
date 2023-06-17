@@ -1,6 +1,6 @@
-# Monero Blockchain Stats
+# pepenet Blockchain Stats
 
-Monero Blockchain Stats utlity exports daily statistics for the pepenet blockchain from creation through current state.
+pepenet Blockchain Stats utlity exports daily statistics for the pepenet blockchain from creation through current state.
 
 ## Usage:
 

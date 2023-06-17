@@ -1,6 +1,6 @@
 # pepenet
 Copyright (c) 2023 pepenet. 
-Copyright (c) 2014-2022 The Monero Project.  
+Copyright (c) 2014-2023 The Monero Project.  
 Portions Copyright (c) 2012-2013 The Cryptonote developers.
 
 ## Table of Contents
@@ -27,7 +27,7 @@ Portions Copyright (c) 2012-2013 The Cryptonote developers.
   - [Known issues](#known-issues)
 
 ## Development resources
-Google and source code.
+Google, github, commit history and source code.
 
 ## Vulnerability response
 
@@ -35,10 +35,10 @@ Call the cops ;D
 
 ## Research
 
-Intense research process - copy paste monero's research.
+No research for now.
 
 ## Announcements
-
+Announcements will be made on pepenet.
 
 ## Translations
 The CLI wallet is available in different languages.
@@ -50,29 +50,38 @@ The CLI wallet is available in different languages.
 Pepenet is a decentralised and blockchain based social network. It is resistant to censorship, regulation, raids, laws and most importantly politics.
 As long as there are enough tech-savy people that support full freedom of speech it will not be stopped.
 
-Pepenet was inpired by the unjust shaming of the pepe meme. Now it's almost on the same level as swastika because of some unreasonable people. This fact suggest that our society has a serious problem with freedom of expression if a cartoon frog is recognized as a hate symbol by a real organization (https://www.adl.org/resources/hate-symbol/pepe-frog).
+Many platforms (that won't be mentioned here) say they encourage freedom of speech. However they will never be truly independent as long as they are a legal entity. They are forced to follow regulation, can be shut down and manipulated by politics as well as other groups. Some founders and or major shareholders go as far to enforce their own political agenda through the platform.
 
-The vast majority of pepenet (~100%) is based on the monero project (https://github.com/monero-project/monero). The only real modification is the use of transaction fields as placeholders for PEP-ing (short status updates similar to tweets) and posting (post with title and body limited to 1024 bytes of LZMA compressed text)
+On pepenet there are no rules or community guidelines and the posts are not and will not be moderated. There will be no actions such as (but not limited to): 
+penalties, punishment, bans, censorship, timeouts, reverting, takedown or deletion of "unfair" posts from culturally sensitive topics such as (but not limited 
+to): global warming, cancel culture, racial fairness, racism, gender equality/inequality, politics, religion, faith etc.
 
-Users will have to pay transaction fees for their posting priviliges with the pepenet currency. Longer posts <-> higher transaction fees.
+In other words what goes on pepenet stays on pepenet no matter what.
 
-Users can remain completely anonymous or choose a ECDSA identity and a variable pseudonym. The ECDSA identity will be used for authenticity and verification. This will allow users to follow the content creators that they are interested in.
+HOWEVER everyone is encouraged to remain civil and stay true to their humanity.
 
-This project would not be possible without monero. Out of respect the original description is included here:
+The creation of pepenet was inspired due to the absurd shaming of the pepe meme as well as it's many derivations. If a cartoon frog is recognized as a hate 
+symbol by a real organization (https://www.adl.org/resources/hate-symbol/pepe-frog) we have a serious problem as a society. Some people have to learn what a meme is (https://en.wikipedia.org/wiki/Meme)
 
-Monero is a private, secure, untraceable, decentralised digital currency. You are your bank, you control your funds, and nobody can trace your transfers unless you allow them to do so.
+The vast majority of pepenet (~100%) is based on the monero project (https://github.com/monero-project/monero). The only real modification is the added social layer on top of the traditional blockchain.
 
-**Privacy:** Monero uses a cryptographically sound system to allow you to send and receive funds without your transactions being easily revealed on the blockchain (the ledger of transactions that everyone has). This ensures that your purchases, receipts, and all transfers remain private by default.
+Users will be able to post their ideas with the ability to disclose(or retain) as much private information as they want.
 
-**Security:** Using the power of a distributed peer-to-peer consensus network, every transaction on the network is cryptographically secured. Individual wallets have a 25-word mnemonic seed that is only displayed once and can be written down to backup the wallet. Wallet files should be encrypted with a strong passphrase to ensure they are useless if ever stolen.
+Who is pepenet for ? in short everyone but there are some people that will benefit from it the most:
 
-**Untraceability:** By taking advantage of ring signatures, a special property of a certain type of cryptography, Monero is able to ensure that transactions are not only untraceable but have an optional measure of ambiguity that ensures that transactions cannot easily be tied back to an individual user or computer.
+1.) Journalists by utilizing posts that allow ~1200 word articles and 128 character titles
 
-**Decentralization:** The utility of Monero depends on its decentralised peer-to-peer consensus network - anyone should be able to run the pepenet software, validate the integrity of the blockchain, and participate in all aspects of the pepenet network using consumer-grade commodity hardware. Decentralization of the pepenet network is maintained by software development that minimizes the costs of running the pepenet software and inhibits the proliferation of specialized, non-commodity hardware.
+2.) Whistleblowers
+
+3.) Bloggers
+
+4.) People banned on traditional social media
+
+5.) People who are afraid/not allowed to express their views publicly
 
 ## About this project
 
-This is the core implementation of pepenet. It is open source and completely free to use without restrictions, except for those specified in the license agreement below. There are no restrictions on anyone creating an alternative implementation of Monero that uses the protocol and network in a compatible manner.
+This is the core implementation of pepenet. It is open source and completely free to use without restrictions, except for those specified in the license agreement below. There are no restrictions on anyone creating an alternative implementation of pepenet that uses the protocol and network in a compatible manner.
 
 As with many development projects, the repository on GitHub is considered to be the "staging" area for the latest changes. Before changes are merged into that branch on the main repository, they are tested by individual developers in their own branches, submitted as a pull request, and then subsequently tested by contributors who focus on testing and code reviews. That having been said, the repository should be carefully considered before using it in a production environment, unless there is a patch in the repository for a particular show-stopping issue you are experiencing. It is generally a better idea to use a tagged release for stability.
 

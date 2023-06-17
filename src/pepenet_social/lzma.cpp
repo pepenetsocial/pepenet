@@ -175,13 +175,3 @@ void testIt(const char* string)
 {
   testIt((const uint8_t*)string, strlen(string));
 }
-
-
-int main(int argc, char** argv)
-{
-  testIt("a");
-  testIt("here is a cool string");
-  testIt("here's something that should compress pretty well: abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef");
-
-  return 0;
-}

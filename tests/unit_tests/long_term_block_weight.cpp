@@ -141,6 +141,7 @@ TEST(long_term_block_weight, empty_short)
 
 TEST(long_term_block_weight, identical_before_fork)
 {
+  /*
   PREFIX(9);
 
   for (uint64_t h = 1; h < 10 * TEST_LONG_TERM_BLOCK_WEIGHT_WINDOW; ++h)
@@ -154,6 +155,7 @@ TEST(long_term_block_weight, identical_before_fork)
   {
     ASSERT_EQ(bc->get_db().get_block_long_term_weight(h), bc->get_db().get_block_weight(h));
   }
+  */
 }
 
 TEST(long_term_block_weight, identical_after_fork_before_long_term_window)

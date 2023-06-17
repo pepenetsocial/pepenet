@@ -100,7 +100,7 @@ namespace daemonizer
     }
     else
     {
-      //LOG_PRINT_L0("Monero '" << PEPENET_RELEASE_NAME << "' (v" << PEPENET_VERSION_FULL);
+      //LOG_PRINT_L0("pepenet '" << PEPENET_RELEASE_NAME << "' (v" << PEPENET_VERSION_FULL);
       return executor.run_interactive(vm);
     }
   }

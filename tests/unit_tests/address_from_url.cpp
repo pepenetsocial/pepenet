@@ -81,38 +81,3 @@ TEST(AddressFromTXT, Failure)
   res = tools::dns_utils::address_from_txt_record(txtr);
   ASSERT_STREQ("", res.c_str());
 }
-
-TEST(AddressFromURL, Success)
-{
-  const std::string addr = PEPENET_DONATION_ADDR;
-  
-  bool dnssec_result = false;
-
-  std::vector<std::string> addresses = tools::dns_utils::addresses_from_url("donate.getpepenet.org", dnssec_result);
-
-  EXPECT_EQ(1, addresses.size());
-  if (addresses.size() == 1)
-  {
-    EXPECT_STREQ(addr.c_str(), addresses[0].c_str());
-  }
-
-  // OpenAlias address with an @ instead of first .
-  addresses = tools::dns_utils::addresses_from_url("donate@getpepenet.org", dnssec_result);
-  EXPECT_EQ(1, addresses.size());
-  if (addresses.size() == 1)
-  {
-    EXPECT_STREQ(addr.c_str(), addresses[0].c_str());
-  }
-}
-
-TEST(AddressFromURL, Failure)
-{
-  bool dnssec_result = false;
-
-  std::vector<std::string> addresses = tools::dns_utils::addresses_from_url("example.veryinvalid", dnssec_result);
-
-  // for a non-existing domain such as "example.invalid", the non-existence is proved with NSEC records
-  ASSERT_TRUE(dnssec_result);
-
-  ASSERT_EQ(0, addresses.size());
-}

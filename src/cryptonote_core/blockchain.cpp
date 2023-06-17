@@ -1427,25 +1427,12 @@ bool Blockchain::validate_miner_transaction(const block& b, size_t cumulative_bl
     MERROR_VER("coinbase transaction spend too much money (" << print_money(money_in_use) << "). Block reward is " << print_money(base_reward + fee) << "(" << print_money(base_reward) << "+" << print_money(fee) << "), cumulative_block_weight " << cumulative_block_weight);
     return false;
   }
-  // From hard fork 2 till 12, we allow a miner to claim less block reward than is allowed, in case a miner wants less dust
-  if (version < HF_VERSION_FORBID_DUST_OUTPUTS || version >= HF_VERSION_EXACT_COINBASE)
+  if(base_reward + fee != money_in_use)
   {
-    if(base_reward + fee != money_in_use)
-    {
-      MDEBUG("coinbase transaction doesn't use full amount of block reward:  spent: " << money_in_use << ",  block reward " << base_reward + fee << "(" << base_reward << "+" << fee << ")");
-      return false;
-    }
+    MDEBUG("coinbase transaction doesn't use full amount of block reward:  spent: " << money_in_use << ",  block reward " << base_reward + fee << "(" << base_reward << "+" << fee << ")");
+    return false;
   }
-  else
-  {
-    // from hard fork 2, since a miner can claim less than the full block reward, we update the base_reward
-    // to show the amount of coins that were actually generated, the remainder will be pushed back for later
-    // emission. This modifies the emission curve very slightly.
-    CHECK_AND_ASSERT_MES(money_in_use - fee <= base_reward, false, "base reward calculation bug");
-    if(base_reward + fee != money_in_use)
-      partial_block_reward = true;
-    base_reward = money_in_use - fee;
-  }
+  
   return true;
 }
 //------------------------------------------------------------------
@@ -5581,92 +5568,7 @@ void Blockchain::cancel()
 static const char expected_block_hashes_hash[] = "2c95b5af1f3ee41893ae0c585fd59207a40f28ed4addbaad64a46a39b82955e7";
 void Blockchain::load_compiled_in_block_hashes(const GetCheckpointsCallback& get_checkpoints)
 {
-  if (get_checkpoints == nullptr || !m_fast_sync)
-  {
-    return;
-  }
-  const epee::span<const unsigned char> &checkpoints = get_checkpoints(m_nettype);
-  if (!checkpoints.empty())
-  {
-    MINFO("Loading precomputed blocks (" << checkpoints.size() << " bytes)");
-    if (m_nettype == MAINNET)
-    {
-      // first check hash
-      crypto::hash hash;
-      if (!tools::sha256sum(checkpoints.data(), checkpoints.size(), hash))
-      {
-        MERROR("Failed to hash precomputed blocks data");
-        return;
-      }
-      MINFO("precomputed blocks hash: " << hash << ", expected " << expected_block_hashes_hash);
-      cryptonote::blobdata expected_hash_data;
-      if (!epee::string_tools::parse_hexstr_to_binbuff(std::string(expected_block_hashes_hash), expected_hash_data) || expected_hash_data.size() != sizeof(crypto::hash))
-      {
-        MERROR("Failed to parse expected block hashes hash");
-        return;
-      }
-      const crypto::hash expected_hash = *reinterpret_cast<const crypto::hash*>(expected_hash_data.data());
-      if (hash != expected_hash)
-      {
-        MERROR("Block hash data does not match expected hash");
-        return;
-      }
-    }
-
-    if (checkpoints.size() > 4)
-    {
-      const unsigned char *p = checkpoints.data();
-      const uint32_t nblocks = *p | ((*(p+1))<<8) | ((*(p+2))<<16) | ((*(p+3))<<24);
-      if (nblocks > (std::numeric_limits<uint32_t>::max() - 4) / sizeof(hash))
-      {
-        MERROR("Block hash data is too large");
-        return;
-      }
-      const size_t size_needed = 4 + nblocks * (sizeof(crypto::hash) * 2);
-      if(checkpoints.size() != size_needed)
-      {
-        MERROR("Failed to load hashes - unexpected data size");
-        return;
-      }
-      else if(nblocks > 0 && nblocks > (m_db->height() + HASH_OF_HASHES_STEP - 1) / HASH_OF_HASHES_STEP)
-      {
-        p += sizeof(uint32_t);
-        m_blocks_hash_of_hashes.reserve(nblocks);
-        for (uint32_t i = 0; i < nblocks; i++)
-        {
-          crypto::hash hash_hashes, hash_weights;
-          memcpy(hash_hashes.data, p, sizeof(hash_hashes.data));
-          p += sizeof(hash_hashes.data);
-          memcpy(hash_weights.data, p, sizeof(hash_weights.data));
-          p += sizeof(hash_weights.data);
-          m_blocks_hash_of_hashes.push_back(std::make_pair(hash_hashes, hash_weights));
-        }
-        m_blocks_hash_check.resize(m_blocks_hash_of_hashes.size() * HASH_OF_HASHES_STEP, std::make_pair(crypto::null_hash, 0));
-        MINFO(nblocks << " block hashes loaded");
-
-        // FIXME: clear tx_pool because the process might have been
-        // terminated and caused it to store txs kept by blocks.
-        // The core will not call check_tx_inputs(..) for these
-        // transactions in this case. Consequently, the sanity check
-        // for tx hashes will fail in handle_block_to_main_chain(..)
-        CRITICAL_REGION_LOCAL(m_tx_pool);
-
-        std::vector<transaction> txs;
-        m_tx_pool.get_transactions(txs, true);
-
-        size_t tx_weight;
-        uint64_t fee;
-        bool relayed, do_not_relay, double_spend_seen, pruned;
-        transaction pool_tx;
-        blobdata txblob;
-        for(const transaction &tx : txs)
-        {
-          crypto::hash tx_hash = get_transaction_hash(tx);
-          m_tx_pool.take_tx(tx_hash, pool_tx, txblob, tx_weight, fee, relayed, do_not_relay, double_spend_seen, pruned);
-        }
-      }
-    }
-  }
+  return;
 }
 #endif
 

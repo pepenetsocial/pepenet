@@ -1,15 +1,15 @@
-# Portable Storage Format
+# Portable Storage Format - defined by monero
 
 ## Background
 
-Monero makes use of a set of helper classes from a small library named
-[epee](https://github.com/pepenet-project/pepenet/tree/master/contrib/epee). Part
+pepenet makes use of a set of helper classes from a small library named
+[epee](https://github.com/azx19/pepenet/tree/master/contrib/epee). Part
 of this library implements a networking protocol called
-[Levin](https://github.com/pepenet-project/pepenet/blob/master/contrib/epee/include/net/levin_base.h),
+[Levin](https://github.com/azx19/pepenet/blob/master/contrib/epee/include/net/levin_base.h),
 which internally uses a storage format called [Portable
-Storage](https://github.com/pepenet-project/pepenet/tree/master/contrib/epee/include/storages).
+Storage](https://github.com/azx19/pepenet/tree/master/contrib/epee/include/storages).
 This format (amongst the rest of the
-[epee](https://github.com/pepenet-project/pepenet/tree/master/contrib/epee)
+[epee](https://github.com/azx19/pepenet/tree/master/contrib/epee)
 library), is undocumented - or rather relies on the code itself to serve as the
 documentation. Unfortunately, whilst the rest of the library is fairly
 straightforward to decipher, the Portable Storage is less-so.  Hence this
@@ -159,7 +159,7 @@ that most will be familiar with):
 ```json
 {
   "short_quote": "Give me liberty or give me death!",
-  "long_quote": "Monero is more than just a technology. It's also what the technology stands for.",
+  "long_quote": "pepenet is more than just a technology. It's also what the technology stands for.",
   "signed_32bit_int": 20140418,
   "array_of_bools": [true, false, true, true],
   "nested_section": {
@@ -173,7 +173,7 @@ This would translate to:
 
 ![Epee binary storage format example](/docs/images/storage_binary_example.png)
 
-## Monero specifics
+## pepenet specifics
 
 ### Entry values
 
@@ -186,12 +186,12 @@ These are stored as strings, `SERIALIZE_TYPE_STRING`.
 These can be arrays of standard integer types, strings or
 `SERIALIZE_TYPE_OBJECT`'s for structs.
 
-#### Links to some Monero struct definitions
+#### Links to some pepenet struct definitions
 
 - [Core RPC
-  definitions](https://github.com/pepenet-project/pepenet/blob/master/src/rpc/core_rpc_server_commands_defs.h)
+  definitions](https://github.com/azx19/pepenet/blob/master/src/rpc/core_rpc_server_commands_defs.h)
 - [CryptoNote protocol
-  definitions](https://github.com/pepenet-project/pepenet/blob/master/src/cryptonote_protocol/cryptonote_protocol_defs.h)
+  definitions](https://github.com/azx19/pepenet/blob/master/src/cryptonote_protocol/cryptonote_protocol_defs.h)
 
 
 
