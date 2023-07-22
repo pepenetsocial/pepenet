@@ -52,9 +52,9 @@ bool gen_v2_tx_validation_base::generate_with(std::vector<test_event_entry>& eve
   for (size_t n = 0; n < 4; ++n) {
     miner_accounts[n].generate();
     CHECK_AND_ASSERT_MES(generator.construct_block_manually(blocks[n], *prev_block, miner_accounts[n],
-        test_generator::bf_major_ver | test_generator::bf_minor_ver | test_generator::bf_timestamp,
+        test_generator::bf_major_ver | test_generator::bf_minor_ver | test_generator::bf_timestamp | test_generator::bf_hf_version,
         2, 2, prev_block->timestamp + DIFFICULTY_BLOCKS_ESTIMATE_TIMESPAN * 2, // v2 has blocks twice as long
-          crypto::hash(), 0, transaction(), std::vector<crypto::hash>(), 0, 0),
+          crypto::hash(), 0, transaction(), std::vector<crypto::hash>(), 0, 0, 2, 0),
         false, "Failed to generate block");
     events.push_back(blocks[n]);
     prev_block = blocks + n;
@@ -68,9 +68,9 @@ bool gen_v2_tx_validation_base::generate_with(std::vector<test_event_entry>& eve
     {
       cryptonote::block blk;
       CHECK_AND_ASSERT_MES(generator.construct_block_manually(blk, blk_last, miner_account,
-          test_generator::bf_major_ver | test_generator::bf_minor_ver | test_generator::bf_timestamp,
+        test_generator::bf_major_ver | test_generator::bf_minor_ver | test_generator::bf_timestamp | test_generator::bf_hf_version,
           2, 2, blk_last.timestamp + DIFFICULTY_BLOCKS_ESTIMATE_TIMESPAN * 2, // v2 has blocks twice as long
-          crypto::hash(), 0, transaction(), std::vector<crypto::hash>(), 0, 0),
+          crypto::hash(), 0, transaction(), std::vector<crypto::hash>(), 0, 0, 2, 0),
           false, "Failed to generate block");
       events.push_back(blk);
       blk_last = blk;
@@ -91,7 +91,7 @@ bool gen_v2_tx_validation_base::generate_with(std::vector<test_event_entry>& eve
         idx = m+1; // one out of that size per miner tx, including genesis
       else
         idx = 0; // dusty, no other output of that size
-      src.push_output(idx, boost::get<txout_to_key>(blocks[m].miner_tx.vout[out_idx[out_idx_idx]].target).key, src.amount);
+      src.push_output(idx, boost::get<txout_to_tagged_key>(blocks[m].miner_tx.vout[out_idx[out_idx_idx]].target).key, src.amount);
     }
     src.real_out_tx_key = cryptonote::get_tx_pub_key_from_extra(blocks[0].miner_tx);
     src.real_output = 0;
@@ -120,7 +120,7 @@ bool gen_v2_tx_mixable_0_mixin::generate(std::vector<test_event_entry>& events) 
 {
   const int mixin = 0;
   const int out_idx[] = {1, -1};
-  const uint64_t amount_paid = 10000;
+  const uint64_t amount_paid = 4000;
   return generate_with(events, out_idx, mixin, amount_paid, false);
 }
 
@@ -128,7 +128,7 @@ bool gen_v2_tx_mixable_low_mixin::generate(std::vector<test_event_entry>& events
 {
   const int mixin = 1;
   const int out_idx[] = {1, -1};
-  const uint64_t amount_paid = 10000;
+  const uint64_t amount_paid = 4000;
   return generate_with(events, out_idx, mixin, amount_paid, false);
 }
 
@@ -160,6 +160,6 @@ bool gen_v2_tx_dust::generate(std::vector<test_event_entry>& events) const
 {
   const int mixin = 2;
   const int out_idx[] = {1, -1};
-  const uint64_t amount_paid = 10001;
+  const uint64_t amount_paid = 4000;
   return generate_with(events, out_idx, mixin, amount_paid, false);
 }
