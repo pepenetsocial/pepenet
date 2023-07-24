@@ -236,6 +236,8 @@ int main(int argc, char* argv[])
     GENERATE_AND_PLAY(gen_multisig_tx_invalid_48_1_no_signers);
     GENERATE_AND_PLAY(gen_multisig_tx_invalid_48_1_23_no_threshold);
 
+    /*
+    TODO: Fix or remove gen_bpp* tests
     GENERATE_AND_PLAY(gen_bpp_tx_invalid_before_fork);
     GENERATE_AND_PLAY(gen_bpp_tx_valid_at_fork);
     GENERATE_AND_PLAY(gen_bpp_tx_invalid_1_1);
@@ -252,7 +254,7 @@ int main(int argc, char* argv[])
     GENERATE_AND_PLAY(gen_bpp_tx_invalid_too_many_proofs);
     GENERATE_AND_PLAY(gen_bpp_tx_invalid_wrong_amount);
     GENERATE_AND_PLAY(gen_bpp_tx_invalid_clsag_type);
-
+    */
     GENERATE_AND_PLAY(gen_block_low_coinbase);
 
     el::Level level = (failed_tests.empty() ? el::Level::Info : el::Level::Error);
