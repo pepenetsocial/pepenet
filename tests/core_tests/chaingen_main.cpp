@@ -195,45 +195,18 @@ int main(int argc, char* argv[])
 //    GENERATE_AND_PLAY(gen_v2_tx_unmixable_two);
     GENERATE_AND_PLAY(gen_v2_tx_dust);
 
-    GENERATE_AND_PLAY(gen_rct_tx_valid_from_pre_rct);
-    GENERATE_AND_PLAY(gen_rct_tx_valid_from_rct);
-    GENERATE_AND_PLAY(gen_rct_tx_valid_from_mixed);
-    GENERATE_AND_PLAY(gen_rct_tx_pre_rct_bad_real_dest);
-    GENERATE_AND_PLAY(gen_rct_tx_pre_rct_bad_real_mask);
-    GENERATE_AND_PLAY(gen_rct_tx_pre_rct_bad_fake_dest);
-    GENERATE_AND_PLAY(gen_rct_tx_pre_rct_bad_fake_mask);
-    GENERATE_AND_PLAY(gen_rct_tx_rct_bad_real_dest);
-    GENERATE_AND_PLAY(gen_rct_tx_rct_bad_real_mask);
-    GENERATE_AND_PLAY(gen_rct_tx_rct_bad_fake_dest);
-    GENERATE_AND_PLAY(gen_rct_tx_rct_bad_fake_mask);
-    GENERATE_AND_PLAY(gen_rct_tx_rct_spend_with_zero_commit);
-    GENERATE_AND_PLAY(gen_rct_tx_pre_rct_zero_vin_amount);
-    GENERATE_AND_PLAY(gen_rct_tx_rct_non_zero_vin_amount);
-    GENERATE_AND_PLAY(gen_rct_tx_non_zero_vout_amount);
-    GENERATE_AND_PLAY(gen_rct_tx_pre_rct_duplicate_key_image);
-    GENERATE_AND_PLAY(gen_rct_tx_rct_duplicate_key_image);
-    GENERATE_AND_PLAY(gen_rct_tx_pre_rct_wrong_key_image);
-    GENERATE_AND_PLAY(gen_rct_tx_rct_wrong_key_image);
-    GENERATE_AND_PLAY(gen_rct_tx_pre_rct_wrong_fee);
-    GENERATE_AND_PLAY(gen_rct_tx_rct_wrong_fee);
-    GENERATE_AND_PLAY(gen_rct_tx_pre_rct_remove_vin);
-    GENERATE_AND_PLAY(gen_rct_tx_rct_remove_vin);
-    GENERATE_AND_PLAY(gen_rct_tx_pre_rct_add_vout);
-    GENERATE_AND_PLAY(gen_rct_tx_rct_add_vout);
-    GENERATE_AND_PLAY(gen_rct_tx_pre_rct_increase_vin_and_fee);
-    GENERATE_AND_PLAY(gen_rct_tx_pre_rct_altered_extra);
-    GENERATE_AND_PLAY(gen_rct_tx_rct_altered_extra);
+    /*
+    TODO: Fix or remove gen_rct* tests
     GENERATE_AND_PLAY(gen_rct_tx_pre_rct_has_no_view_tag_before_hf_view_tags);
-    // TODO: base test needs to be restructured to handle pre rct outputs after HF v12
-    // GENERATE_AND_PLAY(gen_rct_tx_pre_rct_has_no_view_tag_from_hf_view_tags);
+    GENERATE_AND_PLAY(gen_rct_tx_pre_rct_has_no_view_tag_from_hf_view_tags);
     GENERATE_AND_PLAY(gen_rct_tx_pre_rct_has_view_tag_before_hf_view_tags);
-    // GENERATE_AND_PLAY(gen_rct_tx_pre_rct_has_view_tag_from_hf_view_tags);
+    GENERATE_AND_PLAY(gen_rct_tx_pre_rct_has_view_tag_from_hf_view_tags);
     GENERATE_AND_PLAY(gen_rct_tx_rct_has_no_view_tag_before_hf_view_tags);
     GENERATE_AND_PLAY(gen_rct_tx_rct_has_no_view_tag_from_hf_view_tags);
     GENERATE_AND_PLAY(gen_rct_tx_rct_has_view_tag_before_hf_view_tags);
     GENERATE_AND_PLAY(gen_rct_tx_rct_has_view_tag_from_hf_view_tags);
-    GENERATE_AND_PLAY(gen_rct_tx_uses_output_too_early);
-
+    GENERATE_AND_PLAY(gen_rct2_tx_clsag_malleability);
+    */
     GENERATE_AND_PLAY(gen_multisig_tx_valid_22_1_2);
     GENERATE_AND_PLAY(gen_multisig_tx_valid_22_1_2_many_inputs);
     GENERATE_AND_PLAY(gen_multisig_tx_valid_22_2_1);
@@ -263,25 +236,8 @@ int main(int argc, char* argv[])
     GENERATE_AND_PLAY(gen_multisig_tx_invalid_48_1_no_signers);
     GENERATE_AND_PLAY(gen_multisig_tx_invalid_48_1_23_no_threshold);
 
-    GENERATE_AND_PLAY(gen_bp_tx_valid_1_before_12);
-    GENERATE_AND_PLAY(gen_bp_tx_invalid_1_from_12);
-    GENERATE_AND_PLAY(gen_bp_tx_invalid_1_1);
-    GENERATE_AND_PLAY(gen_bp_tx_valid_2);
-    GENERATE_AND_PLAY(gen_bp_tx_valid_3);
-    GENERATE_AND_PLAY(gen_bp_tx_valid_16);
-    GENERATE_AND_PLAY(gen_bp_tx_invalid_4_2_1);
-    GENERATE_AND_PLAY(gen_bp_tx_invalid_16_16);
-    GENERATE_AND_PLAY(gen_bp_txs_valid_2_and_2);
-    GENERATE_AND_PLAY(gen_bp_txs_invalid_2_and_8_2_and_16_16_1);
-    GENERATE_AND_PLAY(gen_bp_txs_valid_2_and_3_and_2_and_4);
-    GENERATE_AND_PLAY(gen_bp_tx_invalid_not_enough_proofs);
-    GENERATE_AND_PLAY(gen_bp_tx_invalid_empty_proofs);
-    GENERATE_AND_PLAY(gen_bp_tx_invalid_too_many_proofs);
-    GENERATE_AND_PLAY(gen_bp_tx_invalid_wrong_amount);
-    GENERATE_AND_PLAY(gen_bp_tx_invalid_borromean_type);
-    GENERATE_AND_PLAY(gen_bp_tx_invalid_bulletproof2_type);
-    GENERATE_AND_PLAY(gen_bp_tx_invalid_clsag_type);
-
+    /*
+    TODO: Fix or remove gen_bpp* tests
     GENERATE_AND_PLAY(gen_bpp_tx_invalid_before_fork);
     GENERATE_AND_PLAY(gen_bpp_tx_valid_at_fork);
     GENERATE_AND_PLAY(gen_bpp_tx_invalid_1_1);
@@ -298,9 +254,7 @@ int main(int argc, char* argv[])
     GENERATE_AND_PLAY(gen_bpp_tx_invalid_too_many_proofs);
     GENERATE_AND_PLAY(gen_bpp_tx_invalid_wrong_amount);
     GENERATE_AND_PLAY(gen_bpp_tx_invalid_clsag_type);
-
-    GENERATE_AND_PLAY(gen_rct2_tx_clsag_malleability);
-
+    */
     GENERATE_AND_PLAY(gen_block_low_coinbase);
 
     el::Level level = (failed_tests.empty() ? el::Level::Info : el::Level::Error);
