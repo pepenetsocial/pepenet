@@ -33,43 +33,55 @@
 #include "crypto/crypto.h"
 #include "../contrib/epee/include/hex.h"
 #include "../contrib/epee/include/misc_log_ex.h"
+#include "../contrib/epee/include/string_tools.h"
 #include "cryptonote_basic/cryptonote_basic.h"
 #include "cryptonote_basic/cryptonote_format_utils.h"
 #include <iostream>
 #include <vector>
-#include <optional>
+#include <pepenet_social.pb.h>
+#include <rapidjson/document.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/schema.h>
+#include <boost/format.hpp>
+
+#define INFO_NULLOPT boost::optional<std::string>()
 
 namespace pepenet_social {
 
-  struct pep_args {
-    std::string msg;
-    boost::optional<std::string> pseudonym;
-    boost::optional<std::string> sk_seed;
-    bool post_pk;
-    boost::optional<crypto::hash> tx_ref;
-    boost::optional<std::string> pepetag;
-    boost::optional<std::string> donation_address;
+  typedef std::string bytes;
+
+  struct ibool {
+    bool b;
+    boost::optional<std::string> info;
   };
 
-  struct post_args : public pep_args {
-    std::string title;
+  class social_args{
+    public:
+      ibool loadJson(const std::string& json);
+      ibool loadJsonSchema(const std::string& json);
+      ibool validate() { return validateJsonSchema(); };
+      virtual ibool loadFromJson() = 0;
+    protected:
+      ibool validateJsonSchema();
+      rapidjson::Document m_json;
+      rapidjson::Document m_schema;
+      bool m_valid_args = false;
   };
 
-  struct pep {
-    std::string msg;
-    boost::optional<std::string> pseudonym;
-    boost::optional<crypto::public_key> pk;
-    boost::optional<crypto::signature> sig;
-    boost::optional<crypto::hash> tx_ref;
-    boost::optional<std::string> pepetag;
-    boost::optional<std::string> donation_address;
+  template <typename SocialProto>
+  class social_feature
+  {
+    public:
+      virtual bool validate() = 0;
+      virtual bool loadFromProto() = 0;
+      virtual bool dumpToProto() = 0;
+      virtual bool loadFromBinary(const bytes& bytes) = 0;
+      virtual bool dumpToBinary(bytes& bytes) = 0;
+      virtual bool dumpToJsonStr(std::string& json) = 0;
+    protected:
+      SocialProto m_proto;
   };
-
-  struct post : public pep {
-    std::string title;
-  };
-
-  typedef std::logic_error tx_social_error;
 
   bool lzma_compress_msg(const std::string& msg, std::string& out);
   bool lzma_decompress_msg(const std::string& msg, std::string& out);

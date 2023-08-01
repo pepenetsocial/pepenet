@@ -29,6 +29,45 @@
 
 #include "pepenet_social.h"
 namespace pepenet_social {
+
+  ibool social_args::loadJson(const std::string& json)
+  {
+    if (m_json.Parse(json.c_str()).HasParseError())
+    {
+      return { false, INFO_NULLOPT };
+    }
+    return { true, INFO_NULLOPT };
+  }
+
+  ibool social_args::loadJsonSchema(const std::string& json)
+  {
+    if (m_schema.Parse(json.c_str()).HasParseError())
+    {
+      return { false, INFO_NULLOPT };
+    }
+  }
+
+  ibool social_args::validateJsonSchema()
+  {
+    rapidjson::SchemaDocument schema(m_schema);
+    rapidjson::SchemaValidator validator(schema);
+    if (!m_json.Accept(validator))
+    {
+      // Input JSON is invalid according to the schema
+      // Output diagnostic information
+      rapidjson::StringBuffer sb;
+      validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
+
+      std::string info = "";
+      info += (boost::format("Invalid schema: %s\nInvalid keyword: %s\n") % sb.GetString() % validator.GetInvalidSchemaKeyword()).str();
+      sb.Clear();
+      validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
+      info += (boost::format("Invalid document: %s\n") % sb.GetString()).str();
+
+      return ibool{ false, info };
+    }
+  }
+
   bool lzma_compress_msg(const std::string& msg, std::string& out)
   {
     const uint8_t* msg_ = (const uint8_t*)msg.c_str();
