@@ -37,7 +37,7 @@ namespace pepenet_social {
   {
     friend class pep;
     public:
-      ibool loadFromJson();
+      ibool loadArgsFromJson();
       ibool validate();
     private:
       std::string m_msg;
@@ -97,17 +97,17 @@ namespace pepenet_social {
 )";
 };
 
-  class pep : public social_feature<pepenet_social_protos::pep>
+  class pep : public social_feature<pepenet_social_protos::pep, pep_args>
   {
     public:
-      pep(const pep_args& args);
-      bool validate();
-      bool loadFromProto();
-      bool dumpToProto();
-      bool loadFromBinary(const bytes& bytes);
-      bool dumpToBinary(bytes& bytes);
-      bool dumpToJsonStr(std::string& json);
+      ibool validate();
+      ibool loadFromSocialArgs(pep_args const& args);
+      ibool dumpToJsonStr(std::string& json);
+    protected:
+      ibool dumpToProto();
+      ibool loadFromProto();
     private:
+      ibool dumpBaseToProto();
       std::string m_msg;
       boost::optional<std::string> m_pseudonym;
       boost::optional<crypto::public_key> m_pk;

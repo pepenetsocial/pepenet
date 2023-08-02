@@ -36,19 +36,26 @@ namespace pepenet_social {
     {
       return { false, INFO_NULLOPT };
     }
+    m_json_loaded = true;
     return { true, INFO_NULLOPT };
   }
 
-  ibool social_args::loadJsonSchema(const std::string& json)
+  ibool social_args::loadJsonSchema()
   {
-    if (m_schema.Parse(json.c_str()).HasParseError())
+    if (m_schema.Parse(m_json_schema_str.c_str()).HasParseError())
     {
       return { false, INFO_NULLOPT };
     }
+    m_schema_loaded = true;
+    return { true, INFO_NULLOPT };
   }
 
   ibool social_args::validateJsonSchema()
   {
+    if (!m_json_loaded || !m_schema_loaded)
+    {
+      return ibool{ false, std::string("Schema and json have to be loaded before schema validation") };
+    }
     rapidjson::SchemaDocument schema(m_schema);
     rapidjson::SchemaValidator validator(schema);
     if (!m_json.Accept(validator))
@@ -66,6 +73,9 @@ namespace pepenet_social {
 
       return ibool{ false, info };
     }
+    
+    m_schema_valid = true;
+    return ibool{ true, INFO_NULLOPT };
   }
 
   bool lzma_compress_msg(const std::string& msg, std::string& out)

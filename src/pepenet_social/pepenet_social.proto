@@ -3,35 +3,35 @@ syntax = "proto3";
 package pepenet_social_protos;
 
 
-message pep_base
-{
-  string msg = 1;
-  string pseudonym = 2;
-  bytes pk = 3;
-  bytes tx_ref = 4;
-  string pepetag = 5;
-  string donation_address = 6;
-}
-
 message pep
 {
+  message pep_base
+  {
+    string msg = 1;
+    string pseudonym = 2;
+    bytes pk = 3;
+    bytes tx_ref = 4;
+    string pepetag = 5;
+    string donation_address = 6;
+  }
   pep_base base = 1;
   bytes sig = 2;
 }
 
-message post_base
-{
-  string title = 1;
-  string msg = 2;
-  string pseudonym = 3;
-  bytes pk = 4;
-  bytes tx_ref = 5;
-  string pepetag = 6;
-  string donation_address = 7;
-}
+
 
 message post
 {
+  message post_base
+  {
+    string title = 1;
+    string msg = 2;
+    string pseudonym = 3;
+    bytes pk = 4;
+    bytes tx_ref = 5;
+    string pepetag = 6;
+    string donation_address = 7;
+  }
   post_base base = 1;
   bytes sig = 2;
 }

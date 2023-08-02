@@ -59,28 +59,84 @@ namespace pepenet_social {
   class social_args{
     public:
       ibool loadJson(const std::string& json);
-      ibool loadJsonSchema(const std::string& json);
+      ibool loadJsonSchema();
       ibool validate() { return validateJsonSchema(); };
-      virtual ibool loadFromJson() = 0;
+      virtual ibool loadArgsFromJson() = 0;
     protected:
       ibool validateJsonSchema();
       rapidjson::Document m_json;
+      bool m_json_loaded = false;
       rapidjson::Document m_schema;
+      bool m_schema_loaded = false;
+      bool m_schema_valid = false;
       bool m_valid_args = false;
+      const std::string m_json_schema_str;
   };
 
-  template <typename SocialProto>
+  template <typename SocialProto, typename SocialArgs>
   class social_feature
   {
     public:
-      virtual bool validate() = 0;
-      virtual bool loadFromProto() = 0;
-      virtual bool dumpToProto() = 0;
-      virtual bool loadFromBinary(const bytes& bytes) = 0;
-      virtual bool dumpToBinary(bytes& bytes) = 0;
-      virtual bool dumpToJsonStr(std::string& json) = 0;
+      virtual ibool validate() = 0;
+      virtual ibool loadFromSocialArgs(SocialArgs const& args) = 0;
+      virtual ibool dumpToJsonStr(std::string& json) = 0;
+      ibool loadFromBinary(const bytes& bytes)
+      {
+        //load to proto
+        bool success = false;
+        try
+        {
+          success = m_proto.ParseFromString(bytes);
+        }
+        catch (std::exception const& e)
+        {
+          return ibool{ success, std::string("failed to load proto from bytes. exception: ") + e.what() };
+        }
+        //load from proto
+        ibool r = loadFromProto();
+        if (!r.b)
+        {
+          return r;
+        }
+        //validate
+        r = validate();
+        if (!r.b)
+        {
+          return r;
+        }
+        //done
+        return ibool{ success, INFO_NULLOPT };
+      }
+      ibool dumpToBinary(bytes& bytes)
+      {
+        if (!m_valid || !m_loaded)
+        {
+          return ibool{ false, std::string("first load and validate social feature") };
+        }
+        //first call dump to proto
+        ibool r = dumpToProto();
+        if (!r.b)
+        {
+          return r;
+        }
+        //dump to binary after variables are set in proto
+        bool success = false;
+        try
+        {
+          success = m_proto.SerializeToString(&bytes);
+        }
+        catch (std::exception const& e)
+        {
+          return ibool{ success, std::string("failed to serialize proto to bytes. exception: ") + e.what() };
+        }
+        return ibool{ success, INFO_NULLOPT };
+      }
     protected:
+      virtual ibool dumpToProto() = 0;
+      virtual ibool loadFromProto() = 0;
       SocialProto m_proto;
+      bool m_valid = false;
+      bool m_loaded = false;
   };
 
   bool lzma_compress_msg(const std::string& msg, std::string& out);
@@ -89,6 +145,9 @@ namespace pepenet_social {
   //use crypto::secret_key_to_public_key
   bool sign_msg(const std::string& msg, crypto::signature& sig, const crypto::public_key& pk, const crypto::secret_key& sk);
   bool check_msg_sig(const std::string& msg, crypto::signature& sig, const crypto::public_key& pk);
+
+  bool sig_to_bytes(const crypto::signature& sig, bytes& bytes);
+  bool bytes_to_sig(const crypto::signature& sig, bytes& bytes);
 
   bool add_pep_to_tx_extra(const pepenet_social::pep_args pep_args, std::vector<uint8_t>& tx_extra, boost::optional<std::string>& err);
   bool add_post_to_tx_extra(const pepenet_social::post_args post_args, std::vector<uint8_t>& tx_extra, boost::optional<std::string>& err);
