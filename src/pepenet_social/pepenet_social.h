@@ -146,8 +146,12 @@ namespace pepenet_social {
   bool sign_msg(const std::string& msg, crypto::signature& sig, const crypto::public_key& pk, const crypto::secret_key& sk);
   bool check_msg_sig(const std::string& msg, crypto::signature& sig, const crypto::public_key& pk);
 
-  bool sig_to_bytes(const crypto::signature& sig, bytes& bytes);
-  bool bytes_to_sig(const crypto::signature& sig, bytes& bytes);
+  bool to_bytes(const crypto::signature& sig, bytes& b);
+  bool from_bytes(crypto::signature& sig, const bytes& b);
+  bool to_bytes(const crypto::hash& hash, bytes& b);
+  bool from_bytes(crypto::hash& hash, const bytes& b);
+  bool to_bytes(const crypto::public_key& pk, bytes& b);
+  bool from_bytes(crypto::public_key& pk, const bytes& b);
 
   bool add_pep_to_tx_extra(const pepenet_social::pep_args pep_args, std::vector<uint8_t>& tx_extra, boost::optional<std::string>& err);
   bool add_post_to_tx_extra(const pepenet_social::post_args post_args, std::vector<uint8_t>& tx_extra, boost::optional<std::string>& err);

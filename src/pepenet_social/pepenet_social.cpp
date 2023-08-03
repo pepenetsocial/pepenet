@@ -147,6 +147,71 @@ namespace pepenet_social {
     return r;
   }
 
+  bool to_bytes(const crypto::signature& sig, bytes& b)
+  {
+    b = bytes(sig.c.data, 32) + bytes(sig.r.data, 32);
+    return true;
+  }
+  bool from_bytes(crypto::signature& sig, const bytes& b)
+  {
+    if (b.size() != 64)
+    {
+      return true;
+    }
+    try
+    {
+      std::memcpy(&sig.c.data, b.data(), 32);
+      std::memcpy(&sig.r.data, b.data() + 32, 32);
+    }
+    catch (const std::exception& e)
+    {
+      return false;
+    }
+    return true;
+  }
+  bool to_bytes(const crypto::hash& hash, bytes& b)
+  {
+    b = bytes(hash.data, 32);
+    return true;
+  }
+  bool from_bytes(crypto::hash& hash, const bytes& b)
+  {
+    if (b.size() != 32)
+    {
+      return true;
+    }
+    try
+    {
+      std::memcpy(&hash.data, b.data(), 32);
+    }
+    catch (const std::exception& e)
+    {
+      return false;
+    }
+    return true;
+  }
+  bool to_bytes(const crypto::public_key& pk, bytes& b)
+  {
+    b = bytes(pk.data, 32);
+    return true;
+  }
+  bool from_bytes(crypto::public_key& pk, const bytes& b)
+  {
+    if (b.size() != 32)
+    {
+      return true;
+    }
+    try
+    {
+      std::memcpy(&pk.data, b.data(), 32);
+    }
+    catch (const std::exception& e)
+    {
+      return false;
+    }
+    return true;
+  }
+
   bool add_pep_to_tx_extra(const pepenet_social::pep_args pep_args, std::vector<uint8_t>& tx_extra, boost::optional<std::string>& err)
   {
     err.reset();

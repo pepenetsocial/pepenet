@@ -118,25 +118,25 @@ namespace pepenet_social {
 
   ibool pep::dumpBaseToProto()
   {
-    pepenet_social_protos::pep_base base;
-    base.set_msg(m_msg);
+    pepenet_social_protos::pep_base* base = new pepenet_social_protos::pep_base; //allocate to avoid destructor
+    base->set_msg(m_msg);
     if (m_pseudonym.has_value())
     {
-      base.set_pseudonym(m_pseudonym.value());
+      base->set_pseudonym(m_pseudonym.value());
     }
     if (m_tx_ref.has_value())
     {
-      base.set_tx_ref(std::string(m_tx_ref.value().data, 32));
+      base->set_tx_ref(std::string(m_tx_ref.value().data, 32));
     }
     if (m_pepetag.has_value())
     {
-      base.set_pepetag(m_pepetag.value());
+      base->set_pepetag(m_pepetag.value());
     }
     if (m_donation_address.has_value())
     {
-      base.set_donation_address(m_donation_address.value());
+      base->set_donation_address(m_donation_address.value());
     }
-    m_proto.set_allocated_base(&base);
+    m_proto.set_allocated_base(base);
   }
 
   ibool pep::dumpToProto()
@@ -148,7 +148,100 @@ namespace pepenet_social {
   
   ibool pep::loadFromProto()
   {
-    
+    pepenet_social_protos::pep_base* base_ptr = m_proto.release_base();
+    m_msg = base_ptr->msg();
+    m_pseudonym = base_ptr->pseudonym();
+    crypto::hash parsed_tx_ref;
+    bool r = from_bytes(parsed_tx_ref, base_ptr->tx_ref());
+    if (!r)
+    {
+      return ibool{ r, std::string("invalid tx_ref bytes in proto") };
+    }
+    else
+    {
+      m_tx_ref = parsed_tx_ref;
+    }
+    m_pepetag = base_ptr->pepetag();
+    m_donation_address = base_ptr->donation_address();
+    m_proto.set_allocated_base(base_ptr); //return base to proto;
+
+    crypto::signature parsed_sig;
+    r = from_bytes(parsed_sig, m_proto.sig());
+    if (!r)
+    {
+      return ibool{ r, std::string("invalid sig bytes in proto") };
+    }
+    else
+    {
+      m_sig = parsed_sig;
+    }
+
+    m_loaded = true;
+    return ibool{ true, INFO_NULLOPT };
   }
 
+  ibool pep::validate()
+  {
+    if (!m_loaded)
+    {
+      return ibool{ false, std::string("proto not loaded") };
+    }
+    //verify fields
+    std::string compressed_msg;
+    bool r = lzma_compress_msg(m_msg, compressed_msg);
+    if (m_msg.empty() || compressed_msg.size() > LZMA_PEP_MAX_SIZE);
+    {
+      return ibool{ false, std::string("invalid msg field") };
+    }
+    if (m_pseudonym.has_value())
+    {
+      if (m_pseudonym.value().empty() || m_pseudonym.value().size() > PSEUDONYM_MAX_SIZE)
+      {
+        return ibool{ false, std::string("invalid pseudonym field") };
+      }
+    }
+    if (m_pepetag.has_value())
+    {
+      if (m_pepetag.value().empty() || m_pepetag.value().size() > PEPETAG_MAX_SIZE)
+      {
+        return ibool{ false, std::string("invalid pepetag field") };
+      }
+    }
+    if (m_donation_address.has_value())
+    {
+      if (m_donation_address.value().empty() || m_donation_address.value().size() > DONATION_ADDRESS_MAX_SIZE)
+      {
+        return ibool{ false, std::string("invalid pepetag field") };
+      }
+    }
+    
+    if (m_sig.has_value()) //verify base
+    {
+      if (!m_pk.has_value())
+      {
+        return ibool{ false, std::string("missing pk in pep. can't validate") };
+      }
+      pepenet_social_protos::pep_base* base_ptr = m_proto.release_base();
+      bytes base_bytes;
+      if (!base_ptr->SerializeToString(&base_bytes))
+      {
+        return ibool{ false, std::string("failed to serialize pep base") };
+      }
+      m_proto.set_allocated_base(base_ptr);
+      //verify sig
+      if (!check_msg_sig(base_bytes, m_sig.value(), m_pk.value()))
+      {
+        return ibool{ false, std::string("failed to verify pep: invalid sig") };
+      }
+    }
+    return ibool{ true, INFO_NULLOPT};
+  }
+
+  ibool pep::validate(const crypto::signature& sig)
+  {
+    m_sig = sig;
+    ibool r = validate();
+    m_sig.reset();
+    return r;
+  }
 }
