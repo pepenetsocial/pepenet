@@ -36,7 +36,6 @@
 #include "../contrib/epee/include/string_tools.h"
 #include "cryptonote_basic/cryptonote_basic.h"
 #include "cryptonote_basic/cryptonote_format_utils.h"
-#include <iostream>
 #include <vector>
 #include <pepenet_social.pb.h>
 #include <rapidjson/document.h>
@@ -44,6 +43,14 @@
 #include <rapidjson/writer.h>
 #include <rapidjson/schema.h>
 #include <boost/format.hpp>
+
+//feature limits - size in bytes
+#define LZMA_PEP_MAX_SIZE 512
+#define LZMA_POST_MAX_SIZE 4096
+#define POST_TITLE_MAX_SIZE 128
+#define PSEUDONYM_MAX_SIZE 32
+#define PEPETAG_MAX_SIZE 32
+#define DONATION_ADDRESS_MAX_SIZE 108
 
 #define INFO_NULLOPT boost::optional<std::string>()
 

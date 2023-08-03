@@ -651,13 +651,6 @@ namespace cryptonote
     //pepenet features
     if (!pick<tx_extra_lzma_pep>(nar, tx_extra_fields, TX_EXTRA_LZMA_PEP)) return false;
     if (!pick<tx_extra_lzma_post>(nar, tx_extra_fields, TX_EXTRA_LZMA_POST)) return false;
-    if (!pick<tx_extra_post_title>(nar, tx_extra_fields, TX_EXTRA_POST_TITLE)) return false;
-    if (!pick<tx_extra_pseudonym>(nar, tx_extra_fields, TX_EXTRA_PSEUDONYM)) return false;
-    if (!pick<tx_extra_eddsa_signature>(nar, tx_extra_fields, TX_EXTRA_EDDSA_SIGNATURE)) return false;
-    if (!pick<tx_extra_eddsa_pubkey>(nar, tx_extra_fields, TX_EXTRA_EDDSA_PUB_KEY)) return false;
-    if (!pick<tx_extra_tx_reference>(nar, tx_extra_fields, TX_EXTRA_TX_REFERENCE)) return false;
-    if (!pick<tx_extra_pepetag>(nar, tx_extra_fields, TX_EXTRA_PEPETAG)) return false;
-    if (!pick<tx_extra_donation_address>(nar, tx_extra_fields, TX_EXTRA_DONATION_ADDRESS)) return false;
 
     // if not empty, someone added a new type and did not add a case above
     if (!tx_extra_fields.empty())
@@ -786,7 +779,6 @@ namespace cryptonote
   }
   //---------------------------------------------------------------
   bool add_lzma_pep_to_tx_extra(std::vector<uint8_t> &tx_extra, const std::string &lzma_pep){
-    CHECK_AND_NO_ASSERT_MES_L1(!(lzma_pep.size() > LZMA_PEP_MAX_SIZE), false, "lzma pep exceeds LZMA_PEP_MAX_SIZE");
     // convert to variant
     tx_extra_field field = tx_extra_lzma_pep{lzma_pep};
     return add_tx_extra_field_to_extra(tx_extra, field, "failed to serialize tx extra lzma pep string");
@@ -801,13 +793,11 @@ namespace cryptonote
     if (!find_tx_extra_field_by_type(tx_extra_fields, field))
       return false;
     lzma_pep = field.data;
-    CHECK_AND_NO_ASSERT_MES_L1(!(lzma_pep.size() > LZMA_PEP_MAX_SIZE), false, "lzma pep exceeds LZMA_PEP_MAX_SIZE");
     return true;
   }
   //---------------------------------------------------------------
   bool add_lzma_post_to_tx_extra(std::vector<uint8_t> &tx_extra, const std::string &lzma_post)
   {
-    CHECK_AND_NO_ASSERT_MES_L1(!(lzma_post.size() > LZMA_POST_MAX_SIZE), false, "lzma post exceeds LZMA_POST_MAX_SIZE");
     // convert to variant
     tx_extra_field field = tx_extra_lzma_post{lzma_post};
     return add_tx_extra_field_to_extra(tx_extra, field, "failed to serialize tx extra lzma post string");
@@ -822,154 +812,6 @@ namespace cryptonote
     if (!find_tx_extra_field_by_type(tx_extra_fields, field))
       return false;
     lzma_post = field.data;
-    CHECK_AND_NO_ASSERT_MES_L1(!(lzma_post.size() > LZMA_POST_MAX_SIZE), false, "lzma post exceeds LZMA_POST_MAX_SIZE");
-    return true;
-  }
-  //---------------------------------------------------------------
-  bool add_post_title_to_tx_extra(std::vector<uint8_t> &tx_extra, const std::string &title)
-  {
-    CHECK_AND_NO_ASSERT_MES_L1(!(title.size() > POST_TITLE_MAX_SIZE), false, "post title exceeds POST_TITLE_MAX_SIZE");
-    // convert to variant
-    tx_extra_field field = tx_extra_post_title{title};
-    return add_tx_extra_field_to_extra(tx_extra, field, "failed to serialize tx post title string");
-  }
-  //---------------------------------------------------------------
-  bool get_post_title_from_tx_extra(const std::vector<uint8_t> &tx_extra, std::string &title){
-    // parse
-    std::vector<tx_extra_field> tx_extra_fields;
-    parse_tx_extra(tx_extra, tx_extra_fields);
-    // find corresponding field
-    tx_extra_post_title field;
-    if (!find_tx_extra_field_by_type(tx_extra_fields, field))
-      return false;
-    title = field.data;
-    CHECK_AND_NO_ASSERT_MES_L1(!(title.size() > POST_TITLE_MAX_SIZE), false, "post title exceeds POST_TITLE_MAX_SIZE");
-    return true;
-  }
-  //---------------------------------------------------------------
-  bool add_pseudonym_to_tx_extra(std::vector<uint8_t> &tx_extra, const std::string &pseudonym)
-  {
-    CHECK_AND_NO_ASSERT_MES_L1(!(pseudonym.size() > PSEUDONYM_MAX_SIZE), false, "pseudonym exceeds PSEUDONYM_MAX_SIZE");
-    // convert to variant
-    tx_extra_field field = tx_extra_pseudonym{pseudonym};
-    return add_tx_extra_field_to_extra(tx_extra, field, "failed to serialize tx extra pseudonym string");
-  }
-  //---------------------------------------------------------------
-  bool get_pseudonym_from_tx_extra(const std::vector<uint8_t>& tx_extra, boost::optional<std::string>& pseudonym)
-  {
-    // parse
-    std::vector<tx_extra_field> tx_extra_fields;
-    parse_tx_extra(tx_extra, tx_extra_fields);
-    // find corresponding field
-    tx_extra_pseudonym field;
-    if (!find_tx_extra_field_by_type(tx_extra_fields, field))
-      return false;
-    pseudonym = field.data;
-    CHECK_AND_NO_ASSERT_MES_L1(!(pseudonym.value().size() > PSEUDONYM_MAX_SIZE), false, "pseudonym exceeds PSEUDONYM_MAX_SIZE");
-    return true;
-  }
-  //---------------------------------------------------------------
-  bool add_eddsa_signature_to_tx_extra(std::vector<uint8_t> &tx_extra, const crypto::signature &sig)
-  {
-    // convert to variant
-    tx_extra_field field = tx_extra_eddsa_signature{sig};
-    return add_tx_extra_field_to_extra(tx_extra, field, "failed to serialize tx extra eddsa signature");
-  }
-  //---------------------------------------------------------------
-  bool get_eddsa_signature_from_tx_extra(const std::vector<uint8_t>& tx_extra, boost::optional<crypto::signature>& sig)
-  {
-    // parse
-    std::vector<tx_extra_field> tx_extra_fields;
-    parse_tx_extra(tx_extra, tx_extra_fields);
-    // find corresponding field
-    tx_extra_eddsa_signature field;
-    if (!find_tx_extra_field_by_type(tx_extra_fields, field))
-      return false;
-    sig = field.data;
-    return true;
-  }
-  //---------------------------------------------------------------
-  bool add_eddsa_pubkey_to_tx_extra(std::vector<uint8_t> &tx_extra, const crypto::public_key &pkey)
-  {
-    // convert to variant
-    tx_extra_field field = tx_extra_eddsa_pubkey{pkey};
-    return add_tx_extra_field_to_extra(tx_extra, field, "failed to serialize tx extra eddsa pubkey");
-  }
-  //---------------------------------------------------------------
-  bool get_eddsa_pubkey_from_tx_extra(const std::vector<uint8_t>& tx_extra, boost::optional<crypto::public_key>& pkey)
-  {
-    // parse
-    std::vector<tx_extra_field> tx_extra_fields;
-    parse_tx_extra(tx_extra, tx_extra_fields);
-    // find corresponding field
-    tx_extra_eddsa_pubkey field;
-    if (!find_tx_extra_field_by_type(tx_extra_fields, field))
-      return false;
-    pkey = field.data;
-    return true;
-  }
-  //---------------------------------------------------------------
-  bool add_tx_reference_to_tx_extra(std::vector<uint8_t> &tx_extra, const crypto::hash &tx_hash)
-  {
-    // convert to variant
-    tx_extra_field field = tx_extra_tx_reference{tx_hash};
-    return add_tx_extra_field_to_extra(tx_extra, field, "failed to serialize tx extra tx reference");
-  }
-  //---------------------------------------------------------------
-  bool get_tx_reference_from_tx_extra(const std::vector<uint8_t>& tx_extra, boost::optional<crypto::hash>& tx_hash)
-  {
-    // parse
-    std::vector<tx_extra_field> tx_extra_fields;
-    parse_tx_extra(tx_extra, tx_extra_fields);
-    // find corresponding field
-    tx_extra_tx_reference field;
-    if (!find_tx_extra_field_by_type(tx_extra_fields, field))
-      return false;
-    tx_hash = field.data;
-    return true;
-  }
-  //---------------------------------------------------------------
-  bool add_pepetag_to_tx_extra(std::vector<uint8_t>& tx_extra, const std::string& pepetag)
-  {
-    CHECK_AND_NO_ASSERT_MES_L1(!(pepetag.size() > PEPETAG_MAX_SIZE), false, "pepetag size exceeds PEPETAG_MAX_SIZE");
-    // convert to variant
-    tx_extra_field field = tx_extra_pepetag{ pepetag };
-    return add_tx_extra_field_to_extra(tx_extra, field, "failed to serialize tx extra pepetag string");
-  }
-  //---------------------------------------------------------------
-  bool get_pepetag_from_tx_extra(const std::vector<uint8_t>& tx_extra, boost::optional<std::string>& pepetag)
-  {
-    // parse
-    std::vector<tx_extra_field> tx_extra_fields;
-    parse_tx_extra(tx_extra, tx_extra_fields);
-    // find corresponding field
-    tx_extra_pepetag field;
-    if (!find_tx_extra_field_by_type(tx_extra_fields, field))
-      return false;
-    pepetag = field.data;
-    CHECK_AND_NO_ASSERT_MES_L1(!(pepetag.value().size() > PEPETAG_MAX_SIZE), false, "pseudonym exceeds PSEUDONYM_MAX_SIZE");
-    return true;
-  }
-  //---------------------------------------------------------------
-  bool add_donation_address_to_tx_extra(std::vector<uint8_t>& tx_extra, const std::string& donation_address)
-  {
-    CHECK_AND_NO_ASSERT_MES_L1(!(donation_address.size() > DONATION_ADDRESS_MAX_SIZE), false, "donaiton address size exceeds DONATION_ADDRESS_MAX_SIZE");
-    // convert to variant
-    tx_extra_field field = tx_extra_donation_address { donation_address };
-    return add_tx_extra_field_to_extra(tx_extra, field, "failed to serialize tx extra donation_address string");
-  }
-  //---------------------------------------------------------------
-  bool get_donation_address_from_tx_extra(const std::vector<uint8_t>& tx_extra, boost::optional<std::string>& donation_address)
-  {
-    // parse
-    std::vector<tx_extra_field> tx_extra_fields;
-    parse_tx_extra(tx_extra, tx_extra_fields);
-    // find corresponding field
-    tx_extra_donation_address field;
-    if (!find_tx_extra_field_by_type(tx_extra_fields, field))
-      return false;
-    donation_address = field.data;
-    CHECK_AND_NO_ASSERT_MES_L1(!(donation_address.value().size() > DONATION_ADDRESS_MAX_SIZE), false, "donaiton address size exceeds DONATION_ADDRESS_MAX_SIZE");
     return true;
   }
   //---------------------------------------------------------------
