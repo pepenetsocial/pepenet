@@ -237,11 +237,11 @@ namespace pepenet_social {
     return ibool{ true, INFO_NULLOPT};
   }
 
-  ibool pep::validate(const crypto::signature& sig)
+  ibool pep::validate(const boost::optional<crypto::public_key>& pk)
   {
-    m_sig = sig;
+    m_pk = pk;
     ibool r = validate();
-    m_sig.reset();
+    m_pk.reset();
     return r;
   }
 }

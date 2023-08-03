@@ -101,7 +101,7 @@ namespace pepenet_social {
   {
     public:
       ibool validate();
-      ibool validate(const crypto::signature& sig);
+      ibool validate(const boost::optional<crypto::public_key>& pk);
       ibool loadFromSocialArgs(pep_args const& args);
       ibool dumpToJsonStr(std::string& json);
     protected:
