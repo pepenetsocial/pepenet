@@ -114,6 +114,7 @@ namespace pepenet_social {
       m_sig = sig;
       m_pk = pk;
     }
+    return { true, INFO_NULLOPT };
   }
 
   ibool pep::dumpBaseToProto()
@@ -137,6 +138,7 @@ namespace pepenet_social {
       base->set_donation_address(m_donation_address.value());
     }
     m_proto.set_allocated_base(base);
+    return { true, INFO_NULLOPT };
   }
 
   ibool pep::dumpToProto()
@@ -144,6 +146,7 @@ namespace pepenet_social {
     dumpBaseToProto();
     bytes sig_bytes = bytes(m_sig.value().c.data, 32) + bytes(m_sig.value().r.data, 32);
     m_proto.set_sig(sig_bytes);
+    return { true, INFO_NULLOPT };
   }
   
   ibool pep::loadFromProto()
@@ -243,5 +246,55 @@ namespace pepenet_social {
     ibool r = validate();
     m_pk.reset();
     return r;
+  }
+
+  ibool add_pep_to_tx_extra(const pepenet_social::pep& pep, std::vector<uint8_t>& tx_extra)
+  {
+    bytes lzma_pep;
+    pepenet_social::pep p = pep;
+    ibool r = p.dumpToBinary(lzma_pep);
+    if (!r.b)
+    {
+      return r;
+    }
+    if (!cryptonote::add_lzma_pep_to_tx_extra(tx_extra, lzma_pep))
+    {
+      return ibool{ false, std::string("failed to add pep to tx_extra") };
+    }
+    return ibool{ true, INFO_NULLOPT };
+  }
+
+  ibool get_and_verify_pep_from_tx_extra(const boost::optional<crypto::public_key>& ver_pk, boost::optional<pepenet_social::pep>& pep, const std::vector<uint8_t>& tx_extra)
+  {
+    //init pep optional
+    pep = pepenet_social::pep();
+    std::string lzma_pep;
+    bool pep_missing = !cryptonote::get_lzma_pep_from_tx_extra(tx_extra, lzma_pep);
+    if (!pep_missing)
+    {
+      bytes pep_proto_bytes;
+      bool decomp = pepenet_social::lzma_decompress_msg(lzma_pep, pep_proto_bytes);
+      if (!decomp)
+      {
+        pep.reset(); //decompression failed - invalid tx
+        return ibool{ false, std::string("failed to decompress lzma pep from tx_extra") };
+      }
+      ibool r = pep.value().loadFromBinary(pep_proto_bytes);
+      if (!r.b)
+      {
+        return ibool{ false, std::string("failed to load pep proto from bytes in tx_extra") };
+      }
+      r = pep.value().validate(ver_pk.value());
+      if (!r.b)
+      {
+        return r;
+      }
+      return ibool{ true, INFO_NULLOPT };
+    }
+    else
+    {
+      pep.reset();
+    }
+    return { true, INFO_NULLOPT };
   }
 }

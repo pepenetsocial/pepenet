@@ -30,39 +30,42 @@
 #pragma once
 
 #include "pepenet_social.h"
+/*
+namespace pepenet_social {
+  class post_args : public social_args
+  {
+    friend class post;
+    private:
+    std::string m_title;
+    std::string m_msg;
+    boost::optional<std::string> m_pseudonym;
+    boost::optional<std::string> m_sk_seed;
+    bool m_post_pk;
+    boost::optional<crypto::hash> m_tx_ref;
+    boost::optional<std::string> m_pepetag;
+    boost::optional<std::string> m_donation_address;
+  };
 
-class post_args : public social_args
-{
-  friend class post;
-  private:
-  std::string m_title;
-  std::string m_msg;
-  boost::optional<std::string> m_pseudonym;
-  boost::optional<std::string> m_sk_seed;
-  bool m_post_pk;
-  boost::optional<crypto::hash> m_tx_ref;
-  boost::optional<std::string> m_pepetag;
-  boost::optional<std::string> m_donation_address;
-};
-
-class post : public social_feature
-{
-  public:
-  post(const post_args& args);
-  bool validate();
-  bool loadFromProto();
-  bool dumpToProto();
-  bool loadFromBinary(const bytes& bytes);
-  bool dumpToBinary(bytes& bytes);
-  bool dumpToJsonStr(std::string& json);
-  private:
-  std::string m_title;
-  std::string m_msg;
-  boost::optional<std::string> m_pseudonym;
-  boost::optional<crypto::public_key> m_pk;
-  boost::optional<crypto::signature> m_sig;
-  boost::optional<crypto::hash> m_tx_ref;
-  boost::optional<std::string> m_pepetag;
-  boost::optional<std::string> m_donation_address;
-  pepenet_social_protos::post m_proto;
-};
+  class post : public social_feature
+  {
+    public:
+    post(const post_args& args);
+    bool validate();
+    bool loadFromProto();
+    bool dumpToProto();
+    bool loadFromBinary(const bytes& bytes);
+    bool dumpToBinary(bytes& bytes);
+    bool dumpToJsonStr(std::string& json);
+    private:
+    std::string m_title;
+    std::string m_msg;
+    boost::optional<std::string> m_pseudonym;
+    boost::optional<crypto::public_key> m_pk;
+    boost::optional<crypto::signature> m_sig;
+    boost::optional<crypto::hash> m_tx_ref;
+    boost::optional<std::string> m_pepetag;
+    boost::optional<std::string> m_donation_address;
+    pepenet_social_protos::post m_proto;
+  };
+}
+*/

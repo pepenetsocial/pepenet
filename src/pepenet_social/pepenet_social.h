@@ -37,14 +37,14 @@
 #include "cryptonote_basic/cryptonote_basic.h"
 #include "cryptonote_basic/cryptonote_format_utils.h"
 #include <vector>
-#include <pepenet_social.pb.h>
+#include "pepenet_social.pb.h"
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/schema.h>
 #include <boost/format.hpp>
 
-#include "pep.h"
+//#include "pep.h"
 
 //feature limits - size in bytes
 #define LZMA_PEP_MAX_SIZE 512
@@ -88,7 +88,7 @@ namespace pepenet_social {
     public:
       virtual ibool validate() = 0;
       virtual ibool loadFromSocialArgs(SocialArgs const& args) = 0;
-      virtual ibool dumpToJsonStr(std::string& json) = 0;
+      //virtual ibool dumpToJsonStr(std::string& json) = 0;
       ibool loadFromBinary(const bytes& bytes)
       {
         //load to proto
@@ -156,10 +156,5 @@ namespace pepenet_social {
   bool to_bytes(const crypto::public_key& pk, bytes& b);
   bool from_bytes(crypto::public_key& pk, const bytes& b);
 
-  ibool add_pep_to_tx_extra(const pepenet_social::pep& pep, std::vector<uint8_t>& tx_extra);
-  //ibool add_post_to_tx_extra(const pepenet_social::post& post, std::vector<uint8_t>& tx_extra);
-
-  ibool get_and_verify_pep_from_tx_extra(const boost::optional<crypto::public_key>& ver_pk, boost::optional<pepenet_social::pep>& pep, const std::vector<uint8_t>& tx_extra);
-  //ibool get_and_verify_post_from_tx_extra(const boost::optional<crypto::public_key>& ver_pk, boost::optional<pepenet_social::post>& pep, const std::vector<uint8_t>& tx_extra);
   bool check_tx_social_validity(const cryptonote::transaction& tx);
 }
