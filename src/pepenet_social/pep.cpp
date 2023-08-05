@@ -1,44 +1,44 @@
 #include "pep.h"
 namespace pepenet_social {
-  ibool pep_args::loadArgsFromJson()
+ibool pep_args::loadArgsFromJson()
   {
     if (!m_schema_valid)
     {
       return ibool{ false, std::string("Json schema has to be validated before args can be loaded") };
     }
-    if (!m_json.HasMember("msg"))
+    if (!m_json["pep_args"].HasMember("msg"))
     {
       return ibool{ false, std::string("json field msg is required!") };
     }
     else
     {
-      m_msg = m_json["msg"].GetString();
+      m_msg = m_json["pep_args"]["msg"].GetString();
     }
-    if (m_json.HasMember("pseudonym"))
+    if (m_json["pep_args"].HasMember("pseudonym"))
     {
-      m_pseudonym = m_json["pseudonym"].GetString();
+      m_pseudonym = m_json["pep_args"]["pseudonym"].GetString();
     }
-    if (m_json.HasMember("sk_seed"))
+    if (m_json["pep_args"].HasMember("sk_seed"))
     {
-      if (!m_json.HasMember("post_pk"))
+      if (!m_json["pep_args"].HasMember("post_pk"))
       {
         m_valid_args = false;
         return ibool{ false, std::string("json field post_pk is required when sk_seed is defined!") };
       }
-      m_sk_seed = m_json["sk_seed"].GetString();
+      m_sk_seed = m_json["pep_args"]["sk_seed"].GetString();
     }
-    if (m_json.HasMember("post_pk"))
+    if (m_json["pep_args"].HasMember("post_pk"))
     {
-      m_post_pk = m_json["post_pk"].GetBool();
-      if (!m_json.HasMember("sk_seed"))
+      m_post_pk = m_json["pep_args"]["post_pk"].GetBool();
+      if (!m_json["pep_args"].HasMember("sk_seed"))
       {
         m_valid_args = false;
         return ibool{ false, std::string("json field sk_seed is required when post_pk is defined!") };
       }
     }
-    if (m_json.HasMember("tx_ref"))
+    if (m_json["pep_args"].HasMember("tx_ref"))
     {
-      std::string tx_ref_hex = m_json["tx_ref"].GetString();
+      std::string tx_ref_hex = m_json["pep_args"]["tx_ref"].GetString();
       crypto::hash tx_ref_parsed;
       if (!epee::string_tools::hex_to_pod(tx_ref_hex, tx_ref_parsed))
       {
@@ -47,18 +47,71 @@ namespace pepenet_social {
       }
       m_tx_ref = tx_ref_parsed;
     }
-    if (m_json.HasMember("pepetag"))
+    if (m_json["pep_args"].HasMember("pepetag"))
     {
-      m_pepetag = m_json["pepetag"].GetString();
+      m_pepetag = m_json["pep_args"]["pepetag"].GetString();
     }
-    if (m_json.HasMember("donation_address"))
+    if (m_json["pep_args"].HasMember("donation_address"))
     {
-      m_donation_address = m_json["donation_address"].GetString();
+      m_donation_address = m_json["pep_args"]["donation_address"].GetString();
     }
     
     m_valid_args = true;
     return ibool{ true, INFO_NULLOPT };
   }
+
+void pep_args::setSchema()
+{
+  m_json_schema_str = R"(
+{
+  "$id": "pep_args schema pepenet hfv2",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "pepenet pep args",
+  "type": "object",
+  "properties": {
+    "pep_args": {
+      "description": "Pep arguments",
+      "type": "object",
+      "properties": {
+        "msg": {
+            "type": "string"
+        },
+        "pseudonym": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32
+        },
+        "sk_seed": {
+            "type": "string"
+        },
+        "post_pk": {
+            "type": "boolean"
+        },
+        "tx_ref": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64,
+            "pattern": "[0-9A-Fa-f]{64}"
+        },
+        "pepetag": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32
+        },
+        "donation_address": {
+            "type": "string",
+            "maxLength": 108
+        }
+      },
+      "required":[
+               "msg"
+      ]
+    }
+  }
+}
+)";
+  m_json_schema_str_loaded = true;
+}
 
   ibool pep::loadFromSocialArgs(pep_args const& args)
   {

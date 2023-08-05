@@ -32,31 +32,25 @@ namespace pepenet_social {
 
   ibool social_args::loadJson(const std::string& json)
   {
-    if (m_json.Parse(json.c_str()).HasParseError())
+    setSchema();
+    //parse document
+    if (m_json.Parse(json.data()).HasParseError())
     {
-      return { false, INFO_NULLOPT };
+      return { false, std::string("the input is not a valid JSON.") };
     }
-    m_json_loaded = true;
-    return { true, INFO_NULLOPT };
-  }
+    //parse schema
+    if (!m_json_schema_str_loaded)
+    {
+      return { false, std::string("json schema string is not loaded") };
+    }
 
-  ibool social_args::loadJsonSchema()
-  {
-    if (m_schema.Parse(m_json_schema_str.c_str()).HasParseError())
+    rapidjson::Document sd;
+    if (sd.Parse(m_json_schema_str.data()).HasParseError())
     {
-      return { false, INFO_NULLOPT };
+      return { false, std::string("the schema is not a valid JSON.") };
     }
-    m_schema_loaded = true;
-    return { true, INFO_NULLOPT };
-  }
-
-  ibool social_args::validateJsonSchema()
-  {
-    if (!m_json_loaded || !m_schema_loaded)
-    {
-      return ibool{ false, std::string("Schema and json have to be loaded before schema validation") };
-    }
-    rapidjson::SchemaDocument schema(m_schema);
+    rapidjson::SchemaDocument schema(sd); // Compile a Document to SchemaDocument
+    // sd is no longer needed here.
     rapidjson::SchemaValidator validator(schema);
     if (!m_json.Accept(validator))
     {
@@ -71,11 +65,11 @@ namespace pepenet_social {
       validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
       info += (boost::format("Invalid document: %s\n") % sb.GetString()).str();
 
+      m_schema_valid = false;
       return ibool{ false, info };
     }
-    
     m_schema_valid = true;
-    return ibool{ true, INFO_NULLOPT };
+    return { true, INFO_NULLOPT };
   }
 
   bool lzma_compress_msg(const std::string& msg, std::string& out)

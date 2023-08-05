@@ -32,6 +32,7 @@
 #include "gtest/gtest.h"
 
 #include "pepenet_social/pepenet_social.h"
+#include "pepenet_social/pep.h"
 #include "cryptonote_basic/cryptonote_basic.h"
 #include "cryptonote_basic/cryptonote_format_utils.h"
 #include "../contrib/epee/include/string_tools.h"
@@ -42,7 +43,6 @@
 
 #define GTEST_COUT std::cerr << "[          ] [ INFO ]"
 
-boost::optional<std::string> social_err;
 
 TEST(pepenet_social_functions, lzma_compress_decompress)
 {
@@ -110,4 +110,136 @@ TEST(pepenet_social_functions, to_bytes_from_bytes)
   ASSERT_TRUE(pepenet_social::to_bytes(sig, sig_bytes));
   ASSERT_TRUE(pepenet_social::from_bytes(sig_out, sig_bytes));
   ASSERT_EQ(sig, sig_out);
+}
+
+
+/*
+  {
+    "pep_args": {
+      "msg": "pepe has a good day",
+      "pseudonym": "pepe1",
+      "sk_seed": "123456",
+      "post_pk": 1,
+      "tx_ref": a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3,
+      "pepetag": "good",
+      "donation_address": "P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed96"
+    }
+*/
+
+TEST(pepenet_social_pep_social_args, parse_json_success)
+{
+  pepenet_social::ibool r;
+  {
+    std::string json_args = R"({
+    "pep_args": {
+      "msg": "pepe has a good day",
+      "sk_seed": "123456",
+      "post_pk": true
+    }
+	})";
+    pepenet_social::pep_args args;
+    
+    ASSERT_TRUE(args.loadJson(json_args).b);
+    ASSERT_TRUE(args.loadArgsFromJson().b);
+    ASSERT_TRUE(args.validate().b);
+  }
+  {
+    std::string json_args = R"({
+    "pep_args": {
+      "msg": "pepe has a good day",
+      "pseudonym": "pepe1"
+    }
+	})";
+    pepenet_social::pep_args args;
+    ASSERT_TRUE(args.loadJson(json_args).b);
+    ASSERT_TRUE(args.loadArgsFromJson().b);
+    ASSERT_TRUE(args.validate().b);
+  }
+  {
+    std::string json_args = R"({
+    "pep_args": {
+      "msg": "pepe has a good day",
+      "pseudonym": "pepe1",
+      "sk_seed": "123456",
+      "post_pk": true
+    }
+	})";
+    pepenet_social::pep_args args;
+    ASSERT_TRUE(args.loadJson(json_args).b);
+    ASSERT_TRUE(args.loadArgsFromJson().b);
+    ASSERT_TRUE(args.validate().b);
+  }
+  {
+    std::string json_args = R"({
+    "pep_args": {
+      "msg": "pepe has a good day",
+      "pseudonym": "pepe1",
+      "sk_seed": "123456",
+      "post_pk": false
+    }
+	})";
+    pepenet_social::pep_args args;
+    ASSERT_TRUE(args.loadJson(json_args).b);
+    ASSERT_TRUE(args.loadArgsFromJson().b);
+    ASSERT_TRUE(args.validate().b);
+  }
+  {
+    std::string json_args = R"({
+    "pep_args": {
+      "msg": "pepe has a good day",
+      "pseudonym": "pepe1",
+      "tx_ref": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"
+    }
+	})";
+    pepenet_social::pep_args args;
+    ASSERT_TRUE(args.loadJson(json_args).b);
+    ASSERT_TRUE(args.loadArgsFromJson().b);
+    ASSERT_TRUE(args.validate().b);
+  }
+  {
+    std::string json_args = R"({
+    "pep_args": {
+      "msg": "pepe has a good day",
+      "pseudonym": "pepe1",
+      "tx_ref": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+      "pepetag": "good"
+    }
+	})";
+    pepenet_social::pep_args args;
+    ASSERT_TRUE(args.loadJson(json_args).b);
+    ASSERT_TRUE(args.loadArgsFromJson().b);
+    ASSERT_TRUE(args.validate().b);
+  }
+  {
+    std::string json_args = R"({
+    "pep_args": {
+      "msg": "pepe has a good day",
+      "pseudonym": "pepe1",
+      "tx_ref": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+      "pepetag": "good",
+      "donation_address": "P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed96"
+    }
+  })";
+    pepenet_social::pep_args args;
+    ASSERT_TRUE(args.loadJson(json_args).b);
+    ASSERT_TRUE(args.loadArgsFromJson().b);
+    ASSERT_TRUE(args.validate().b);
+  }
+  {
+    std::string json_args = R"({
+    "pep_args": {
+      "msg": "pepe has a good day",
+      "pseudonym": "pepe1",
+      "sk_seed": "123456",
+      "post_pk": true,
+      "tx_ref": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+      "pepetag": "good",
+      "donation_address": "P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed96"
+    }
+  })";
+    pepenet_social::pep_args args;
+    ASSERT_TRUE(args.loadJson(json_args).b);
+    ASSERT_TRUE(args.loadArgsFromJson().b);
+    ASSERT_TRUE(args.validate().b);
+  }
 }

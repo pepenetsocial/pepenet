@@ -68,18 +68,15 @@ namespace pepenet_social {
   class social_args{
     public:
       ibool loadJson(const std::string& json);
-      ibool loadJsonSchema();
-      ibool validate() { return validateJsonSchema(); };
+      virtual ibool validate() { return { m_valid_args , INFO_NULLOPT}; };
       virtual ibool loadArgsFromJson() = 0;
     protected:
-      ibool validateJsonSchema();
+      virtual void setSchema() = 0;
       rapidjson::Document m_json;
-      bool m_json_loaded = false;
-      rapidjson::Document m_schema;
-      bool m_schema_loaded = false;
+      bool m_json_schema_str_loaded = false;
       bool m_schema_valid = false;
+      std::string m_json_schema_str;
       bool m_valid_args = false;
-      const std::string m_json_schema_str;
   };
 
   template <typename SocialProto, typename SocialArgs>

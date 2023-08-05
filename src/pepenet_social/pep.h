@@ -37,8 +37,9 @@ namespace pepenet_social {
   {
     friend class pep;
     public:
-      ibool loadArgsFromJson();
-      ibool validate();
+      virtual ibool loadArgsFromJson();
+    protected:
+      virtual void setSchema();
     private:
       std::string m_msg;
       boost::optional<std::string> m_pseudonym;
@@ -47,54 +48,6 @@ namespace pepenet_social {
       boost::optional<crypto::hash> m_tx_ref;
       boost::optional<std::string> m_pepetag;
       boost::optional<std::string> m_donation_address;
-      const std::string m_json_schema_str = R"(
-{
-  "$id": "pep_args schema pepenet hfv2",
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "pepenet pep args",
-  "type": "object",
-  "properties": {
-    "pep_args": {
-      "description": "Pep arguments",
-      "type": "object",
-      "properties": {
-        "msg": {
-            "type": "string"
-        },
-        "pseudonym": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 32
-        },
-        "sk_seed": {
-            "type": "string"
-        },
-        "post_pk": {
-            "type": "boolean"
-        },
-        "tx_ref": {
-            "type": "string",
-            "minLength": 64,
-            "maxLength": 64,
-            "pattern": "[0-9A-Fa-f]{64}"
-        },
-        "pepetag": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 32
-        },
-        "donation_address": {
-            "type": "string",
-            "maxLength": 108
-        }
-      },
-      "required":[
-               "msg"
-      ]
-    }
-  }
-}
-)";
 };
 
   class pep : public social_feature<pepenet_social_protos::pep, pep_args>
