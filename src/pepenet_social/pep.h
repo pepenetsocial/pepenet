@@ -68,7 +68,6 @@ namespace pepenet_social {
       boost::optional<crypto::hash> m_tx_ref;
       boost::optional<std::string> m_pepetag;
       boost::optional<std::string> m_donation_address;
-      pepenet_social_protos::pep m_proto;
   };
 
   ibool add_pep_to_tx_extra(const pepenet_social::pep& pep, std::vector<uint8_t>& tx_extra);

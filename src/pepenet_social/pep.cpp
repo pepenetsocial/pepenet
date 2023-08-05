@@ -168,6 +168,7 @@ void pep_args::setSchema()
       m_sig = sig;
       m_pk = pk;
     }
+    m_loaded = true;
     return { true, INFO_NULLOPT };
   }
 
@@ -198,8 +199,16 @@ void pep_args::setSchema()
   ibool pep::dumpToProto()
   {
     dumpBaseToProto();
-    bytes sig_bytes = bytes(m_sig.value().c.data, 32) + bytes(m_sig.value().r.data, 32);
-    m_proto.set_sig(sig_bytes);
+    if (m_sig.has_value())
+    {
+      bytes sig_bytes;
+      if (!to_bytes(m_sig.value(), sig_bytes))
+      {
+        return { false, std::string("failed to convert sig to bytes") };
+      }
+      m_proto.set_sig(sig_bytes);
+    }
+    m_loaded = true;
     return { true, INFO_NULLOPT };
   }
   
@@ -246,7 +255,7 @@ void pep_args::setSchema()
     //verify fields
     std::string compressed_msg;
     bool r = lzma_compress_msg(m_msg, compressed_msg);
-    if (m_msg.empty() || compressed_msg.size() > LZMA_PEP_MAX_SIZE);
+    if (m_msg.empty() || compressed_msg.size() > LZMA_PEP_MAX_SIZE)
     {
       return ibool{ false, std::string("invalid msg field") };
     }
@@ -291,7 +300,8 @@ void pep_args::setSchema()
         return ibool{ false, std::string("failed to verify pep: invalid sig") };
       }
     }
-    return ibool{ true, INFO_NULLOPT};
+    m_valid = true;
+    return ibool{ true, INFO_NULLOPT };
   }
 
   ibool pep::validate(const boost::optional<crypto::public_key>& pk)
