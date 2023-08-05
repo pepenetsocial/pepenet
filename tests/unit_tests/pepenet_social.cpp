@@ -112,6 +112,7 @@ TEST(pepenet_social_functions, to_bytes_from_bytes)
   ASSERT_EQ(sig, sig_out);
 }
 
+class pepenet_social_pep_social_args : public testing::Test, public pepenet_social::pep_args {};
 
 /*
   {
@@ -126,37 +127,64 @@ TEST(pepenet_social_functions, to_bytes_from_bytes)
     }
 */
 
-TEST(pepenet_social_pep_social_args, parse_json_success)
+std::string msg_ex, pseudonym_ex, sk_seed_ex, pepetag_ex, donation_address_ex;
+crypto::hash tx_ref_ex;
+
+TEST_F(pepenet_social_pep_social_args, set_expected_args)
 {
-  pepenet_social::ibool r;
-  {
-    std::string json_args = R"({
+  msg_ex = "pepe has a good day";
+  pseudonym_ex = "pepe1";
+  sk_seed_ex = "123456";
+  ASSERT_TRUE(epee::string_tools::hex_to_pod("a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3", tx_ref_ex));
+  pepetag_ex = "good";
+  donation_address_ex = "P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed96";
+}
+
+TEST_F(pepenet_social_pep_social_args, parse_json_success1)
+{
+  std::string json_args = R"({
+    "pep_args": {
+      "msg": "pepe has a good day",
+      "pseudonym": "pepe1"
+    }
+	})";
+
+  ASSERT_TRUE(loadJson(json_args).b);
+  ASSERT_TRUE(loadArgsFromJson().b);
+  ASSERT_TRUE(validate().b);
+
+  ASSERT_TRUE(m_msg == msg_ex);
+  ASSERT_TRUE(m_pseudonym.value() == pseudonym_ex);
+  ASSERT_FALSE(m_sk_seed.has_value());
+  ASSERT_FALSE(m_post_pk.has_value());
+  ASSERT_FALSE(m_tx_ref.has_value());
+  ASSERT_FALSE(m_pepetag.has_value());
+  ASSERT_FALSE(m_donation_address.has_value());
+}
+
+TEST_F(pepenet_social_pep_social_args, parse_json_success2)
+{
+  std::string json_args = R"({
     "pep_args": {
       "msg": "pepe has a good day",
       "sk_seed": "123456",
       "post_pk": true
     }
 	})";
-    pepenet_social::pep_args args;
-    
-    ASSERT_TRUE(args.loadJson(json_args).b);
-    ASSERT_TRUE(args.loadArgsFromJson().b);
-    ASSERT_TRUE(args.validate().b);
-  }
-  {
-    std::string json_args = R"({
-    "pep_args": {
-      "msg": "pepe has a good day",
-      "pseudonym": "pepe1"
-    }
-	})";
-    pepenet_social::pep_args args;
-    ASSERT_TRUE(args.loadJson(json_args).b);
-    ASSERT_TRUE(args.loadArgsFromJson().b);
-    ASSERT_TRUE(args.validate().b);
-  }
-  {
-    std::string json_args = R"({
+
+  ASSERT_TRUE(loadJson(json_args).b);
+  ASSERT_TRUE(loadArgsFromJson().b);
+  ASSERT_TRUE(validate().b);
+  
+  ASSERT_TRUE(m_msg == msg_ex);
+  ASSERT_FALSE(m_pseudonym.has_value());
+  ASSERT_TRUE(m_sk_seed.value() == sk_seed_ex);
+  ASSERT_TRUE(m_post_pk.value());
+}
+
+TEST_F(pepenet_social_pep_social_args, parse_json_success3)
+{
+  std::string json_args = R"({
     "pep_args": {
       "msg": "pepe has a good day",
       "pseudonym": "pepe1",
@@ -164,13 +192,23 @@ TEST(pepenet_social_pep_social_args, parse_json_success)
       "post_pk": true
     }
 	})";
-    pepenet_social::pep_args args;
-    ASSERT_TRUE(args.loadJson(json_args).b);
-    ASSERT_TRUE(args.loadArgsFromJson().b);
-    ASSERT_TRUE(args.validate().b);
-  }
-  {
-    std::string json_args = R"({
+
+  ASSERT_TRUE(loadJson(json_args).b);
+  ASSERT_TRUE(loadArgsFromJson().b);
+  ASSERT_TRUE(validate().b);
+
+  ASSERT_TRUE(m_msg == msg_ex);
+  ASSERT_TRUE(m_pseudonym.value() == pseudonym_ex);
+  ASSERT_TRUE(m_sk_seed.value() == sk_seed_ex);
+  ASSERT_TRUE(m_post_pk.value());
+  ASSERT_FALSE(m_tx_ref.has_value());
+  ASSERT_FALSE(m_pepetag.has_value());
+  ASSERT_FALSE(m_donation_address.has_value());
+}
+
+TEST_F(pepenet_social_pep_social_args, parse_json_success4)
+{
+  std::string json_args = R"({
     "pep_args": {
       "msg": "pepe has a good day",
       "pseudonym": "pepe1",
@@ -178,26 +216,46 @@ TEST(pepenet_social_pep_social_args, parse_json_success)
       "post_pk": false
     }
 	})";
-    pepenet_social::pep_args args;
-    ASSERT_TRUE(args.loadJson(json_args).b);
-    ASSERT_TRUE(args.loadArgsFromJson().b);
-    ASSERT_TRUE(args.validate().b);
-  }
-  {
-    std::string json_args = R"({
+
+  ASSERT_TRUE(loadJson(json_args).b);
+  ASSERT_TRUE(loadArgsFromJson().b);
+  ASSERT_TRUE(validate().b);
+
+  ASSERT_TRUE(m_msg == msg_ex);
+  ASSERT_TRUE(m_pseudonym.value() == pseudonym_ex);
+  ASSERT_TRUE(m_sk_seed.value() == sk_seed_ex);
+  ASSERT_FALSE(m_post_pk.value());
+  ASSERT_FALSE(m_tx_ref.has_value());
+  ASSERT_FALSE(m_pepetag.has_value());
+  ASSERT_FALSE(m_donation_address.has_value());
+}
+
+TEST_F(pepenet_social_pep_social_args, parse_json_success5)
+{
+  std::string json_args = R"({
     "pep_args": {
       "msg": "pepe has a good day",
       "pseudonym": "pepe1",
       "tx_ref": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"
     }
 	})";
-    pepenet_social::pep_args args;
-    ASSERT_TRUE(args.loadJson(json_args).b);
-    ASSERT_TRUE(args.loadArgsFromJson().b);
-    ASSERT_TRUE(args.validate().b);
-  }
-  {
-    std::string json_args = R"({
+
+  ASSERT_TRUE(loadJson(json_args).b);
+  ASSERT_TRUE(loadArgsFromJson().b);
+  ASSERT_TRUE(validate().b);
+
+  ASSERT_TRUE(m_msg == msg_ex);
+  ASSERT_TRUE(m_pseudonym.value() == pseudonym_ex);
+  ASSERT_FALSE(m_sk_seed.has_value());
+  ASSERT_FALSE(m_post_pk.has_value());
+  ASSERT_TRUE(m_tx_ref.value() == tx_ref_ex);
+  ASSERT_FALSE(m_pepetag.has_value());
+  ASSERT_FALSE(m_donation_address.has_value());
+}
+
+TEST_F(pepenet_social_pep_social_args, parse_json_success6)
+{
+  std::string json_args = R"({
     "pep_args": {
       "msg": "pepe has a good day",
       "pseudonym": "pepe1",
@@ -205,13 +263,23 @@ TEST(pepenet_social_pep_social_args, parse_json_success)
       "pepetag": "good"
     }
 	})";
-    pepenet_social::pep_args args;
-    ASSERT_TRUE(args.loadJson(json_args).b);
-    ASSERT_TRUE(args.loadArgsFromJson().b);
-    ASSERT_TRUE(args.validate().b);
-  }
-  {
-    std::string json_args = R"({
+
+  ASSERT_TRUE(loadJson(json_args).b);
+  ASSERT_TRUE(loadArgsFromJson().b);
+  ASSERT_TRUE(validate().b);
+
+  ASSERT_TRUE(m_msg == msg_ex);
+  ASSERT_TRUE(m_pseudonym.value() == pseudonym_ex);
+  ASSERT_FALSE(m_sk_seed.has_value());
+  ASSERT_FALSE(m_post_pk.has_value());
+  ASSERT_TRUE(m_tx_ref.value() == tx_ref_ex);
+  ASSERT_TRUE(m_pepetag.value() == pepetag_ex);
+  ASSERT_FALSE(m_donation_address.has_value());
+}
+
+TEST_F(pepenet_social_pep_social_args, parse_json_success7)
+{
+  std::string json_args = R"({
     "pep_args": {
       "msg": "pepe has a good day",
       "pseudonym": "pepe1",
@@ -220,13 +288,23 @@ TEST(pepenet_social_pep_social_args, parse_json_success)
       "donation_address": "P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed96"
     }
   })";
-    pepenet_social::pep_args args;
-    ASSERT_TRUE(args.loadJson(json_args).b);
-    ASSERT_TRUE(args.loadArgsFromJson().b);
-    ASSERT_TRUE(args.validate().b);
-  }
-  {
-    std::string json_args = R"({
+
+  ASSERT_TRUE(loadJson(json_args).b);
+  ASSERT_TRUE(loadArgsFromJson().b);
+  ASSERT_TRUE(validate().b);
+
+  ASSERT_TRUE(m_msg == msg_ex);
+  ASSERT_TRUE(m_pseudonym.value() == pseudonym_ex);
+  ASSERT_FALSE(m_sk_seed.has_value());
+  ASSERT_FALSE(m_post_pk.has_value());
+  ASSERT_TRUE(m_tx_ref.value() == tx_ref_ex);
+  ASSERT_TRUE(m_pepetag.value() == pepetag_ex);
+  ASSERT_TRUE(m_donation_address.value() == donation_address_ex);
+}
+
+TEST_F(pepenet_social_pep_social_args, parse_json_success8)
+{
+  std::string json_args = R"({
     "pep_args": {
       "msg": "pepe has a good day",
       "pseudonym": "pepe1",
@@ -237,9 +315,16 @@ TEST(pepenet_social_pep_social_args, parse_json_success)
       "donation_address": "P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed96"
     }
   })";
-    pepenet_social::pep_args args;
-    ASSERT_TRUE(args.loadJson(json_args).b);
-    ASSERT_TRUE(args.loadArgsFromJson().b);
-    ASSERT_TRUE(args.validate().b);
-  }
+
+  ASSERT_TRUE(loadJson(json_args).b);
+  ASSERT_TRUE(loadArgsFromJson().b);
+  ASSERT_TRUE(validate().b);
+
+  ASSERT_TRUE(m_msg == msg_ex);
+  ASSERT_TRUE(m_pseudonym.value() == pseudonym_ex);
+  ASSERT_TRUE(m_sk_seed.value() == sk_seed_ex);
+  ASSERT_TRUE(m_post_pk.value());
+  ASSERT_TRUE(m_tx_ref.value() == tx_ref_ex);
+  ASSERT_TRUE(m_pepetag.value() == pepetag_ex);
+  ASSERT_TRUE(m_donation_address.value() == donation_address_ex);
 }
