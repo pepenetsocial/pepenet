@@ -100,6 +100,7 @@ void pep_args::setSchema()
         },
         "donation_address": {
             "type": "string",
+            "minLength": 97,
             "maxLength": 108
         }
       },

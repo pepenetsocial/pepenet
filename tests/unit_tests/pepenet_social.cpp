@@ -328,3 +328,250 @@ TEST_F(pepenet_social_pep_social_args, parse_json_success8)
   ASSERT_TRUE(m_pepetag.value() == pepetag_ex);
   ASSERT_TRUE(m_donation_address.value() == donation_address_ex);
 }
+
+TEST_F(pepenet_social_pep_social_args, parse_json_fail_to_load_json)
+{
+  std::string json_args;
+  ASSERT_FALSE(loadJson(json_args).b);
+  json_args = R"({
+    "pep_args": {
+      "msg": "pepe has a good day",
+      "pseudonym": "pepe1",
+      "sk_seed": "123456",
+      "post_pk": true,
+      "tx_ref": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+      "pepetag": "good",
+      "donation_address": "P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed96"
+    }
+  )";
+  ASSERT_FALSE(loadJson(json_args).b);
+  json_args = R"({
+    "pep_args": {
+      "msg": "pepe has a good day",
+      "pseudonym": "pepe1",
+      "sk_seed": "123456"
+      "post_pk": true,
+      "tx_ref": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+      "pepetag": "good",
+      "donation_address": "P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed96"
+    }
+  })";
+  ASSERT_FALSE(loadJson(json_args).b);
+}
+
+TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_01)
+{
+  std::string json_args = R"({
+    "pep_args": {
+    }
+  })";
+  ASSERT_FALSE(loadJson(json_args).b);
+  ASSERT_FALSE(loadArgsFromJson().b);
+  ASSERT_FALSE(validate().b);
+}
+
+TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_02)
+{
+  std::string json_args = R"({
+    "pep_args": {
+      "msg": "",
+    }
+  })";
+  ASSERT_FALSE(loadJson(json_args).b);
+  ASSERT_FALSE(loadArgsFromJson().b);
+  ASSERT_FALSE(validate().b);
+}
+
+TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_03)
+{
+  std::string json_args = R"({
+    "pep_args": {
+      "pseudonym": ""
+    }
+  })";
+  ASSERT_FALSE(loadJson(json_args).b);
+  ASSERT_FALSE(loadArgsFromJson().b);
+  ASSERT_FALSE(validate().b);
+}
+
+TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_04)
+{
+  std::string json_args = R"({
+    "pep_args": {
+      "pseudonym": "goodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgood"
+    }
+  })";
+  ASSERT_FALSE(loadJson(json_args).b);
+  ASSERT_FALSE(loadArgsFromJson().b);
+  ASSERT_FALSE(validate().b);
+}
+
+TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_05)
+{
+  std::string json_args = R"({
+    "pep_args": {
+      "sk_seed": ""
+    }
+  })";
+  ASSERT_FALSE(loadJson(json_args).b);
+  ASSERT_FALSE(loadArgsFromJson().b);
+  ASSERT_FALSE(validate().b);
+}
+
+TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_06)
+{
+  std::string json_args = R"({
+    "pep_args": {
+      "sk_seed": "123456"
+    }
+  })";
+  ASSERT_FALSE(loadJson(json_args).b);
+  ASSERT_FALSE(loadArgsFromJson().b);
+  ASSERT_FALSE(validate().b);
+}
+
+TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_07)
+{
+  std::string json_args = R"({
+    "pep_args": {
+      "sk_seed": "123456",
+      "post_pk": 1
+    }
+  })";
+  ASSERT_FALSE(loadJson(json_args).b);
+  ASSERT_FALSE(loadArgsFromJson().b);
+  ASSERT_FALSE(validate().b);
+}
+
+TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_08)
+{
+  std::string json_args = R"({
+    "pep_args": {
+      "sk_seed": "123456",
+      "post_pk": 0
+    }
+  })";
+  ASSERT_FALSE(loadJson(json_args).b);
+  ASSERT_FALSE(loadArgsFromJson().b);
+  ASSERT_FALSE(validate().b);
+}
+
+TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_09)
+{
+  std::string json_args = R"({
+    "pep_args": {
+      "post_pk": true
+    }
+  })";
+  ASSERT_FALSE(loadJson(json_args).b);
+  ASSERT_FALSE(loadArgsFromJson().b);
+  ASSERT_FALSE(validate().b);
+}
+
+TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_10)
+{
+  std::string json_args = R"({
+    "pep_args": {
+      "tx_ref": "a665a45920422f"
+    }
+  })";
+  ASSERT_FALSE(loadJson(json_args).b);
+  ASSERT_FALSE(loadArgsFromJson().b);
+  ASSERT_FALSE(validate().b);
+}
+
+TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_11)
+{
+  std::string json_args = R"({
+    "pep_args": {
+      "tx_ref": "a665a45920422a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3f"
+    }
+  })";
+  ASSERT_FALSE(loadJson(json_args).b);
+  ASSERT_FALSE(loadArgsFromJson().b);
+  ASSERT_FALSE(validate().b);
+}
+
+TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_12)
+{
+  std::string json_args = R"({
+    "pep_args": {
+      "tx_ref": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27aeK"
+    }
+  })";
+  ASSERT_FALSE(loadJson(json_args).b);
+  ASSERT_FALSE(loadArgsFromJson().b);
+  ASSERT_FALSE(validate().b);
+}
+
+TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_13)
+{
+  std::string json_args = R"({
+    "pep_args": {
+      "pepetag": ""
+    }
+  })";
+  ASSERT_FALSE(loadJson(json_args).b);
+  ASSERT_FALSE(loadArgsFromJson().b);
+  ASSERT_FALSE(validate().b);
+}
+
+TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_14)
+{
+  std::string json_args = R"({
+    "pep_args": {
+      "pepetag": "pepepepeeppepepepepppepepepeeppepepepepp"
+    }
+  })";
+  ASSERT_FALSE(loadJson(json_args).b);
+  ASSERT_FALSE(loadArgsFromJson().b);
+  ASSERT_FALSE(validate().b);
+}
+
+TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_15)
+{
+  std::string json_args = R"({
+    "pep_args": {
+      "pepetag": "pepepepeeppepepepepppepepepeeppepepepepp"
+    }
+  })";
+  ASSERT_FALSE(loadJson(json_args).b);
+  ASSERT_FALSE(loadArgsFromJson().b);
+  ASSERT_FALSE(validate().b);
+}
+
+TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_16)
+{
+  std::string json_args = R"({
+    "pep_args": {
+      "donation_address": ""
+    }
+  })";
+  ASSERT_FALSE(loadJson(json_args).b);
+  ASSERT_FALSE(loadArgsFromJson().b);
+  ASSERT_FALSE(validate().b);
+}
+
+TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_17)
+{
+  std::string json_args = R"({
+    "pep_args": {
+      "donation_address": "P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed96P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed96"
+    }
+  })";
+  ASSERT_FALSE(loadJson(json_args).b);
+  ASSERT_FALSE(loadArgsFromJson().b);
+  ASSERT_FALSE(validate().b);
+}
+
+TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_18)
+{
+  std::string json_args = R"({
+    "pep_args": {
+      "donation_address": "P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed9"
+    }
+  })";
+  ASSERT_FALSE(loadJson(json_args).b);
+  ASSERT_FALSE(loadArgsFromJson().b);
+  ASSERT_FALSE(validate().b);
+}
