@@ -180,6 +180,15 @@ void pep_args::setSchema()
     {
       base->set_pseudonym(m_pseudonym.value());
     }
+    if (m_pk.has_value())
+    {
+      bytes pk_bytes;
+      if (!to_bytes(m_pk.value(), pk_bytes))
+      {
+        return { false, std::string("failed to convert pk to bytes") };
+      }
+      base->set_pk(pk_bytes);
+    }
     if (m_tx_ref.has_value())
     {
       base->set_tx_ref(std::string(m_tx_ref.value().data, 32));
@@ -216,30 +225,53 @@ void pep_args::setSchema()
   {
     pepenet_social_protos::pep_base* base_ptr = m_proto.release_base();
     m_msg = base_ptr->msg();
-    m_pseudonym = base_ptr->pseudonym();
-    crypto::hash parsed_tx_ref;
-    bool r = from_bytes(parsed_tx_ref, base_ptr->tx_ref());
-    if (!r)
+    
+    std::string parsed_pseudonym = base_ptr->pseudonym();
+    m_pseudonym = parsed_pseudonym.empty() ? boost::optional<std::string>() : parsed_pseudonym;
+    
+    bytes parsed_pk_bytes = base_ptr->pk();
+    if (!parsed_pk_bytes.empty())
     {
-      return ibool{ r, std::string("invalid tx_ref bytes in proto") };
+      crypto::public_key pk;
+      bool r = from_bytes(pk, parsed_pk_bytes);
+      if (!r)
+      {
+        return ibool{ r, std::string("invalid pk bytes in proto") };
+      }
+      m_pk = pk;
     }
-    else
+    bytes parsed_tx_ref_bytes = base_ptr->tx_ref();
+    if (!parsed_tx_ref_bytes.empty())
     {
+      crypto::hash parsed_tx_ref;
+      bool r = from_bytes(parsed_tx_ref, parsed_tx_ref_bytes);
+      if (!r)
+      {
+        return ibool{ r, std::string("invalid tx_ref bytes in proto") };
+      }
       m_tx_ref = parsed_tx_ref;
     }
-    m_pepetag = base_ptr->pepetag();
-    m_donation_address = base_ptr->donation_address();
+    std::string parsed_pepetag = base_ptr->pepetag();
+    m_pepetag = parsed_pepetag.empty() ? boost::optional<std::string>() : parsed_pepetag;
+
+    std::string parsed_donation_address = base_ptr->donation_address();
+    m_donation_address = parsed_donation_address.empty() ? boost::optional<std::string>() : parsed_donation_address;
+
     m_proto.set_allocated_base(base_ptr); //return base to proto;
 
-    crypto::signature parsed_sig;
-    r = from_bytes(parsed_sig, m_proto.sig());
-    if (!r)
+    bytes parsed_sig_bytes = m_proto.sig();
+    if (!parsed_sig_bytes.empty())
     {
-      return ibool{ r, std::string("invalid sig bytes in proto") };
-    }
-    else
-    {
-      m_sig = parsed_sig;
+      crypto::signature parsed_sig;
+      bool r = from_bytes(parsed_sig, parsed_sig_bytes);
+      if (!r)
+      {
+        return ibool{ r, std::string("invalid sig bytes in proto") };
+      }
+      else
+      {
+        m_sig = parsed_sig;
+      }
     }
 
     m_loaded = true;

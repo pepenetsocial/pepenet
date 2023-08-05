@@ -104,6 +104,11 @@ namespace pepenet_social {
         {
           return r;
         }
+        r = validate();
+        if (!r.b)
+        {
+          return r;
+        }
         //done
         return ibool{ success, INFO_NULLOPT };
       }

@@ -576,9 +576,8 @@ TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_18)
   ASSERT_FALSE(validate().b);
 }
 
-class pepenet_social_pep_social_feature : public testing::Test, public pepenet_social::pep {};
 
-TEST_F(pepenet_social_pep_social_feature, load_from_social_args_success_01)
+TEST(pepenet_social_pep_social_feature, load_from_social_args_success_01)
 {
   std::string json_args = R"({
     "pep_args": {
@@ -591,18 +590,20 @@ TEST_F(pepenet_social_pep_social_feature, load_from_social_args_success_01)
   ASSERT_TRUE(args.loadArgsFromJson().b);
   ASSERT_TRUE(args.validate().b);
 
-  ASSERT_TRUE(loadFromSocialArgs(args).b);
-  ASSERT_TRUE(validate().b);
+  pepenet_social::pep pep;
+  ASSERT_TRUE(pep.loadFromSocialArgs(args).b);
+  ASSERT_TRUE(pep.validate().b);
 
   pepenet_social::bytes proto_bytes_in, proto_bytes_out;
-  ASSERT_TRUE(dumpToBinary(proto_bytes_in).b);
+  ASSERT_TRUE(pep.dumpToBinary(proto_bytes_in).b);
 
-  ASSERT_TRUE(loadFromBinary(proto_bytes_in).b);
-  ASSERT_TRUE(dumpToBinary(proto_bytes_out).b);
+  pepenet_social::pep pep_from_bin;
+  ASSERT_TRUE(pep_from_bin.loadFromBinary(proto_bytes_in).b);
+  ASSERT_TRUE(pep_from_bin.dumpToBinary(proto_bytes_out).b);
   ASSERT_EQ(proto_bytes_in, proto_bytes_out);
 }
 
-TEST_F(pepenet_social_pep_social_feature, load_from_social_args_success_02)
+TEST(pepenet_social_pep_social_feature, load_from_social_args_success_02)
 {
   std::string json_args = R"({
     "pep_args": {
@@ -617,18 +618,20 @@ TEST_F(pepenet_social_pep_social_feature, load_from_social_args_success_02)
   ASSERT_TRUE(args.loadArgsFromJson().b);
   ASSERT_TRUE(args.validate().b);
 
-  ASSERT_TRUE(loadFromSocialArgs(args).b);
-  ASSERT_TRUE(validate().b);
+  pepenet_social::pep pep;
+  ASSERT_TRUE(pep.loadFromSocialArgs(args).b);
+  ASSERT_TRUE(pep.validate().b);
 
   pepenet_social::bytes proto_bytes_in, proto_bytes_out;
-  ASSERT_TRUE(dumpToBinary(proto_bytes_in).b);
+  ASSERT_TRUE(pep.dumpToBinary(proto_bytes_in).b);
 
-  ASSERT_TRUE(loadFromBinary(proto_bytes_in).b);
-  ASSERT_TRUE(dumpToBinary(proto_bytes_out).b);
+  pepenet_social::pep pep_from_bin;
+  ASSERT_TRUE(pep_from_bin.loadFromBinary(proto_bytes_in).b);
+  ASSERT_TRUE(pep_from_bin.dumpToBinary(proto_bytes_out).b);
   ASSERT_EQ(proto_bytes_in, proto_bytes_out);
 }
 
-TEST_F(pepenet_social_pep_social_feature, load_from_social_args_success_03)
+TEST(pepenet_social_pep_social_feature, load_from_social_args_success_03)
 {
   std::string json_args = R"({
     "pep_args": {
@@ -644,18 +647,26 @@ TEST_F(pepenet_social_pep_social_feature, load_from_social_args_success_03)
   ASSERT_TRUE(args.loadArgsFromJson().b);
   ASSERT_TRUE(args.validate().b);
 
-  ASSERT_TRUE(loadFromSocialArgs(args).b);
-  ASSERT_TRUE(validate().b);
+  pepenet_social::pep pep;
+  ASSERT_TRUE(pep.loadFromSocialArgs(args).b);
+  ASSERT_TRUE(pep.validate().b);
 
   pepenet_social::bytes proto_bytes_in, proto_bytes_out;
-  ASSERT_TRUE(dumpToBinary(proto_bytes_in).b);
+  pepenet_social::ibool r = pep.dumpToBinary(proto_bytes_in);
+  GTEST_COUT << r.info.value_or("");
+  ASSERT_TRUE(r.b);
 
-  ASSERT_TRUE(loadFromBinary(proto_bytes_in).b);
-  ASSERT_TRUE(dumpToBinary(proto_bytes_out).b);
+  pepenet_social::pep pep_from_bin;
+  r = pep_from_bin.loadFromBinary(proto_bytes_in);
+  GTEST_COUT << r.info.value_or("");
+  ASSERT_TRUE(r.b);
+  r = pep_from_bin.dumpToBinary(proto_bytes_out);
+  GTEST_COUT << r.info.value_or("");
+  ASSERT_TRUE(r.b);
   ASSERT_EQ(proto_bytes_in, proto_bytes_out);
 }
 
-TEST_F(pepenet_social_pep_social_feature, load_from_social_args_success_04)
+TEST(pepenet_social_pep_social_feature, load_from_social_args_success_04)
 {
   std::string json_args = R"({
     "pep_args": {
@@ -671,18 +682,26 @@ TEST_F(pepenet_social_pep_social_feature, load_from_social_args_success_04)
   ASSERT_TRUE(args.loadArgsFromJson().b);
   ASSERT_TRUE(args.validate().b);
 
-  ASSERT_TRUE(loadFromSocialArgs(args).b);
-  ASSERT_TRUE(validate().b);
+  pepenet_social::pep pep;
+  ASSERT_TRUE(pep.loadFromSocialArgs(args).b);
+  ASSERT_TRUE(pep.validate().b);
 
   pepenet_social::bytes proto_bytes_in, proto_bytes_out;
-  ASSERT_TRUE(dumpToBinary(proto_bytes_in).b);
+  pepenet_social::ibool r = pep.dumpToBinary(proto_bytes_in);
+  GTEST_COUT << r.info.value_or("");
+  ASSERT_TRUE(r.b);
 
-  ASSERT_TRUE(loadFromBinary(proto_bytes_in).b);
-  ASSERT_TRUE(dumpToBinary(proto_bytes_out).b);
+  pepenet_social::pep pep_from_bin;
+  r = pep_from_bin.loadFromBinary(proto_bytes_in);
+  GTEST_COUT << r.info.value_or("");
+  ASSERT_TRUE(r.b);
+  r = pep_from_bin.dumpToBinary(proto_bytes_out);
+  GTEST_COUT << r.info.value_or("");
+  ASSERT_TRUE(r.b);
   ASSERT_EQ(proto_bytes_in, proto_bytes_out);
 }
 
-TEST_F(pepenet_social_pep_social_feature, load_from_social_args_success_05)
+TEST(pepenet_social_pep_social_feature, load_from_social_args_success_05)
 {
   std::string json_args = R"({
     "pep_args": {
@@ -697,18 +716,26 @@ TEST_F(pepenet_social_pep_social_feature, load_from_social_args_success_05)
   ASSERT_TRUE(args.loadArgsFromJson().b);
   ASSERT_TRUE(args.validate().b);
 
-  ASSERT_TRUE(loadFromSocialArgs(args).b);
-  ASSERT_TRUE(validate().b);
+  pepenet_social::pep pep;
+  ASSERT_TRUE(pep.loadFromSocialArgs(args).b);
+  ASSERT_TRUE(pep.validate().b);
 
   pepenet_social::bytes proto_bytes_in, proto_bytes_out;
-  ASSERT_TRUE(dumpToBinary(proto_bytes_in).b);
+  pepenet_social::ibool r = pep.dumpToBinary(proto_bytes_in);
+  GTEST_COUT << r.info.value_or("");
+  ASSERT_TRUE(r.b);
 
-  ASSERT_TRUE(loadFromBinary(proto_bytes_in).b);
-  ASSERT_TRUE(dumpToBinary(proto_bytes_out).b);
+  pepenet_social::pep pep_from_bin;
+  r = pep_from_bin.loadFromBinary(proto_bytes_in);
+  GTEST_COUT << r.info.value_or("");
+  ASSERT_TRUE(r.b);
+  r = pep_from_bin.dumpToBinary(proto_bytes_out);
+  GTEST_COUT << r.info.value_or("");
+  ASSERT_TRUE(r.b);
   ASSERT_EQ(proto_bytes_in, proto_bytes_out);
 }
 
-TEST_F(pepenet_social_pep_social_feature, load_from_social_args_success_06)
+TEST(pepenet_social_pep_social_feature, load_from_social_args_success_06)
 {
   std::string json_args = R"({
     "pep_args": {
@@ -724,18 +751,26 @@ TEST_F(pepenet_social_pep_social_feature, load_from_social_args_success_06)
   ASSERT_TRUE(args.loadArgsFromJson().b);
   ASSERT_TRUE(args.validate().b);
 
-  ASSERT_TRUE(loadFromSocialArgs(args).b);
-  ASSERT_TRUE(validate().b);
+  pepenet_social::pep pep;
+  ASSERT_TRUE(pep.loadFromSocialArgs(args).b);
+  ASSERT_TRUE(pep.validate().b);
 
   pepenet_social::bytes proto_bytes_in, proto_bytes_out;
-  ASSERT_TRUE(dumpToBinary(proto_bytes_in).b);
+  pepenet_social::ibool r = pep.dumpToBinary(proto_bytes_in);
+  GTEST_COUT << r.info.value_or("");
+  ASSERT_TRUE(r.b);
 
-  ASSERT_TRUE(loadFromBinary(proto_bytes_in).b);
-  ASSERT_TRUE(dumpToBinary(proto_bytes_out).b);
+  pepenet_social::pep pep_from_bin;
+  r = pep_from_bin.loadFromBinary(proto_bytes_in);
+  GTEST_COUT << r.info.value_or("");
+  ASSERT_TRUE(r.b);
+  r = pep_from_bin.dumpToBinary(proto_bytes_out);
+  GTEST_COUT << r.info.value_or("");
+  ASSERT_TRUE(r.b);
   ASSERT_EQ(proto_bytes_in, proto_bytes_out);
 }
 
-TEST_F(pepenet_social_pep_social_feature, load_from_social_args_success_07)
+TEST(pepenet_social_pep_social_feature, load_from_social_args_success_07)
 {
   std::string json_args = R"({
     "pep_args": {
@@ -752,18 +787,26 @@ TEST_F(pepenet_social_pep_social_feature, load_from_social_args_success_07)
   ASSERT_TRUE(args.loadArgsFromJson().b);
   ASSERT_TRUE(args.validate().b);
 
-  ASSERT_TRUE(loadFromSocialArgs(args).b);
-  ASSERT_TRUE(validate().b);
+  pepenet_social::pep pep;
+  ASSERT_TRUE(pep.loadFromSocialArgs(args).b);
+  ASSERT_TRUE(pep.validate().b);
 
   pepenet_social::bytes proto_bytes_in, proto_bytes_out;
-  ASSERT_TRUE(dumpToBinary(proto_bytes_in).b);
-  
-  ASSERT_TRUE(loadFromBinary(proto_bytes_in).b);
-  ASSERT_TRUE(dumpToBinary(proto_bytes_out).b);
+  pepenet_social::ibool r = pep.dumpToBinary(proto_bytes_in);
+  GTEST_COUT << r.info.value_or("");
+  ASSERT_TRUE(r.b);
+
+  pepenet_social::pep pep_from_bin;
+  r = pep_from_bin.loadFromBinary(proto_bytes_in);
+  GTEST_COUT << r.info.value_or("");
+  ASSERT_TRUE(r.b);
+  r = pep_from_bin.dumpToBinary(proto_bytes_out);
+  GTEST_COUT << r.info.value_or("");
+  ASSERT_TRUE(r.b);
   ASSERT_EQ(proto_bytes_in, proto_bytes_out);
 }
 
-TEST_F(pepenet_social_pep_social_feature, load_from_social_args_success_08)
+TEST(pepenet_social_pep_social_feature, load_from_social_args_success_08)
 {
   std::string json_args = R"({
     "pep_args": {
@@ -782,13 +825,17 @@ TEST_F(pepenet_social_pep_social_feature, load_from_social_args_success_08)
   ASSERT_TRUE(args.loadArgsFromJson().b);
   ASSERT_TRUE(args.validate().b);
 
-  ASSERT_TRUE(loadFromSocialArgs(args).b);
-  ASSERT_TRUE(validate().b);
+  pepenet_social::pep pep;
+  ASSERT_TRUE(pep.loadFromSocialArgs(args).b);
+  ASSERT_TRUE(pep.validate().b);
 
   pepenet_social::bytes proto_bytes_in, proto_bytes_out;
-  ASSERT_TRUE(dumpToBinary(proto_bytes_in).b);
+  ASSERT_TRUE(pep.dumpToBinary(proto_bytes_in).b);
 
-  ASSERT_TRUE(loadFromBinary(proto_bytes_in).b);
-  ASSERT_TRUE(dumpToBinary(proto_bytes_out).b);
+  pepenet_social::pep pep_from_bin;
+  ASSERT_TRUE(pep_from_bin.loadFromBinary(proto_bytes_in).b);
+  pepenet_social::ibool r = pep_from_bin.dumpToBinary(proto_bytes_out);
+  GTEST_COUT << r.info.value_or("");
+  ASSERT_TRUE(r.b);
   ASSERT_EQ(proto_bytes_in, proto_bytes_out);
 }
