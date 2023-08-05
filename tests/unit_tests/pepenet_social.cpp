@@ -585,6 +585,7 @@ TEST(pepenet_social_pep_social_feature, load_from_social_args_success_01)
       "pseudonym": "pepe1"
     }
 	})";
+  
   pepenet_social::pep_args args;
   ASSERT_TRUE(args.loadJson(json_args).b);
   ASSERT_TRUE(args.loadArgsFromJson().b);
@@ -600,6 +601,7 @@ TEST(pepenet_social_pep_social_feature, load_from_social_args_success_01)
   pepenet_social::pep pep_from_bin;
   ASSERT_TRUE(pep_from_bin.loadFromBinary(proto_bytes_in).b);
   ASSERT_TRUE(pep_from_bin.dumpToBinary(proto_bytes_out).b);
+
   ASSERT_EQ(proto_bytes_in, proto_bytes_out);
 }
 
@@ -628,6 +630,7 @@ TEST(pepenet_social_pep_social_feature, load_from_social_args_success_02)
   pepenet_social::pep pep_from_bin;
   ASSERT_TRUE(pep_from_bin.loadFromBinary(proto_bytes_in).b);
   ASSERT_TRUE(pep_from_bin.dumpToBinary(proto_bytes_out).b);
+
   ASSERT_EQ(proto_bytes_in, proto_bytes_out);
 }
 
@@ -652,17 +655,12 @@ TEST(pepenet_social_pep_social_feature, load_from_social_args_success_03)
   ASSERT_TRUE(pep.validate().b);
 
   pepenet_social::bytes proto_bytes_in, proto_bytes_out;
-  pepenet_social::ibool r = pep.dumpToBinary(proto_bytes_in);
-  GTEST_COUT << r.info.value_or("");
-  ASSERT_TRUE(r.b);
+  ASSERT_TRUE(pep.dumpToBinary(proto_bytes_in).b);
 
   pepenet_social::pep pep_from_bin;
-  r = pep_from_bin.loadFromBinary(proto_bytes_in);
-  GTEST_COUT << r.info.value_or("");
-  ASSERT_TRUE(r.b);
-  r = pep_from_bin.dumpToBinary(proto_bytes_out);
-  GTEST_COUT << r.info.value_or("");
-  ASSERT_TRUE(r.b);
+  ASSERT_TRUE(pep_from_bin.loadFromBinary(proto_bytes_in).b);
+  ASSERT_TRUE(pep_from_bin.dumpToBinary(proto_bytes_out).b);
+
   ASSERT_EQ(proto_bytes_in, proto_bytes_out);
 }
 
@@ -687,17 +685,19 @@ TEST(pepenet_social_pep_social_feature, load_from_social_args_success_04)
   ASSERT_TRUE(pep.validate().b);
 
   pepenet_social::bytes proto_bytes_in, proto_bytes_out;
-  pepenet_social::ibool r = pep.dumpToBinary(proto_bytes_in);
-  GTEST_COUT << r.info.value_or("");
-  ASSERT_TRUE(r.b);
+  ASSERT_TRUE(pep.dumpToBinary(proto_bytes_in).b);
+
+  crypto::public_key pk;
+  crypto::secret_key sk;
+  ASSERT_TRUE(pepenet_social::secret_key_from_seed("123456", sk));
+  ASSERT_TRUE(crypto::secret_key_to_public_key(sk, pk));
 
   pepenet_social::pep pep_from_bin;
-  r = pep_from_bin.loadFromBinary(proto_bytes_in);
-  GTEST_COUT << r.info.value_or("");
-  ASSERT_TRUE(r.b);
-  r = pep_from_bin.dumpToBinary(proto_bytes_out);
-  GTEST_COUT << r.info.value_or("");
-  ASSERT_TRUE(r.b);
+  pepenet_social::ibool r;
+  ASSERT_TRUE(pep_from_bin.loadFromBinary(proto_bytes_in).b);
+  ASSERT_TRUE(pep_from_bin.validate(pk).b);
+  ASSERT_TRUE(pep_from_bin.dumpToBinary(proto_bytes_out).b);
+
   ASSERT_EQ(proto_bytes_in, proto_bytes_out);
 }
 
@@ -721,17 +721,12 @@ TEST(pepenet_social_pep_social_feature, load_from_social_args_success_05)
   ASSERT_TRUE(pep.validate().b);
 
   pepenet_social::bytes proto_bytes_in, proto_bytes_out;
-  pepenet_social::ibool r = pep.dumpToBinary(proto_bytes_in);
-  GTEST_COUT << r.info.value_or("");
-  ASSERT_TRUE(r.b);
+  ASSERT_TRUE(pep.dumpToBinary(proto_bytes_in).b);
 
   pepenet_social::pep pep_from_bin;
-  r = pep_from_bin.loadFromBinary(proto_bytes_in);
-  GTEST_COUT << r.info.value_or("");
-  ASSERT_TRUE(r.b);
-  r = pep_from_bin.dumpToBinary(proto_bytes_out);
-  GTEST_COUT << r.info.value_or("");
-  ASSERT_TRUE(r.b);
+  ASSERT_TRUE(pep_from_bin.loadFromBinary(proto_bytes_in).b);
+  ASSERT_TRUE(pep_from_bin.dumpToBinary(proto_bytes_out).b);
+
   ASSERT_EQ(proto_bytes_in, proto_bytes_out);
 }
 
@@ -756,17 +751,12 @@ TEST(pepenet_social_pep_social_feature, load_from_social_args_success_06)
   ASSERT_TRUE(pep.validate().b);
 
   pepenet_social::bytes proto_bytes_in, proto_bytes_out;
-  pepenet_social::ibool r = pep.dumpToBinary(proto_bytes_in);
-  GTEST_COUT << r.info.value_or("");
-  ASSERT_TRUE(r.b);
+  ASSERT_TRUE(pep.dumpToBinary(proto_bytes_in).b);
 
   pepenet_social::pep pep_from_bin;
-  r = pep_from_bin.loadFromBinary(proto_bytes_in);
-  GTEST_COUT << r.info.value_or("");
-  ASSERT_TRUE(r.b);
-  r = pep_from_bin.dumpToBinary(proto_bytes_out);
-  GTEST_COUT << r.info.value_or("");
-  ASSERT_TRUE(r.b);
+  ASSERT_TRUE(pep_from_bin.loadFromBinary(proto_bytes_in).b);
+  ASSERT_TRUE(pep_from_bin.dumpToBinary(proto_bytes_out).b);
+
   ASSERT_EQ(proto_bytes_in, proto_bytes_out);
 }
 
@@ -792,17 +782,12 @@ TEST(pepenet_social_pep_social_feature, load_from_social_args_success_07)
   ASSERT_TRUE(pep.validate().b);
 
   pepenet_social::bytes proto_bytes_in, proto_bytes_out;
-  pepenet_social::ibool r = pep.dumpToBinary(proto_bytes_in);
-  GTEST_COUT << r.info.value_or("");
-  ASSERT_TRUE(r.b);
+  ASSERT_TRUE(pep.dumpToBinary(proto_bytes_in).b);
 
   pepenet_social::pep pep_from_bin;
-  r = pep_from_bin.loadFromBinary(proto_bytes_in);
-  GTEST_COUT << r.info.value_or("");
-  ASSERT_TRUE(r.b);
-  r = pep_from_bin.dumpToBinary(proto_bytes_out);
-  GTEST_COUT << r.info.value_or("");
-  ASSERT_TRUE(r.b);
+  ASSERT_TRUE(pep_from_bin.loadFromBinary(proto_bytes_in).b);
+  ASSERT_TRUE(pep_from_bin.dumpToBinary(proto_bytes_out).b);
+
   ASSERT_EQ(proto_bytes_in, proto_bytes_out);
 }
 
@@ -820,7 +805,7 @@ TEST(pepenet_social_pep_social_feature, load_from_social_args_success_08)
     }
   })";
 
-    pepenet_social::pep_args args;
+  pepenet_social::pep_args args;
   ASSERT_TRUE(args.loadJson(json_args).b);
   ASSERT_TRUE(args.loadArgsFromJson().b);
   ASSERT_TRUE(args.validate().b);
@@ -834,8 +819,7 @@ TEST(pepenet_social_pep_social_feature, load_from_social_args_success_08)
 
   pepenet_social::pep pep_from_bin;
   ASSERT_TRUE(pep_from_bin.loadFromBinary(proto_bytes_in).b);
-  pepenet_social::ibool r = pep_from_bin.dumpToBinary(proto_bytes_out);
-  GTEST_COUT << r.info.value_or("");
-  ASSERT_TRUE(r.b);
+  ASSERT_TRUE(pep_from_bin.dumpToBinary(proto_bytes_out).b);
+
   ASSERT_EQ(proto_bytes_in, proto_bytes_out);
 }

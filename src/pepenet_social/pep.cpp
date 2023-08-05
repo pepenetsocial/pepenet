@@ -153,6 +153,7 @@ void pep_args::setSchema()
       {
         bytes pk_bytes(pk.data, 32);
         base_ptr->set_pk(pk_bytes);
+        m_pk = pk;
       }
       //sign binary base
       bytes base_bytes;
@@ -166,7 +167,6 @@ void pep_args::setSchema()
       //set the sig and pk
       m_proto.set_sig(sig_bytes);
       m_sig = sig;
-      m_pk = pk;
     }
     m_loaded = true;
     return { true, INFO_NULLOPT };
@@ -313,12 +313,8 @@ void pep_args::setSchema()
       }
     }
     
-    if (m_sig.has_value()) //verify base
+    if (m_sig.has_value() && m_pk.has_value()) //verify base
     {
-      if (!m_pk.has_value())
-      {
-        return ibool{ false, std::string("missing pk in pep. can't validate") };
-      }
       pepenet_social_protos::pep_base* base_ptr = m_proto.release_base();
       bytes base_bytes;
       if (!base_ptr->SerializeToString(&base_bytes))
