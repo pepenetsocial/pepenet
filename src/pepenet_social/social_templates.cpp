@@ -37,18 +37,18 @@ namespace pepenet_social {
     //parse document
     if (m_json.Parse(json.data()).HasParseError())
     {
-      return { false, std::string("the input is not a valid JSON.") };
+      return FALSE_IBOOL("the input is not a valid JSON.");
     }
     //parse schema
     if (!m_json_schema_str_loaded)
     {
-      return { false, std::string("json schema string is not loaded") };
+      return FALSE_IBOOL("json schema string is not loaded");
     }
 
     rapidjson::Document sd;
     if (sd.Parse(m_json_schema_str.data()).HasParseError())
     {
-      return { false, std::string("the schema is not a valid JSON.") };
+      return FALSE_IBOOL("the schema is not a valid JSON.");
     }
     rapidjson::SchemaDocument schema(sd); // Compile a Document to SchemaDocument
     // sd is no longer needed here.
@@ -67,7 +67,7 @@ namespace pepenet_social {
       info += (boost::format("Invalid document: %s\n") % sb.GetString()).str();
 
       m_schema_valid = false;
-      return ibool{ false, info };
+      return FALSE_IBOOL(info);
     }
     m_schema_valid = true;
     return { true, INFO_NULLOPT };

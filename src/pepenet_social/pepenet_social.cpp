@@ -65,7 +65,7 @@ ibool add_pep_to_tx_extra(const pepenet_social::pep& pep, std::vector<uint8_t>& 
   }
   if (!cryptonote::add_lzma_pep_to_tx_extra(tx_extra, lzma_pep))
   {
-    return ibool{ false, std::string("failed to add pep to tx_extra") };
+    return FALSE_IBOOL("failed to add pep to tx_extra") };
   }
   return ibool{ true, INFO_NULLOPT };
 }
@@ -83,12 +83,12 @@ ibool get_and_verify_pep_from_tx_extra(const boost::optional<crypto::public_key>
     if (!decomp)
     {
       pep.reset(); //decompression failed - invalid tx
-      return ibool{ false, std::string("failed to decompress lzma pep from tx_extra") };
+      return FALSE_IBOOL("failed to decompress lzma pep from tx_extra") };
     }
     ibool r = pep.value().loadFromBinary(pep_proto_bytes);
     if (!r.b)
     {
-      return ibool{ false, std::string("failed to load pep proto from bytes in tx_extra") };
+      return FALSE_IBOOL("failed to load pep proto from bytes in tx_extra") };
     }
     r = pep.value().validate(ver_pk.value());
     if (!r.b)

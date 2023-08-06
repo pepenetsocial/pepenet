@@ -73,16 +73,8 @@ namespace pepenet_social {
         return ibool{ success, std::string("failed to load proto from bytes. exception: ") + e.what() };
       }
       //load from proto
-      ibool r = loadFromProto();
-      if (!r.b)
-      {
-        return r;
-      }
-      r = validate();
-      if (!r.b)
-      {
-        return r;
-      }
+      CHECK_AND_ASSERT_RERETURN_IBOOL(loadFromProto());
+      CHECK_AND_ASSERT_RERETURN_IBOOL(validate());
       //done
       return ibool{ success, INFO_NULLOPT };
     }
@@ -90,14 +82,10 @@ namespace pepenet_social {
     {
       if (!m_valid || !m_loaded)
       {
-        return ibool{ false, std::string("first load and validate social feature") };
+        return FALSE_IBOOL("first load and validate social feature");
       }
       //first call dump to proto
-      ibool r = dumpToProto();
-      if (!r.b)
-      {
-        return r;
-      }
+      CHECK_AND_ASSERT_RERETURN_IBOOL(dumpToProto());
       //dump to binary after variables are set in proto
       bool success = false;
       try

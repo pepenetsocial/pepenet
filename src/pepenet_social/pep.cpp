@@ -4,11 +4,11 @@ ibool pep_args::loadArgsFromJson()
   {
     if (!m_schema_valid)
     {
-      return ibool{ false, std::string("Json schema has to be validated before args can be loaded") };
+      return FALSE_IBOOL("Json schema has to be validated before args can be loaded");
     }
     if (!m_json["pep_args"].HasMember("msg"))
     {
-      return ibool{ false, std::string("json field msg is required!") };
+      return FALSE_IBOOL("json field msg is required!");
     }
     else
     {
@@ -23,7 +23,7 @@ ibool pep_args::loadArgsFromJson()
       if (!m_json["pep_args"].HasMember("post_pk"))
       {
         m_valid_args = false;
-        return ibool{ false, std::string("json field post_pk is required when sk_seed is defined!") };
+        return FALSE_IBOOL("json field post_pk is required when sk_seed is defined!");
       }
       m_sk_seed = m_json["pep_args"]["sk_seed"].GetString();
     }
@@ -33,7 +33,7 @@ ibool pep_args::loadArgsFromJson()
       if (!m_json["pep_args"].HasMember("sk_seed"))
       {
         m_valid_args = false;
-        return ibool{ false, std::string("json field sk_seed is required when post_pk is defined!") };
+        return FALSE_IBOOL("json field sk_seed is required when post_pk is defined!");
       }
     }
     if (m_json["pep_args"].HasMember("tx_ref"))
@@ -43,7 +43,7 @@ ibool pep_args::loadArgsFromJson()
       if (!epee::string_tools::hex_to_pod(tx_ref_hex, tx_ref_parsed))
       {
         m_valid_args = false;
-        return ibool{ false, std::string("unable to parse tx_ref from json!") };
+        return FALSE_IBOOL("unable to parse tx_ref from json!");
       }
       m_tx_ref = tx_ref_parsed;
     }
@@ -118,7 +118,7 @@ void pep_args::setSchema()
   {
     if (!args.m_valid_args)
     {
-      return ibool{ false, std::string("invalid social args") };
+      return FALSE_IBOOL("invalid social args");
     }
     //copy base fields
     m_msg = args.m_msg;
@@ -127,27 +127,15 @@ void pep_args::setSchema()
     m_pepetag = args.m_pepetag;
     m_donation_address = args.m_donation_address;
     //create pep
-    ibool r = dumpBaseToProto(); //base
-    if (!r.b)
-    {
-      return r;
-    }
+    CHECK_AND_ASSERT_RERETURN_IBOOL(dumpBaseToProto()); //base
     if (args.m_sk_seed.has_value()) //create sig
     {
       pepenet_social_protos::pep_base* base_ptr = m_proto.release_base(); //get base prt
       //get keys for signing
       crypto::public_key pk;
       crypto::secret_key sk;
-      bool r = pepenet_social::secret_key_from_seed(args.m_sk_seed.value(), sk);
-      if (!r)
-      {
-        return ibool{ r, std::string("failed to generate sk from sk_seed") };
-      }
-      r = crypto::secret_key_to_public_key(sk, pk);
-      if (!r)
-      {
-        return ibool{ r, std::string("failed to generate pk from sk") };
-      }
+      CHECK_AND_ASSERT_RETURN_IBOOL(pepenet_social::secret_key_from_seed(args.m_sk_seed.value(), sk), "failed to generate sk from sk_seed");
+      CHECK_AND_ASSERT_RETURN_IBOOL(crypto::secret_key_to_public_key(sk, pk), "failed to generate pk from sk");
       //add pk to base if requested
       if (args.m_post_pk.value_or(false))
       {
@@ -183,10 +171,7 @@ void pep_args::setSchema()
     if (m_pk.has_value())
     {
       bytes pk_bytes;
-      if (!to_bytes(m_pk.value(), pk_bytes))
-      {
-        return { false, std::string("failed to convert pk to bytes") };
-      }
+      CHECK_AND_ASSERT_RETURN_IBOOL(to_bytes(m_pk.value(), pk_bytes), "failed to convert pk to bytes");
       base->set_pk(pk_bytes);
     }
     if (m_tx_ref.has_value())
@@ -211,10 +196,7 @@ void pep_args::setSchema()
     if (m_sig.has_value())
     {
       bytes sig_bytes;
-      if (!to_bytes(m_sig.value(), sig_bytes))
-      {
-        return { false, std::string("failed to convert sig to bytes") };
-      }
+      CHECK_AND_ASSERT_RETURN_IBOOL(to_bytes(m_sig.value(), sig_bytes), "failed to convert sig to bytes");
       m_proto.set_sig(sig_bytes);
     }
     m_loaded = true;
@@ -233,22 +215,14 @@ void pep_args::setSchema()
     if (!parsed_pk_bytes.empty())
     {
       crypto::public_key pk;
-      bool r = from_bytes(pk, parsed_pk_bytes);
-      if (!r)
-      {
-        return ibool{ r, std::string("invalid pk bytes in proto") };
-      }
+      CHECK_AND_ASSERT_RETURN_IBOOL(from_bytes(pk, parsed_pk_bytes), "invalid pk bytes in proto");
       m_pk = pk;
     }
     bytes parsed_tx_ref_bytes = base_ptr->tx_ref();
     if (!parsed_tx_ref_bytes.empty())
     {
       crypto::hash parsed_tx_ref;
-      bool r = from_bytes(parsed_tx_ref, parsed_tx_ref_bytes);
-      if (!r)
-      {
-        return ibool{ r, std::string("invalid tx_ref bytes in proto") };
-      }
+      CHECK_AND_ASSERT_RETURN_IBOOL(from_bytes(parsed_tx_ref, parsed_tx_ref_bytes), "invalid tx_ref bytes in proto");
       m_tx_ref = parsed_tx_ref;
     }
     std::string parsed_pepetag = base_ptr->pepetag();
@@ -263,15 +237,8 @@ void pep_args::setSchema()
     if (!parsed_sig_bytes.empty())
     {
       crypto::signature parsed_sig;
-      bool r = from_bytes(parsed_sig, parsed_sig_bytes);
-      if (!r)
-      {
-        return ibool{ r, std::string("invalid sig bytes in proto") };
-      }
-      else
-      {
-        m_sig = parsed_sig;
-      }
+      CHECK_AND_ASSERT_RETURN_IBOOL(from_bytes(parsed_sig, parsed_sig_bytes), "invalid sig bytes in proto");
+      m_sig = parsed_sig;
     }
 
     m_loaded = true;
@@ -282,34 +249,34 @@ void pep_args::setSchema()
   {
     if (!m_loaded)
     {
-      return ibool{ false, std::string("proto not loaded") };
+      return FALSE_IBOOL("proto not loaded");
     }
     //verify fields
     std::string compressed_msg;
     bool r = lzma_compress_msg(m_msg, compressed_msg);
     if (m_msg.empty() || compressed_msg.size() > LZMA_PEP_MAX_SIZE)
     {
-      return ibool{ false, std::string("invalid msg field") };
+      return FALSE_IBOOL("invalid msg field");
     }
     if (m_pseudonym.has_value())
     {
       if (m_pseudonym.value().empty() || m_pseudonym.value().size() > PSEUDONYM_MAX_SIZE)
       {
-        return ibool{ false, std::string("invalid pseudonym field") };
+        return FALSE_IBOOL("invalid pseudonym field");
       }
     }
     if (m_pepetag.has_value())
     {
       if (m_pepetag.value().empty() || m_pepetag.value().size() > PEPETAG_MAX_SIZE)
       {
-        return ibool{ false, std::string("invalid pepetag field") };
+        return FALSE_IBOOL("invalid pepetag field");
       }
     }
     if (m_donation_address.has_value())
     {
       if (m_donation_address.value().empty() || m_donation_address.value().size() > DONATION_ADDRESS_MAX_SIZE)
       {
-        return ibool{ false, std::string("invalid pepetag field") };
+        return FALSE_IBOOL("invalid donation_address field");
       }
     }
     
@@ -319,13 +286,13 @@ void pep_args::setSchema()
       bytes base_bytes;
       if (!base_ptr->SerializeToString(&base_bytes))
       {
-        return ibool{ false, std::string("failed to serialize pep base") };
+        return FALSE_IBOOL("failed to serialize pep base");
       }
       m_proto.set_allocated_base(base_ptr);
       //verify sig
       if (!check_msg_sig(base_bytes, m_sig.value(), m_pk.value()))
       {
-        return ibool{ false, std::string("failed to verify pep: invalid sig") };
+        return FALSE_IBOOL("failed to verify pep: invalid sig");
       }
     }
     m_valid = true;

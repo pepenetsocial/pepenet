@@ -38,3 +38,9 @@
 #define DONATION_ADDRESS_MAX_SIZE 108
 
 #define INFO_NULLOPT boost::optional<std::string>()
+
+#define RETURN_IBOOL_IF(expr, b, info){if(expr){return pepenet_social::ibool{b, std::string(info)};}}
+#define CHECK_AND_ASSERT_RETURN_IBOOL(expr, info) RETURN_IBOOL_IF(!(expr), false, info)
+#define CHECK_AND_ASSERT_RERETURN_IBOOL(ibool) RETURN_IBOOL_IF(!(ibool.b), ibool.b, ibool.info.value_or(""))
+
+#define FALSE_IBOOL(info) pepenet_social::ibool{false, std::string(info)}
