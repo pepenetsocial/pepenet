@@ -34,6 +34,8 @@
 #define GTEST_COUT std::cerr << "[          ] [ INFO ]"
 
 class pepenet_social_pep_social_args : public testing::Test, public pepenet_social::pep_args {};
+class pep_social_args_param : public testing::TestWithParam<std::string> {};
+class pep_social_args_param_f : public testing::TestWithParam<std::string>, public pepenet_social::pep_args {}; //fixture
 
 /*
   {
@@ -280,232 +282,114 @@ TEST_F(pepenet_social_pep_social_args, parse_json_fail_to_load_json)
   ASSERT_FALSE(loadJson(json_args).b);
 }
 
-TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_01)
+TEST_P(pep_social_args_param_f, parse_json_invalid_fields)
 {
-  std::string json_args = R"({
-    "pep_args": {
-    }
-  })";
+  std::string json_args = GetParam();
   ASSERT_FALSE(loadJson(json_args).b);
   ASSERT_FALSE(loadArgsFromJson().b);
   ASSERT_FALSE(validate().b);
 }
 
-TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_02)
-{
-  std::string json_args = R"({
+INSTANTIATE_TEST_SUITE_P(
+  pepenet_social,
+  pep_social_args_param_f,
+  ::testing::Values(
+    std::string(R"({
+    "pep_args": {
+    }
+  })"),
+    std::string(R"({
     "pep_args": {
       "msg": "",
     }
-  })";
-  ASSERT_FALSE(loadJson(json_args).b);
-  ASSERT_FALSE(loadArgsFromJson().b);
-  ASSERT_FALSE(validate().b);
-}
-
-TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_03)
-{
-  std::string json_args = R"({
+  })"),
+    std::string(R"({
     "pep_args": {
       "pseudonym": ""
     }
-  })";
-  ASSERT_FALSE(loadJson(json_args).b);
-  ASSERT_FALSE(loadArgsFromJson().b);
-  ASSERT_FALSE(validate().b);
-}
-
-TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_04)
-{
-  std::string json_args = R"({
+  })"),
+    std::string(R"({
     "pep_args": {
       "pseudonym": "goodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgood"
     }
-  })";
-  ASSERT_FALSE(loadJson(json_args).b);
-  ASSERT_FALSE(loadArgsFromJson().b);
-  ASSERT_FALSE(validate().b);
-}
-
-TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_05)
-{
-  std::string json_args = R"({
+  })"),
+    std::string(R"({
     "pep_args": {
       "sk_seed": ""
     }
-  })";
-  ASSERT_FALSE(loadJson(json_args).b);
-  ASSERT_FALSE(loadArgsFromJson().b);
-  ASSERT_FALSE(validate().b);
-}
-
-TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_06)
-{
-  std::string json_args = R"({
+  })"),
+    std::string(R"({
     "pep_args": {
       "sk_seed": "123456"
     }
-  })";
-  ASSERT_FALSE(loadJson(json_args).b);
-  ASSERT_FALSE(loadArgsFromJson().b);
-  ASSERT_FALSE(validate().b);
-}
-
-TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_07)
-{
-  std::string json_args = R"({
+  })"),
+    std::string(R"({
     "pep_args": {
       "sk_seed": "123456",
       "post_pk": 1
     }
-  })";
-  ASSERT_FALSE(loadJson(json_args).b);
-  ASSERT_FALSE(loadArgsFromJson().b);
-  ASSERT_FALSE(validate().b);
-}
-
-TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_08)
-{
-  std::string json_args = R"({
+  })"),
+    std::string(R"({
     "pep_args": {
       "sk_seed": "123456",
       "post_pk": 0
     }
-  })";
-  ASSERT_FALSE(loadJson(json_args).b);
-  ASSERT_FALSE(loadArgsFromJson().b);
-  ASSERT_FALSE(validate().b);
-}
-
-TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_09)
-{
-  std::string json_args = R"({
+  })"),
+    std::string(R"({
     "pep_args": {
       "post_pk": true
     }
-  })";
-  ASSERT_FALSE(loadJson(json_args).b);
-  ASSERT_FALSE(loadArgsFromJson().b);
-  ASSERT_FALSE(validate().b);
-}
-
-TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_10)
-{
-  std::string json_args = R"({
+  })"),
+    std::string(R"({
     "pep_args": {
       "tx_ref": "a665a45920422f"
     }
-  })";
-  ASSERT_FALSE(loadJson(json_args).b);
-  ASSERT_FALSE(loadArgsFromJson().b);
-  ASSERT_FALSE(validate().b);
-}
-
-TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_11)
-{
-  std::string json_args = R"({
+  })"),
+    std::string(R"({
     "pep_args": {
       "tx_ref": "a665a45920422a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3f"
     }
-  })";
-  ASSERT_FALSE(loadJson(json_args).b);
-  ASSERT_FALSE(loadArgsFromJson().b);
-  ASSERT_FALSE(validate().b);
-}
-
-TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_12)
-{
-  std::string json_args = R"({
+  })"),
+    std::string(R"({
     "pep_args": {
       "tx_ref": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27aeK"
     }
-  })";
-  ASSERT_FALSE(loadJson(json_args).b);
-  ASSERT_FALSE(loadArgsFromJson().b);
-  ASSERT_FALSE(validate().b);
-}
-
-TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_13)
-{
-  std::string json_args = R"({
+  })"),
+    std::string(R"({
     "pep_args": {
       "pepetag": ""
     }
-  })";
-  ASSERT_FALSE(loadJson(json_args).b);
-  ASSERT_FALSE(loadArgsFromJson().b);
-  ASSERT_FALSE(validate().b);
-}
-
-TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_14)
-{
-  std::string json_args = R"({
+  })"),
+    std::string(R"({
     "pep_args": {
       "pepetag": "pepepepeeppepepepepppepepepeeppepepepepp"
     }
-  })";
-  ASSERT_FALSE(loadJson(json_args).b);
-  ASSERT_FALSE(loadArgsFromJson().b);
-  ASSERT_FALSE(validate().b);
-}
-
-TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_15)
-{
-  std::string json_args = R"({
+  })"),
+    std::string(R"({
     "pep_args": {
       "pepetag": "pepepepeeppepepepepppepepepeeppepepepepp"
     }
-  })";
-  ASSERT_FALSE(loadJson(json_args).b);
-  ASSERT_FALSE(loadArgsFromJson().b);
-  ASSERT_FALSE(validate().b);
-}
-
-TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_16)
-{
-  std::string json_args = R"({
+  })"),
+    std::string(R"({
     "pep_args": {
       "donation_address": ""
     }
-  })";
-  ASSERT_FALSE(loadJson(json_args).b);
-  ASSERT_FALSE(loadArgsFromJson().b);
-  ASSERT_FALSE(validate().b);
-}
-
-TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_17)
-{
-  std::string json_args = R"({
+  })"),
+    std::string(R"({
     "pep_args": {
       "donation_address": "P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed96P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed96"
     }
-  })";
-  ASSERT_FALSE(loadJson(json_args).b);
-  ASSERT_FALSE(loadArgsFromJson().b);
-  ASSERT_FALSE(validate().b);
-}
-
-TEST_F(pepenet_social_pep_social_args, parse_json_invalid_fields_18)
-{
-  std::string json_args = R"({
+  })"),
+    std::string(R"({
     "pep_args": {
       "donation_address": "P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed9"
     }
-  })";
-  ASSERT_FALSE(loadJson(json_args).b);
-  ASSERT_FALSE(loadArgsFromJson().b);
-  ASSERT_FALSE(validate().b);
-}
+  })")
+  ));
 
-
-TEST(pepenet_social_pep_social_feature, load_from_social_args_success_01)
+TEST_P(pep_social_args_param, load_from_social_args_success)
 {
-  std::string json_args = R"({
-    "pep_args": {
-      "msg": "pepe has a good day",
-      "pseudonym": "pepe1"
-    }
-	})";
+  std::string json_args = GetParam();
 
   pepenet_social::pep_args args;
   ASSERT_TRUE(args.loadJson(json_args).b);
@@ -519,171 +403,82 @@ TEST(pepenet_social_pep_social_feature, load_from_social_args_success_01)
   pepenet_social::bytes proto_bytes_in, proto_bytes_out;
   ASSERT_TRUE(pep.dumpToBinary(proto_bytes_in).b);
 
+  rapidjson::Document d;
+  ASSERT_FALSE(d.Parse(json_args.data()).HasParseError());
+  bool generate_pk = d["pep_args"].HasMember("post_pk") && d["pep_args"]["post_pk"].IsBool() && !d["pep_args"]["post_pk"].GetBool();
+  crypto::public_key pk;
+  crypto::secret_key sk;
+  if (generate_pk)
+  {
+    std::string sk_seed;
+    ASSERT_TRUE(d["pep_args"].HasMember("sk_seed"));
+    ASSERT_TRUE(d["pep_args"]["sk_seed"].IsString());
+    sk_seed = d["pep_args"]["sk_seed"].GetString();
+    ASSERT_TRUE(pepenet_social::secret_key_from_seed(sk_seed, sk));
+    ASSERT_TRUE(crypto::secret_key_to_public_key(sk, pk));
+  }
+
   pepenet_social::pep pep_from_bin;
+  pepenet_social::ibool r;
   ASSERT_TRUE(pep_from_bin.loadFromBinary(proto_bytes_in).b);
+  if (generate_pk)
+  {
+    ASSERT_TRUE(pep_from_bin.validate(pk).b);
+  }
   ASSERT_TRUE(pep_from_bin.dumpToBinary(proto_bytes_out).b);
 
   ASSERT_EQ(proto_bytes_in, proto_bytes_out);
 }
 
-TEST(pepenet_social_pep_social_feature, load_from_social_args_success_02)
-{
-  std::string json_args = R"({
+INSTANTIATE_TEST_SUITE_P(
+  pepenet_social,
+  pep_social_args_param,
+  ::testing::Values(
+    std::string(R"({
+    "pep_args": {
+      "msg": "pepe has a good day",
+      "pseudonym": "pepe1"
+    }
+	})"),
+    std::string(R"({
     "pep_args": {
       "msg": "pepe has a good day",
       "sk_seed": "123456",
       "post_pk": true
     }
-	})";
-
-  pepenet_social::pep_args args;
-  ASSERT_TRUE(args.loadJson(json_args).b);
-  ASSERT_TRUE(args.loadArgsFromJson().b);
-  ASSERT_TRUE(args.validate().b);
-
-  pepenet_social::pep pep;
-  ASSERT_TRUE(pep.loadFromSocialArgs(args).b);
-  ASSERT_TRUE(pep.validate().b);
-
-  pepenet_social::bytes proto_bytes_in, proto_bytes_out;
-  ASSERT_TRUE(pep.dumpToBinary(proto_bytes_in).b);
-
-  pepenet_social::pep pep_from_bin;
-  ASSERT_TRUE(pep_from_bin.loadFromBinary(proto_bytes_in).b);
-  ASSERT_TRUE(pep_from_bin.dumpToBinary(proto_bytes_out).b);
-
-  ASSERT_EQ(proto_bytes_in, proto_bytes_out);
-}
-
-TEST(pepenet_social_pep_social_feature, load_from_social_args_success_03)
-{
-  std::string json_args = R"({
+	})"),
+    std::string(R"({
     "pep_args": {
       "msg": "pepe has a good day",
       "pseudonym": "pepe1",
       "sk_seed": "123456",
       "post_pk": true
     }
-	})";
-
-  pepenet_social::pep_args args;
-  ASSERT_TRUE(args.loadJson(json_args).b);
-  ASSERT_TRUE(args.loadArgsFromJson().b);
-  ASSERT_TRUE(args.validate().b);
-
-  pepenet_social::pep pep;
-  ASSERT_TRUE(pep.loadFromSocialArgs(args).b);
-  ASSERT_TRUE(pep.validate().b);
-
-  pepenet_social::bytes proto_bytes_in, proto_bytes_out;
-  ASSERT_TRUE(pep.dumpToBinary(proto_bytes_in).b);
-
-  pepenet_social::pep pep_from_bin;
-  ASSERT_TRUE(pep_from_bin.loadFromBinary(proto_bytes_in).b);
-  ASSERT_TRUE(pep_from_bin.dumpToBinary(proto_bytes_out).b);
-
-  ASSERT_EQ(proto_bytes_in, proto_bytes_out);
-}
-
-TEST(pepenet_social_pep_social_feature, load_from_social_args_success_04)
-{
-  std::string json_args = R"({
+	})"),
+    std::string(R"({
     "pep_args": {
       "msg": "pepe has a good day",
       "pseudonym": "pepe1",
       "sk_seed": "123456",
       "post_pk": false
     }
-	})";
-
-  pepenet_social::pep_args args;
-  ASSERT_TRUE(args.loadJson(json_args).b);
-  ASSERT_TRUE(args.loadArgsFromJson().b);
-  ASSERT_TRUE(args.validate().b);
-
-  pepenet_social::pep pep;
-  ASSERT_TRUE(pep.loadFromSocialArgs(args).b);
-  ASSERT_TRUE(pep.validate().b);
-
-  pepenet_social::bytes proto_bytes_in, proto_bytes_out;
-  ASSERT_TRUE(pep.dumpToBinary(proto_bytes_in).b);
-
-  crypto::public_key pk;
-  crypto::secret_key sk;
-  ASSERT_TRUE(pepenet_social::secret_key_from_seed("123456", sk));
-  ASSERT_TRUE(crypto::secret_key_to_public_key(sk, pk));
-
-  pepenet_social::pep pep_from_bin;
-  pepenet_social::ibool r;
-  ASSERT_TRUE(pep_from_bin.loadFromBinary(proto_bytes_in).b);
-  ASSERT_TRUE(pep_from_bin.validate(pk).b);
-  ASSERT_TRUE(pep_from_bin.dumpToBinary(proto_bytes_out).b);
-
-  ASSERT_EQ(proto_bytes_in, proto_bytes_out);
-}
-
-TEST(pepenet_social_pep_social_feature, load_from_social_args_success_05)
-{
-  std::string json_args = R"({
+	})"),
+    std::string(R"({
     "pep_args": {
       "msg": "pepe has a good day",
       "pseudonym": "pepe1",
       "tx_ref": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"
     }
-	})";
-
-  pepenet_social::pep_args args;
-  ASSERT_TRUE(args.loadJson(json_args).b);
-  ASSERT_TRUE(args.loadArgsFromJson().b);
-  ASSERT_TRUE(args.validate().b);
-
-  pepenet_social::pep pep;
-  ASSERT_TRUE(pep.loadFromSocialArgs(args).b);
-  ASSERT_TRUE(pep.validate().b);
-
-  pepenet_social::bytes proto_bytes_in, proto_bytes_out;
-  ASSERT_TRUE(pep.dumpToBinary(proto_bytes_in).b);
-
-  pepenet_social::pep pep_from_bin;
-  ASSERT_TRUE(pep_from_bin.loadFromBinary(proto_bytes_in).b);
-  ASSERT_TRUE(pep_from_bin.dumpToBinary(proto_bytes_out).b);
-
-  ASSERT_EQ(proto_bytes_in, proto_bytes_out);
-}
-
-TEST(pepenet_social_pep_social_feature, load_from_social_args_success_06)
-{
-  std::string json_args = R"({
+	})"),
+    std::string(R"({
     "pep_args": {
       "msg": "pepe has a good day",
       "pseudonym": "pepe1",
       "tx_ref": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
       "pepetag": "good"
     }
-	})";
-
-  pepenet_social::pep_args args;
-  ASSERT_TRUE(args.loadJson(json_args).b);
-  ASSERT_TRUE(args.loadArgsFromJson().b);
-  ASSERT_TRUE(args.validate().b);
-
-  pepenet_social::pep pep;
-  ASSERT_TRUE(pep.loadFromSocialArgs(args).b);
-  ASSERT_TRUE(pep.validate().b);
-
-  pepenet_social::bytes proto_bytes_in, proto_bytes_out;
-  ASSERT_TRUE(pep.dumpToBinary(proto_bytes_in).b);
-
-  pepenet_social::pep pep_from_bin;
-  ASSERT_TRUE(pep_from_bin.loadFromBinary(proto_bytes_in).b);
-  ASSERT_TRUE(pep_from_bin.dumpToBinary(proto_bytes_out).b);
-
-  ASSERT_EQ(proto_bytes_in, proto_bytes_out);
-}
-
-TEST(pepenet_social_pep_social_feature, load_from_social_args_success_07)
-{
-  std::string json_args = R"({
+	})"),
+    std::string(R"({
     "pep_args": {
       "msg": "pepe has a good day",
       "pseudonym": "pepe1",
@@ -691,30 +486,8 @@ TEST(pepenet_social_pep_social_feature, load_from_social_args_success_07)
       "pepetag": "good",
       "donation_address": "P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed96"
     }
-  })";
-
-  pepenet_social::pep_args args;
-  ASSERT_TRUE(args.loadJson(json_args).b);
-  ASSERT_TRUE(args.loadArgsFromJson().b);
-  ASSERT_TRUE(args.validate().b);
-
-  pepenet_social::pep pep;
-  ASSERT_TRUE(pep.loadFromSocialArgs(args).b);
-  ASSERT_TRUE(pep.validate().b);
-
-  pepenet_social::bytes proto_bytes_in, proto_bytes_out;
-  ASSERT_TRUE(pep.dumpToBinary(proto_bytes_in).b);
-
-  pepenet_social::pep pep_from_bin;
-  ASSERT_TRUE(pep_from_bin.loadFromBinary(proto_bytes_in).b);
-  ASSERT_TRUE(pep_from_bin.dumpToBinary(proto_bytes_out).b);
-
-  ASSERT_EQ(proto_bytes_in, proto_bytes_out);
-}
-
-TEST(pepenet_social_pep_social_feature, load_from_social_args_success_08)
-{
-  std::string json_args = R"({
+  })"),
+    std::string(R"({
     "pep_args": {
       "msg": "pepe has a good day",
       "pseudonym": "pepe1",
@@ -724,23 +497,5 @@ TEST(pepenet_social_pep_social_feature, load_from_social_args_success_08)
       "pepetag": "good",
       "donation_address": "P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed96"
     }
-  })";
-
-  pepenet_social::pep_args args;
-  ASSERT_TRUE(args.loadJson(json_args).b);
-  ASSERT_TRUE(args.loadArgsFromJson().b);
-  ASSERT_TRUE(args.validate().b);
-
-  pepenet_social::pep pep;
-  ASSERT_TRUE(pep.loadFromSocialArgs(args).b);
-  ASSERT_TRUE(pep.validate().b);
-
-  pepenet_social::bytes proto_bytes_in, proto_bytes_out;
-  ASSERT_TRUE(pep.dumpToBinary(proto_bytes_in).b);
-
-  pepenet_social::pep pep_from_bin;
-  ASSERT_TRUE(pep_from_bin.loadFromBinary(proto_bytes_in).b);
-  ASSERT_TRUE(pep_from_bin.dumpToBinary(proto_bytes_out).b);
-
-  ASSERT_EQ(proto_bytes_in, proto_bytes_out);
-}
+  })")
+  ));
