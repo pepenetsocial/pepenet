@@ -208,36 +208,33 @@ void pep_args::setSchema()
     pepenet_social_protos::pep_base* base_ptr = m_proto.release_base();
     m_msg = base_ptr->msg();
     
-    std::string parsed_pseudonym = base_ptr->pseudonym();
-    m_pseudonym = parsed_pseudonym.empty() ? boost::optional<std::string>() : parsed_pseudonym;
+    m_pseudonym = get_optional_string(base_ptr->pseudonym());
     
-    bytes parsed_pk_bytes = base_ptr->pk();
-    if (!parsed_pk_bytes.empty())
+    boost::optional<bytes> parsed_pk_bytes = get_optional_bytes(base_ptr->pk());
+    if (parsed_pk_bytes.has_value())
     {
       crypto::public_key pk;
-      CHECK_AND_ASSERT_RETURN_IBOOL(from_bytes(pk, parsed_pk_bytes), "invalid pk bytes in proto");
+      CHECK_AND_ASSERT_RETURN_IBOOL(from_bytes(pk, parsed_pk_bytes.value()), "invalid pk bytes in proto");
       m_pk = pk;
     }
-    bytes parsed_tx_ref_bytes = base_ptr->tx_ref();
-    if (!parsed_tx_ref_bytes.empty())
+    boost::optional<bytes> parsed_tx_ref_bytes = get_optional_bytes(base_ptr->tx_ref());
+    if (parsed_tx_ref_bytes.has_value())
     {
       crypto::hash parsed_tx_ref;
-      CHECK_AND_ASSERT_RETURN_IBOOL(from_bytes(parsed_tx_ref, parsed_tx_ref_bytes), "invalid tx_ref bytes in proto");
+      CHECK_AND_ASSERT_RETURN_IBOOL(from_bytes(parsed_tx_ref, parsed_tx_ref_bytes.value()), "invalid tx_ref bytes in proto");
       m_tx_ref = parsed_tx_ref;
     }
-    std::string parsed_pepetag = base_ptr->pepetag();
-    m_pepetag = parsed_pepetag.empty() ? boost::optional<std::string>() : parsed_pepetag;
 
-    std::string parsed_donation_address = base_ptr->donation_address();
-    m_donation_address = parsed_donation_address.empty() ? boost::optional<std::string>() : parsed_donation_address;
+    m_pepetag = get_optional_string(base_ptr->pepetag());
+    m_donation_address = get_optional_string(base_ptr->donation_address());
 
     m_proto.set_allocated_base(base_ptr); //return base to proto;
 
-    bytes parsed_sig_bytes = m_proto.sig();
-    if (!parsed_sig_bytes.empty())
+    boost::optional<bytes> parsed_sig_bytes = get_optional_bytes(m_proto.sig());
+    if (parsed_sig_bytes.has_value())
     {
       crypto::signature parsed_sig;
-      CHECK_AND_ASSERT_RETURN_IBOOL(from_bytes(parsed_sig, parsed_sig_bytes), "invalid sig bytes in proto");
+      CHECK_AND_ASSERT_RETURN_IBOOL(from_bytes(parsed_sig, parsed_sig_bytes.value()), "invalid sig bytes in proto");
       m_sig = parsed_sig;
     }
 

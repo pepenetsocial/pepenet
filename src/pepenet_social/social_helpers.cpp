@@ -164,4 +164,15 @@ namespace pepenet_social {
     }
     return true;
   }
+
+  boost::optional<bytes> get_optional_bytes(const bytes& b)
+  {
+    return b.empty() ? boost::optional<std::string>() : b;
+  }
+
+  boost::optional<std::string> get_optional_string(const std::string& s)
+  {
+    return s.empty() ? boost::optional<std::string>() : s;
+  }
+
 }

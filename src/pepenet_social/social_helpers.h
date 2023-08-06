@@ -60,4 +60,7 @@ namespace pepenet_social {
   bool from_bytes(crypto::hash& hash, const bytes& b);
   bool to_bytes(const crypto::public_key& pk, bytes& b);
   bool from_bytes(crypto::public_key& pk, const bytes& b);
+
+  boost::optional<bytes> get_optional_bytes(const bytes& b);
+  boost::optional<std::string> get_optional_string(const std::string& s);
 }
