@@ -250,7 +250,7 @@ void pep_args::setSchema()
     }
     //verify fields
     std::string compressed_msg;
-    bool r = lzma_compress_msg(m_msg, compressed_msg);
+    CHECK_AND_ASSERT_RETURN_IBOOL(lzma_compress_msg(m_msg, compressed_msg), "failed to compress msg field");
     if (m_msg.empty() || compressed_msg.size() > LZMA_PEP_MAX_SIZE)
     {
       return FALSE_IBOOL("invalid msg field");
