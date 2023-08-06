@@ -104,7 +104,8 @@ set(unit_tests_sources
   aligned.cpp
   rpc_version_str.cpp
   zmq_rpc.cpp
-  pepenet_social.cpp)
+  pepenet_social.cpp
+  pepenet_social_pep.cpp)
 
 set(unit_tests_headers
   unit_tests_utils.h)

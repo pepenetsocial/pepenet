@@ -29,7 +29,7 @@
 
 #pragma once
 
-#include "pepenet_social.h"
+#include "social_templates.h"
 
 namespace pepenet_social {
 
@@ -69,8 +69,5 @@ namespace pepenet_social {
       boost::optional<std::string> m_pepetag;
       boost::optional<std::string> m_donation_address;
   };
-
-  ibool add_pep_to_tx_extra(const pepenet_social::pep& pep, std::vector<uint8_t>& tx_extra);
-  ibool get_and_verify_pep_from_tx_extra(const boost::optional<crypto::public_key>& ver_pk, boost::optional<pepenet_social::pep>& pep, const std::vector<uint8_t>& tx_extra);
 
 }

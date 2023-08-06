@@ -27,17 +27,49 @@
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
 
-#pragma once
-
-#include "cryptonote_basic/cryptonote_basic.h"
-#include "cryptonote_basic/cryptonote_format_utils.h"
+#include "social_templates.h"
 
 namespace pepenet_social {
 
-  bool check_tx_social_validity(const cryptonote::transaction& tx);
+  ibool social_args::loadJson(const std::string& json)
+  {
+    setSchema();
+    //parse document
+    if (m_json.Parse(json.data()).HasParseError())
+    {
+      return { false, std::string("the input is not a valid JSON.") };
+    }
+    //parse schema
+    if (!m_json_schema_str_loaded)
+    {
+      return { false, std::string("json schema string is not loaded") };
+    }
 
-  /*
-  ibool add_pep_to_tx_extra(const pepenet_social::pep& pep, std::vector<uint8_t>& tx_extra);
-  ibool get_and_verify_pep_from_tx_extra(const boost::optional<crypto::public_key>& ver_pk, boost::optional<pepenet_social::pep>& pep, const std::vector<uint8_t>& tx_extra);
-  */
+    rapidjson::Document sd;
+    if (sd.Parse(m_json_schema_str.data()).HasParseError())
+    {
+      return { false, std::string("the schema is not a valid JSON.") };
+    }
+    rapidjson::SchemaDocument schema(sd); // Compile a Document to SchemaDocument
+    // sd is no longer needed here.
+    rapidjson::SchemaValidator validator(schema);
+    if (!m_json.Accept(validator))
+    {
+      // Input JSON is invalid according to the schema
+      // Output diagnostic information
+      rapidjson::StringBuffer sb;
+      validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
+
+      std::string info = "";
+      info += (boost::format("Invalid schema: %s\nInvalid keyword: %s\n") % sb.GetString() % validator.GetInvalidSchemaKeyword()).str();
+      sb.Clear();
+      validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
+      info += (boost::format("Invalid document: %s\n") % sb.GetString()).str();
+
+      m_schema_valid = false;
+      return ibool{ false, info };
+    }
+    m_schema_valid = true;
+    return { true, INFO_NULLOPT };
+  }
 }

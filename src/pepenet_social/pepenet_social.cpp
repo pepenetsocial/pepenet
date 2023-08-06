@@ -28,183 +28,8 @@
 // 
 
 #include "pepenet_social.h"
+
 namespace pepenet_social {
-
-  ibool social_args::loadJson(const std::string& json)
-  {
-    setSchema();
-    //parse document
-    if (m_json.Parse(json.data()).HasParseError())
-    {
-      return { false, std::string("the input is not a valid JSON.") };
-    }
-    //parse schema
-    if (!m_json_schema_str_loaded)
-    {
-      return { false, std::string("json schema string is not loaded") };
-    }
-
-    rapidjson::Document sd;
-    if (sd.Parse(m_json_schema_str.data()).HasParseError())
-    {
-      return { false, std::string("the schema is not a valid JSON.") };
-    }
-    rapidjson::SchemaDocument schema(sd); // Compile a Document to SchemaDocument
-    // sd is no longer needed here.
-    rapidjson::SchemaValidator validator(schema);
-    if (!m_json.Accept(validator))
-    {
-      // Input JSON is invalid according to the schema
-      // Output diagnostic information
-      rapidjson::StringBuffer sb;
-      validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
-
-      std::string info = "";
-      info += (boost::format("Invalid schema: %s\nInvalid keyword: %s\n") % sb.GetString() % validator.GetInvalidSchemaKeyword()).str();
-      sb.Clear();
-      validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
-      info += (boost::format("Invalid document: %s\n") % sb.GetString()).str();
-
-      m_schema_valid = false;
-      return ibool{ false, info };
-    }
-    m_schema_valid = true;
-    return { true, INFO_NULLOPT };
-  }
-
-  bool lzma_compress_msg(const std::string& msg, std::string& out)
-  {
-    const uint8_t* msg_ = (const uint8_t*)msg.c_str();
-    std::size_t msg_len = strlen(msg.c_str());
-    uint32_t compressed_size;
-    auto compressedBlob = lzmaCompress(msg_, msg_len, &compressed_size);
-    if (compressedBlob)
-      out = std::string((char*)(compressedBlob.get()), compressed_size);
-    return (bool)compressedBlob;
-  }
-
-  bool lzma_decompress_msg(const std::string& msg, std::string& out)
-  {
-    const uint8_t* msg_ = (const uint8_t*)msg.c_str();
-    std::size_t msg_len = msg.size();
-    uint32_t decompressed_size;
-    auto decompressedBlob = lzmaDecompress(msg_, msg_len, &decompressed_size);
-    if (decompressedBlob)
-      out = std::string((char*)(decompressedBlob.get()), decompressed_size);
-    return (bool)decompressedBlob;
-  }
-
-  bool secret_key_from_seed(const std::string& sk_seed, crypto::secret_key& sk)
-  {
-    try
-    {
-      crypto::hash_to_scalar(sk_seed.data(), sk_seed.size(), sk);
-    }
-    catch (const std::exception& ex)
-    {
-      LOG_ERROR("Exception at [secret_key_from_seed], what=" << ex.what());
-      return false;
-    }
-    return true;
-  }
-
-  bool sign_msg(const std::string& msg, crypto::signature& sig, const crypto::public_key& pk, const crypto::secret_key& sk)
-  {
-    crypto::hash prefix_hash;
-    try
-    {
-      crypto::cn_fast_hash(msg.data(), msg.size(), prefix_hash);
-      crypto::generate_signature(prefix_hash, pk, sk, sig);
-    }
-    catch (const std::exception& ex)
-    {
-      LOG_ERROR("Exception at [sign_msg], what=" << ex.what());
-      return false;
-    }
-    return true;
-  }
-
-  bool check_msg_sig(const std::string& msg, crypto::signature& sig, const crypto::public_key& pk)
-  {
-    crypto::hash prefix_hash;
-    bool r;
-    try
-    {
-      crypto::cn_fast_hash(msg.data(), msg.size(), prefix_hash);
-      r = crypto::check_signature(prefix_hash, pk, sig);
-    }
-    catch (const std::exception& ex)
-    {
-      LOG_ERROR("Exception at [sign_msg], what=" << ex.what());
-      return false;
-    }
-    return r;
-  }
-
-  bool to_bytes(const crypto::signature& sig, bytes& b)
-  {
-    b = bytes(sig.c.data, 32) + bytes(sig.r.data, 32);
-    return true;
-  }
-  bool from_bytes(crypto::signature& sig, const bytes& b)
-  {
-    if (b.size() != 64)
-    {
-      return true;
-    }
-    try
-    {
-      std::memcpy(&sig.c.data, b.data(), 32);
-      std::memcpy(&sig.r.data, b.data() + 32, 32);
-    }
-    catch (const std::exception& e)
-    {
-      return false;
-    }
-    return true;
-  }
-  bool to_bytes(const crypto::hash& hash, bytes& b)
-  {
-    b = bytes(hash.data, 32);
-    return true;
-  }
-  bool from_bytes(crypto::hash& hash, const bytes& b)
-  {
-    if (b.size() != 32)
-    {
-      return true;
-    }
-    try
-    {
-      std::memcpy(&hash.data, b.data(), 32);
-    }
-    catch (const std::exception& e)
-    {
-      return false;
-    }
-    return true;
-  }
-  bool to_bytes(const crypto::public_key& pk, bytes& b)
-  {
-    b = bytes(pk.data, 32);
-    return true;
-  }
-  bool from_bytes(crypto::public_key& pk, const bytes& b)
-  {
-    if (b.size() != 32)
-    {
-      return true;
-    }
-    try
-    {
-      std::memcpy(&pk.data, b.data(), 32);
-    }
-    catch (const std::exception& e)
-    {
-      return false;
-    }
-    return true;
-  }
   
   //ibool get_and_verify_post_from_tx_extra(const boost::optional<crypto::public_key>& ver_pk, boost::optional<pepenet_social::post>& pep, const std::vector<uint8_t>& tx_extra);
 
@@ -227,5 +52,57 @@ namespace pepenet_social {
   */
     return true;
   }
+
+  /*
+ibool add_pep_to_tx_extra(const pepenet_social::pep& pep, std::vector<uint8_t>& tx_extra)
+{
+  bytes lzma_pep;
+  pepenet_social::pep p = pep;
+  ibool r = p.dumpToBinary(lzma_pep);
+  if (!r.b)
+  {
+    return r;
+  }
+  if (!cryptonote::add_lzma_pep_to_tx_extra(tx_extra, lzma_pep))
+  {
+    return ibool{ false, std::string("failed to add pep to tx_extra") };
+  }
+  return ibool{ true, INFO_NULLOPT };
+}
+
+ibool get_and_verify_pep_from_tx_extra(const boost::optional<crypto::public_key>& ver_pk, boost::optional<pepenet_social::pep>& pep, const std::vector<uint8_t>& tx_extra)
+{
+  //init pep optional
+  pep = pepenet_social::pep();
+  std::string lzma_pep;
+  bool pep_missing = !cryptonote::get_lzma_pep_from_tx_extra(tx_extra, lzma_pep);
+  if (!pep_missing)
+  {
+    bytes pep_proto_bytes;
+    bool decomp = pepenet_social::lzma_decompress_msg(lzma_pep, pep_proto_bytes);
+    if (!decomp)
+    {
+      pep.reset(); //decompression failed - invalid tx
+      return ibool{ false, std::string("failed to decompress lzma pep from tx_extra") };
+    }
+    ibool r = pep.value().loadFromBinary(pep_proto_bytes);
+    if (!r.b)
+    {
+      return ibool{ false, std::string("failed to load pep proto from bytes in tx_extra") };
+    }
+    r = pep.value().validate(ver_pk.value());
+    if (!r.b)
+    {
+      return r;
+    }
+    return ibool{ true, INFO_NULLOPT };
+  }
+  else
+  {
+    pep.reset();
+  }
+  return { true, INFO_NULLOPT };
+}
+*/
 
 }

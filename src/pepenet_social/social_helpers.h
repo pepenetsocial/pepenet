@@ -29,15 +29,35 @@
 
 #pragma once
 
-#include "cryptonote_basic/cryptonote_basic.h"
-#include "cryptonote_basic/cryptonote_format_utils.h"
+#include "social_defines.h"
+#include "lzma.h"
+#include "crypto/crypto.h"
+#include "../contrib/epee/include/hex.h"
+#include "../contrib/epee/include/misc_log_ex.h"
+#include "../contrib/epee/include/string_tools.h"
 
 namespace pepenet_social {
 
-  bool check_tx_social_validity(const cryptonote::transaction& tx);
+  typedef std::string bytes;
 
-  /*
-  ibool add_pep_to_tx_extra(const pepenet_social::pep& pep, std::vector<uint8_t>& tx_extra);
-  ibool get_and_verify_pep_from_tx_extra(const boost::optional<crypto::public_key>& ver_pk, boost::optional<pepenet_social::pep>& pep, const std::vector<uint8_t>& tx_extra);
-  */
+  struct ibool
+  {
+    bool b;
+    boost::optional<std::string> info;
+  };
+
+  bool lzma_compress_msg(const std::string& msg, std::string& out);
+  bool lzma_decompress_msg(const std::string& msg, std::string& out);
+  
+  bool secret_key_from_seed(const std::string& sk_seed, crypto::secret_key& sk);
+  bool sign_msg(const std::string& msg, crypto::signature& sig, const crypto::public_key& pk, const crypto::secret_key& sk);
+  bool check_msg_sig(const std::string& msg, crypto::signature& sig, const crypto::public_key& pk);
+
+  bool to_bytes(const crypto::signature& sig, bytes& b);
+  
+  bool from_bytes(crypto::signature& sig, const bytes& b);
+  bool to_bytes(const crypto::hash& hash, bytes& b);
+  bool from_bytes(crypto::hash& hash, const bytes& b);
+  bool to_bytes(const crypto::public_key& pk, bytes& b);
+  bool from_bytes(crypto::public_key& pk, const bytes& b);
 }

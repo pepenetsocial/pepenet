@@ -29,15 +29,12 @@
 
 #pragma once
 
-#include "cryptonote_basic/cryptonote_basic.h"
-#include "cryptonote_basic/cryptonote_format_utils.h"
+//feature limits - size in bytes
+#define LZMA_PEP_MAX_SIZE 512
+#define LZMA_POST_MAX_SIZE 4096
+#define POST_TITLE_MAX_SIZE 128
+#define PSEUDONYM_MAX_SIZE 32
+#define PEPETAG_MAX_SIZE 32
+#define DONATION_ADDRESS_MAX_SIZE 108
 
-namespace pepenet_social {
-
-  bool check_tx_social_validity(const cryptonote::transaction& tx);
-
-  /*
-  ibool add_pep_to_tx_extra(const pepenet_social::pep& pep, std::vector<uint8_t>& tx_extra);
-  ibool get_and_verify_pep_from_tx_extra(const boost::optional<crypto::public_key>& ver_pk, boost::optional<pepenet_social::pep>& pep, const std::vector<uint8_t>& tx_extra);
-  */
-}
+#define INFO_NULLOPT boost::optional<std::string>()
