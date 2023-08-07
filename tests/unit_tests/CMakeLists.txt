@@ -108,7 +108,8 @@ set(unit_tests_sources
   pepenet_social_pep.cpp)
 
 set(unit_tests_headers
-  unit_tests_utils.h)
+  unit_tests_utils.h
+  pepenet_social_pep.h)
 
 pepenet_add_minimal_executable(unit_tests
   ${unit_tests_sources}

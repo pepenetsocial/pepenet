@@ -26,10 +26,10 @@
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
-// Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #include "gtest/gtest.h"
 #include "pepenet_social/pep.h"
+#include "pepenet_social_pep.h"
 
 #define GTEST_COUT std::cerr << "[          ] [ INFO ]"
 
@@ -124,70 +124,7 @@ INSTANTIATE_TEST_SUITE_P(
   pepenet_social,
   pep_social_args_param_f1,
   ::testing::Values(
-    std::string(R"({
-    "pep_args": {
-      "msg": "pepe has a good day",
-      "pseudonym": "pepe1"
-    }
-	})"),
-    std::string(R"({
-    "pep_args": {
-      "msg": "pepe has a good day",
-      "sk_seed": "123456",
-      "post_pk": true
-    }
-	})"),
-    std::string(R"({
-    "pep_args": {
-      "msg": "pepe has a good day",
-      "pseudonym": "pepe1",
-      "sk_seed": "123456",
-      "post_pk": true
-    }
-	})"),
-    std::string(R"({
-    "pep_args": {
-      "msg": "pepe has a good day",
-      "pseudonym": "pepe1",
-      "sk_seed": "123456",
-      "post_pk": false
-    }
-	})"),
-    std::string(R"({
-    "pep_args": {
-      "msg": "pepe has a good day",
-      "pseudonym": "pepe1",
-      "tx_ref": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"
-    }
-	})"),
-    std::string(R"({
-    "pep_args": {
-      "msg": "pepe has a good day",
-      "pseudonym": "pepe1",
-      "tx_ref": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
-      "pepetag": "good"
-    }
-	})"),
-    std::string(R"({
-    "pep_args": {
-      "msg": "pepe has a good day",
-      "pseudonym": "pepe1",
-      "tx_ref": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
-      "pepetag": "good",
-      "donation_address": "P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed96"
-    }
-  })"),
-    std::string(R"({
-    "pep_args": {
-      "msg": "pepe has a good day",
-      "pseudonym": "pepe1",
-      "sk_seed": "123456",
-      "post_pk": true,
-      "tx_ref": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
-      "pepetag": "good",
-      "donation_address": "P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed96"
-    }
-  })")
+      VALID_PEP_ARGS
     ));
 
 TEST_F(pepenet_social_pep_social_args, parse_json_fail_to_load_json)
@@ -234,97 +171,7 @@ INSTANTIATE_TEST_SUITE_P(
   pepenet_social,
   pep_social_args_param_f2,
   ::testing::Values(
-    std::string(R"({
-    "pep_args": {
-    }
-  })"),
-    std::string(R"({
-    "pep_args": {
-      "msg": "",
-    }
-  })"),
-    std::string(R"({
-    "pep_args": {
-      "pseudonym": ""
-    }
-  })"),
-    std::string(R"({
-    "pep_args": {
-      "pseudonym": "goodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgood"
-    }
-  })"),
-    std::string(R"({
-    "pep_args": {
-      "sk_seed": ""
-    }
-  })"),
-    std::string(R"({
-    "pep_args": {
-      "sk_seed": "123456"
-    }
-  })"),
-    std::string(R"({
-    "pep_args": {
-      "sk_seed": "123456",
-      "post_pk": 1
-    }
-  })"),
-    std::string(R"({
-    "pep_args": {
-      "sk_seed": "123456",
-      "post_pk": 0
-    }
-  })"),
-    std::string(R"({
-    "pep_args": {
-      "post_pk": true
-    }
-  })"),
-    std::string(R"({
-    "pep_args": {
-      "tx_ref": "a665a45920422f"
-    }
-  })"),
-    std::string(R"({
-    "pep_args": {
-      "tx_ref": "a665a45920422a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3f"
-    }
-  })"),
-    std::string(R"({
-    "pep_args": {
-      "tx_ref": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27aeK"
-    }
-  })"),
-    std::string(R"({
-    "pep_args": {
-      "pepetag": ""
-    }
-  })"),
-    std::string(R"({
-    "pep_args": {
-      "pepetag": "pepepepeeppepepepepppepepepeeppepepepepp"
-    }
-  })"),
-    std::string(R"({
-    "pep_args": {
-      "pepetag": "pepepepeeppepepepepppepepepeeppepepepepp"
-    }
-  })"),
-    std::string(R"({
-    "pep_args": {
-      "donation_address": ""
-    }
-  })"),
-    std::string(R"({
-    "pep_args": {
-      "donation_address": "P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed96P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed96"
-    }
-  })"),
-    std::string(R"({
-    "pep_args": {
-      "donation_address": "P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed9"
-    }
-  })")
+    INVALID_PEP_ARGS
   ));
 
 class pep_social_args_param1 : public pep_social_args_param {};
@@ -376,70 +223,7 @@ INSTANTIATE_TEST_SUITE_P(
   pepenet_social,
   pep_social_args_param1,
   ::testing::Values(
-    std::string(R"({
-    "pep_args": {
-      "msg": "pepe has a good day",
-      "pseudonym": "pepe1"
-    }
-	})"),
-    std::string(R"({
-    "pep_args": {
-      "msg": "pepe has a good day",
-      "sk_seed": "123456",
-      "post_pk": true
-    }
-	})"),
-    std::string(R"({
-    "pep_args": {
-      "msg": "pepe has a good day",
-      "pseudonym": "pepe1",
-      "sk_seed": "123456",
-      "post_pk": true
-    }
-	})"),
-    std::string(R"({
-    "pep_args": {
-      "msg": "pepe has a good day",
-      "pseudonym": "pepe1",
-      "sk_seed": "123456",
-      "post_pk": false
-    }
-	})"),
-    std::string(R"({
-    "pep_args": {
-      "msg": "pepe has a good day",
-      "pseudonym": "pepe1",
-      "tx_ref": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"
-    }
-	})"),
-    std::string(R"({
-    "pep_args": {
-      "msg": "pepe has a good day",
-      "pseudonym": "pepe1",
-      "tx_ref": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
-      "pepetag": "good"
-    }
-	})"),
-    std::string(R"({
-    "pep_args": {
-      "msg": "pepe has a good day",
-      "pseudonym": "pepe1",
-      "tx_ref": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
-      "pepetag": "good",
-      "donation_address": "P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed96"
-    }
-  })"),
-    std::string(R"({
-    "pep_args": {
-      "msg": "pepe has a good day",
-      "pseudonym": "pepe1",
-      "sk_seed": "123456",
-      "post_pk": true,
-      "tx_ref": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
-      "pepetag": "good",
-      "donation_address": "P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed96"
-    }
-  })")
+    VALID_PEP_ARGS
   ));
 
 class pep_social_feature_param_f1 : public pep_social_feature_param_f {};
@@ -485,68 +269,5 @@ INSTANTIATE_TEST_SUITE_P(
   pepenet_social,
   pep_social_feature_param_f1,
   ::testing::Values(
-    std::string(R"({
-    "pep_args": {
-      "msg": "pepe has a good day",
-      "pseudonym": "pepe1"
-    }
-	})"),
-    std::string(R"({
-    "pep_args": {
-      "msg": "pepe has a good day",
-      "sk_seed": "123456",
-      "post_pk": true
-    }
-	})"),
-    std::string(R"({
-    "pep_args": {
-      "msg": "pepe has a good day",
-      "pseudonym": "pepe1",
-      "sk_seed": "123456",
-      "post_pk": true
-    }
-	})"),
-    std::string(R"({
-    "pep_args": {
-      "msg": "pepe has a good day",
-      "pseudonym": "pepe1",
-      "sk_seed": "123456",
-      "post_pk": false
-    }
-	})"),
-    std::string(R"({
-    "pep_args": {
-      "msg": "pepe has a good day",
-      "pseudonym": "pepe1",
-      "tx_ref": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"
-    }
-	})"),
-    std::string(R"({
-    "pep_args": {
-      "msg": "pepe has a good day",
-      "pseudonym": "pepe1",
-      "tx_ref": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
-      "pepetag": "good"
-    }
-	})"),
-    std::string(R"({
-    "pep_args": {
-      "msg": "pepe has a good day",
-      "pseudonym": "pepe1",
-      "tx_ref": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
-      "pepetag": "good",
-      "donation_address": "P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed96"
-    }
-  })"),
-    std::string(R"({
-    "pep_args": {
-      "msg": "pepe has a good day",
-      "pseudonym": "pepe1",
-      "sk_seed": "123456",
-      "post_pk": true,
-      "tx_ref": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
-      "pepetag": "good",
-      "donation_address": "P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed96"
-    }
-  })")
+    VALID_PEP_ARGS
   ));
