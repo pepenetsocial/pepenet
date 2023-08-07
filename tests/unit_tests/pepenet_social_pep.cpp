@@ -131,29 +131,10 @@ TEST_F(pepenet_social_pep_social_args, parse_json_fail_to_load_json)
 {
   std::string json_args;
   ASSERT_FALSE(loadJson(json_args).b);
-  json_args = R"({
-    "pep_args": {
-      "msg": "pepe has a good day",
-      "pseudonym": "pepe1",
-      "sk_seed": "123456",
-      "post_pk": true,
-      "tx_ref": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
-      "pepetag": "good",
-      "donation_address": "P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed96"
-    }
-  )";
+  json_args = VALID_PEP_ARGS_08;
+  json_args.pop_back();
   ASSERT_FALSE(loadJson(json_args).b);
-  json_args = R"({
-    "pep_args": {
-      "msg": "pepe has a good day",
-      "pseudonym": "pepe1",
-      "sk_seed": "123456"
-      "post_pk": true,
-      "tx_ref": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
-      "pepetag": "good",
-      "donation_address": "P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed96"
-    }
-  })";
+  json_args.pop_back();
   ASSERT_FALSE(loadJson(json_args).b);
 }
 
