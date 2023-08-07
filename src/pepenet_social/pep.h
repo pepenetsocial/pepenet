@@ -59,7 +59,6 @@ namespace pepenet_social {
     protected:
       ibool dumpToProto();
       ibool loadFromProto();
-    private:
       ibool dumpBaseToProto();
       std::string m_msg;
       boost::optional<std::string> m_pseudonym;
