@@ -36,6 +36,8 @@
 class pepenet_social_pep_social_args : public testing::Test, public pepenet_social::pep_args {};
 class pep_social_args_param : public testing::TestWithParam<std::string> {};
 class pep_social_args_param_f : public testing::TestWithParam<std::string>, public pepenet_social::pep_args {}; //fixture
+
+class pepenet_social_pep_social_feature : public testing::TestWithParam<std::string>, public pepenet_social::pep {};
 class pep_social_feature_param_f : public testing::TestWithParam<std::string>, public pepenet_social::pep {}; //fixture
 
 /*
@@ -252,3 +254,15 @@ INSTANTIATE_TEST_SUITE_P(
   ::testing::Values(
     VALID_PEP_ARGS
   ));
+
+TEST_F(pepenet_social_pep_social_feature, serialization_stability)
+{
+  pepenet_social::pep_args args;
+  ASSERT_FALSE(loadFromSocialArgs(args).b);
+  pepenet_social::bytes invalid_bytes_in;
+  ASSERT_TRUE(invalid_bytes_in.empty());
+  ASSERT_FALSE(loadFromBinary(invalid_bytes_in).b);
+  pepenet_social::bytes bytes_out;
+  ASSERT_FALSE(dumpToBinary(bytes_out).b);
+  ASSERT_TRUE(bytes_out.empty());
+}

@@ -62,11 +62,13 @@ namespace pepenet_social {
     //virtual ibool dumpToJsonStr(std::string& json) = 0;
     ibool loadFromBinary(const bytes& bytes)
     {
+      CHECK_AND_ASSERT_RETURN_IBOOL(!bytes.empty(), "failed to load proto from empty bytes");
       //load to proto
       bool success = false;
       try
       {
         success = m_proto.ParseFromString(bytes);
+        CHECK_AND_ASSERT_RETURN_IBOOL(success, "failed to load proto from bytes");
       }
       catch (std::exception const& e)
       {
@@ -91,6 +93,7 @@ namespace pepenet_social {
       try
       {
         success = m_proto.SerializeToString(&bytes);
+        CHECK_AND_ASSERT_RETURN_IBOOL(success, "failed to serialize proto to bytes");
       }
       catch (std::exception const& e)
       {
