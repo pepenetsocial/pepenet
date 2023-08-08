@@ -29,15 +29,44 @@
 
 #pragma once
 
-#include "cryptonote_basic/cryptonote_basic.h"
-#include "cryptonote_basic/cryptonote_format_utils.h"
+#include "social_templates.h"
 
 namespace pepenet_social {
 
-  bool check_tx_social_validity(const cryptonote::transaction& tx);
+  class pep_args : public social_args
+  {
+    friend class pep;
+    public:
+      virtual ibool loadArgsFromJson();
+    protected:
+      virtual void setSchema();
+      std::string m_msg;
+      boost::optional<std::string> m_pseudonym;
+      boost::optional<std::string> m_sk_seed;
+      boost::optional<bool> m_post_pk;
+      boost::optional<crypto::hash> m_tx_ref;
+      boost::optional<std::string> m_pepetag;
+      boost::optional<std::string> m_donation_address;
+};
 
-  /*
-  ibool add_pep_to_tx_extra(const pepenet_social::pep& pep, std::vector<uint8_t>& tx_extra);
-  ibool get_and_verify_pep_from_tx_extra(const boost::optional<crypto::public_key>& ver_pk, boost::optional<pepenet_social::pep>& pep, const std::vector<uint8_t>& tx_extra);
-  */
+  class pep : public social_feature<pepenet_social_protos::pep, pep_args>
+  {
+    public:
+      ibool validate();
+      ibool validate(const boost::optional<crypto::public_key>& pk);
+      ibool loadFromSocialArgs(pep_args const& args);
+      //ibool dumpToJsonStr(std::string& json);
+    protected:
+      ibool dumpToProto();
+      ibool loadFromProto();
+      ibool dumpBaseToProto();
+      std::string m_msg;
+      boost::optional<std::string> m_pseudonym;
+      boost::optional<crypto::public_key> m_pk;
+      boost::optional<crypto::signature> m_sig;
+      boost::optional<crypto::hash> m_tx_ref;
+      boost::optional<std::string> m_pepetag;
+      boost::optional<std::string> m_donation_address;
+  };
+
 }

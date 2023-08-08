@@ -29,15 +29,43 @@
 
 #pragma once
 
-#include "cryptonote_basic/cryptonote_basic.h"
-#include "cryptonote_basic/cryptonote_format_utils.h"
-
+#include "pepenet_social.h"
+/*
 namespace pepenet_social {
+  class post_args : public social_args
+  {
+    friend class post;
+    private:
+    std::string m_title;
+    std::string m_msg;
+    boost::optional<std::string> m_pseudonym;
+    boost::optional<std::string> m_sk_seed;
+    bool m_post_pk;
+    boost::optional<crypto::hash> m_tx_ref;
+    boost::optional<std::string> m_pepetag;
+    boost::optional<std::string> m_donation_address;
+  };
 
-  bool check_tx_social_validity(const cryptonote::transaction& tx);
-
-  /*
-  ibool add_pep_to_tx_extra(const pepenet_social::pep& pep, std::vector<uint8_t>& tx_extra);
-  ibool get_and_verify_pep_from_tx_extra(const boost::optional<crypto::public_key>& ver_pk, boost::optional<pepenet_social::pep>& pep, const std::vector<uint8_t>& tx_extra);
-  */
+  class post : public social_feature
+  {
+    public:
+    post(const post_args& args);
+    bool validate();
+    bool loadFromProto();
+    bool dumpToProto();
+    bool loadFromBinary(const bytes& bytes);
+    bool dumpToBinary(bytes& bytes);
+    bool dumpToJsonStr(std::string& json);
+    private:
+    std::string m_title;
+    std::string m_msg;
+    boost::optional<std::string> m_pseudonym;
+    boost::optional<crypto::public_key> m_pk;
+    boost::optional<crypto::signature> m_sig;
+    boost::optional<crypto::hash> m_tx_ref;
+    boost::optional<std::string> m_pepetag;
+    boost::optional<std::string> m_donation_address;
+    pepenet_social_protos::post m_proto;
+  };
 }
+*/
