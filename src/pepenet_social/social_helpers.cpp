@@ -109,7 +109,7 @@ namespace pepenet_social {
   {
     if (b.size() != 64)
     {
-      return true;
+      return false;
     }
     try
     {
@@ -131,7 +131,7 @@ namespace pepenet_social {
   {
     if (b.size() != 32)
     {
-      return true;
+      return false;
     }
     try
     {
@@ -152,7 +152,7 @@ namespace pepenet_social {
   {
     if (b.size() != 32)
     {
-      return true;
+      return false;
     }
     try
     {

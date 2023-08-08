@@ -217,3 +217,50 @@ INVALID_PEP_ARGS_16,\
 INVALID_PEP_ARGS_17,\
 INVALID_PEP_ARGS_18\
 
+//invalid msg
+const std::string INVALID_PEP_PROTOBUF_JSON_01 = R"({"base":{"msg":"","pseudonym":"pepe1"}})";
+const std::string INVALID_PEP_PROTOBUF_JSON_02 = R"({"base":{"msg":"a11e705e070bccc9d78ce594b192fa3de628e3e64fbeeab8d53ce2bcd2ecc7ecce3a05c577b155966375dd77c6b1ff93e0d53d2970f89c0161cf2bbc15eb46c3f63299b0637032b58c4a97692f666e83e5d92aa8b8d40d15843e1edf2ef763edc7e66c8b410dcc87566079ef3a00307198279f18ec54ae69f57de0017533629690dc7cd996b1f044f76c02136b42899f2eebf76c3be747113cbee030ce96392343494b2ce15cb80f427882f20fdf171ce2aae85602202974519cddf3a27b6d73dd82876d7649159d323da23f667186552a91aad844b08506a326b43ac38ab245325cd4dbef94d94d8b66ac74f2507b788b41292688072eaaf4ed2f0bbc0f5f2963fe88e24805ba8e87b9f2f7e381c6d908195776c998405662572984317ed51b4708245d892b19f75da802a08141ebe4945f32c95cf65ce52b256a9a6f69c849960c0ea58ad73cec7539c47dd8bf395c2890f74e62c91c5e5df6c2a698a86a94d2d4a5fc1e2c43e53a615ed33c25b52ec2fb9dd4a356274fe6e8f4f38b1ea8d19d1d1546f676026011cae9317c367c6c5eb2a175b1278d3b1a85ae0e48c729f0","pseudonym":"pepe1"}})";
+//invalid pseudonym
+const std::string INVALID_PEP_PROTOBUF_JSON_03 = R"({"base":{"msg":"pepe has a good day","pseudonym":"pepe1pepe1pepe1pepe1pepe1pepe1pepe1pepe1"}})";
+//invalid pepetag
+const std::string INVALID_PEP_PROTOBUF_JSON_04 = R"({"base":{"msg":"pepe has a good day","pepetag" : "badbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbad"}})";
+//invalid donation address
+const std::string INVALID_PEP_PROTOBUF_JSON_05 = R"({"base":{"msg":"pepe has a good day","donationAddress":"P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed96P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed96"}})";
+const std::string INVALID_PEP_PROTOBUF_JSON_06 = R"({"base":{"msg":"pepe has a good day","donationAddress":"P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdA"}})";
+//invalid sig cases
+const std::string INVALID_PEP_PROTOBUF_JSON_07 = R"({"base":{"msg":"pepe has a good day","pk":"FTdWOrfMY1pUK5WNTNFvLzSJZ6ePLnL/W6qHjtv5xDw="},"sig":""})";
+const std::string INVALID_PEP_PROTOBUF_JSON_08 = R"({"base":{"msg":"pepe has a good day","pk":"FTdWOrfMY1pUK5WNTNFvLzSJZ6ePLnL/W6qHjtv5xDw="},"sig":"aaLyOYefih39z4VCpd7600aUn8ThimC5g/lcI5C0awuGcwkfqLHh9/0e55DVzEsn+Ml+89f10wDJbrMUiLr9BQ=="})";
+const std::string INVALID_PEP_PROTOBUF_JSON_09 = R"({"base":{"msg":"pepe has a good day","pk":"FTdWOrfMY1pUK5WNTNFvLzSJZ6ePLnL/W6qHjtv5xDw="},"sig":"z4VCpd7600aUn8ThimC5g/lcI5C0awuGcwkfqLHh9/0e55DVzEsn+Ml+89f10wDJbrMUiLr9BQ=="})";
+const std::string INVALID_PEP_PROTOBUF_JSON_10 = R"({"base":{"msg":"pepe has a good day day day","pk":"FTdWOrfMY1pUK5WNTNFvLzSJZ6ePLnL/W6qHjtv5xDw="},"sig":"E4LyOYefih39z4VCpd7600aUn8ThimC5g/lcI5C0awuGcwkfqLHh9/0e55DVzEsn+Ml+89f10wDJbrMUiLr9BQ=="})";
+const std::string INVALID_PEP_PROTOBUF_JSON_11 = R"({"base":{"msg":"","pk":"FTdWOrfMY1pUK5WNTNFvLzSJZ6ePLnL/W6qHjtv5xDw="},"sig":"E4LyOYefih39z4VCpd7600aUn8ThimC5g/lcI5C0awuGcwkfqLHh9/0e55DVzEsn+Ml+89f10wDJbrMUiLr9BQ=="})";
+//invalid fields ok sig - verification fail
+const std::string INVALID_PEP_PROTOBUF_JSON_12 = R"({"base":{"msg":"blabla","pk":"FTdWOrfMY1pUK5WNTNFvLzSJZ6ePLnL/W6qHjtv5xDw="},"sig":"E4LyOYefih39z4VCpd7600aUn8ThimC5g/lcI5C0awuGcwkfqLHh9/0e55DVzEsn+Ml+89f10wDJbrMUiLr9BQ=="})";
+//pk ok no sig
+const std::string INVALID_PEP_PROTOBUF_JSON_13 = R"({"base":{"msg":"pepe has a good day","pk":"FTdWOrfMY1pUK5WNTNFvLzSJZ6ePLnL/W6qHjtv5xDw="}})";
+//bad pk ok sig
+const std::string INVALID_PEP_PROTOBUF_JSON_14 = R"({"base":{"msg":"pepe has a good day","pk":"aTdWOrfMY1pUK5WNTNFvLzSJZ6ePLnL/W6qHjtv5xDw="},"sig":"E4LyOYefih39z4VCpd7600aUn8ThimC5g/lcI5C0awuGcwkfqLHh9/0e55DVzEsn+Ml+89f10wDJbrMUiLr9BQ=="})";
+//bad pk no sig
+const std::string INVALID_PEP_PROTOBUF_JSON_15 = R"({"base":{"msg":"pepe has a good day","pk":"aTdWOrfMY1pUK5WNTNFvLzSJZ6ePLnL/W6qHjtv5xDw="}})";
+//invalid tx ref
+const std::string INVALID_PEP_PROTOBUF_JSON_16 = R"({"base":{"msg":"pepe has a good day","pseudonym":"pepe1","txRef":"FTdWOrfMY1pUK5WNTNFvLzSJZ6ePLnL/W6qHjtv5xDw="}})";
+const std::string INVALID_PEP_PROTOBUF_JSON_17 = R"({"base":{"msg":"pepe has a good day","pseudonym":"pepe1","txRef":"FTdWOrfMY1pUK5WNTNFvLzSJZ6ePLnL/W6qHjtv5xDw="}})";
+
+#define INVALID_PEP_PROTOBUFS_JSON \
+INVALID_PEP_PROTOBUF_JSON_01,\
+INVALID_PEP_PROTOBUF_JSON_02,\
+INVALID_PEP_PROTOBUF_JSON_03,\
+INVALID_PEP_PROTOBUF_JSON_04,\
+INVALID_PEP_PROTOBUF_JSON_05,\
+INVALID_PEP_PROTOBUF_JSON_06,\
+INVALID_PEP_PROTOBUF_JSON_07,\
+INVALID_PEP_PROTOBUF_JSON_08,\
+INVALID_PEP_PROTOBUF_JSON_09,\
+INVALID_PEP_PROTOBUF_JSON_10,\
+INVALID_PEP_PROTOBUF_JSON_11,\
+INVALID_PEP_PROTOBUF_JSON_12,\
+INVALID_PEP_PROTOBUF_JSON_13,\
+INVALID_PEP_PROTOBUF_JSON_14,\
+INVALID_PEP_PROTOBUF_JSON_15,\
+INVALID_PEP_PROTOBUF_JSON_16,\
+INVALID_PEP_PROTOBUF_JSON_17\
+

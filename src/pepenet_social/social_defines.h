@@ -36,6 +36,7 @@
 #define PSEUDONYM_MAX_SIZE 32
 #define PEPETAG_MAX_SIZE 32
 #define DONATION_ADDRESS_MAX_SIZE 108
+#define DONATION_ADDRESS_MIN_SIZE 97
 
 #define INFO_NULLOPT boost::optional<std::string>()
 

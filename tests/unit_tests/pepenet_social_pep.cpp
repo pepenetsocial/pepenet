@@ -30,6 +30,8 @@
 #include "gtest/gtest.h"
 #include "pepenet_social/pep.h"
 #include "pepenet_social_pep.h"
+#include <google/protobuf/util/json_util.h> 
+namespace json_util = google::protobuf::util;
 
 #define GTEST_COUT std::cerr << "[          ] [ INFO ]"
 
@@ -266,3 +268,26 @@ TEST_F(pepenet_social_pep_social_feature, serialization_stability)
   ASSERT_FALSE(dumpToBinary(bytes_out).b);
   ASSERT_TRUE(bytes_out.empty());
 }
+
+class pep_social_args_param2 : public pep_social_args_param {};
+
+TEST_P(pep_social_args_param2, load_pep_from_binary_success_validation_fail)
+{
+  std::string json_protobuf = GetParam();
+
+  pepenet_social_protos::pep pep_dummy_input;
+  ASSERT_TRUE(json_util::JsonStringToMessage(json_protobuf, &pep_dummy_input).ok());
+  pepenet_social::bytes bytes_in;
+  ASSERT_TRUE(pep_dummy_input.SerializeToString(&bytes_in));
+
+  pepenet_social::pep pep;
+  ASSERT_FALSE(pep.loadFromBinary(bytes_in).b);
+  ASSERT_FALSE(pep.validate().b);
+}
+
+INSTANTIATE_TEST_SUITE_P(
+  pepenet_social,
+  pep_social_args_param2,
+  ::testing::Values(
+    INVALID_PEP_PROTOBUFS_JSON
+  ));

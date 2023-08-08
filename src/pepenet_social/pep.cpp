@@ -271,12 +271,15 @@ void pep_args::setSchema()
     }
     if (m_donation_address.has_value())
     {
-      if (m_donation_address.value().empty() || m_donation_address.value().size() > DONATION_ADDRESS_MAX_SIZE)
+      if (m_donation_address.value().empty() || m_donation_address.value().size() > DONATION_ADDRESS_MAX_SIZE || m_donation_address.value().size() < DONATION_ADDRESS_MIN_SIZE)
       {
         return FALSE_IBOOL("invalid donation_address field");
       }
     }
-    
+    if (m_pk.has_value() && !m_sig.has_value())
+    {
+      return FALSE_IBOOL("failed to verify pep: missing sig for posted pk");
+    }
     if (m_sig.has_value() && m_pk.has_value()) //verify base
     {
       pepenet_social_protos::pep_base* base_ptr = m_proto.release_base();
@@ -287,6 +290,7 @@ void pep_args::setSchema()
       }
       m_proto.set_allocated_base(base_ptr);
       //verify sig
+      CHECK_AND_ASSERT_RETURN_IBOOL(crypto::check_key(m_pk.value()), "pk check failed before sig verification");
       if (!check_msg_sig(base_bytes, m_sig.value(), m_pk.value()))
       {
         return FALSE_IBOOL("failed to verify pep: invalid sig");
