@@ -241,9 +241,10 @@ const std::string INVALID_PEP_PROTOBUF_JSON_13 = R"({"base":{"msg":"pepe has a g
 const std::string INVALID_PEP_PROTOBUF_JSON_14 = R"({"base":{"msg":"pepe has a good day","pk":"aTdWOrfMY1pUK5WNTNFvLzSJZ6ePLnL/W6qHjtv5xDw="},"sig":"E4LyOYefih39z4VCpd7600aUn8ThimC5g/lcI5C0awuGcwkfqLHh9/0e55DVzEsn+Ml+89f10wDJbrMUiLr9BQ=="})";
 //bad pk no sig
 const std::string INVALID_PEP_PROTOBUF_JSON_15 = R"({"base":{"msg":"pepe has a good day","pk":"aTdWOrfMY1pUK5WNTNFvLzSJZ6ePLnL/W6qHjtv5xDw="}})";
-//invalid tx ref
-const std::string INVALID_PEP_PROTOBUF_JSON_16 = R"({"base":{"msg":"pepe has a good day","pseudonym":"pepe1","txRef":"FTdWOrfMY1pUK5WNTNFvLzSJZ6ePLnL/W6qHjtv5xDw="}})";
-const std::string INVALID_PEP_PROTOBUF_JSON_17 = R"({"base":{"msg":"pepe has a good day","pseudonym":"pepe1","txRef":"FTdWOrfMY1pUK5WNTNFvLzSJZ6ePLnL/W6qHjtv5xDw="}})";
+//bad sig field - pk bytes instead of sig
+const std::string INVALID_PEP_PROTOBUF_JSON_16 = R"({"base":{"msg":"pepe has a good day","pk":"aTdWOrfMY1pUK5WNTNFvLzSJZ6ePLnL/W6qHjtv5xDw="},"sig":"FTdWOrfMY1pUK5WNTNFvLzSJZ6ePLnL/W6qHjtv5xDw="})";
+//invalid tx ref - sig bytes instead of tx ref
+const std::string INVALID_PEP_PROTOBUF_JSON_17 = R"({"base":{"msg":"pepe has a good day","pseudonym":"pepe1","txRef":"E4LyOYefih39z4VCpd7600aUn8ThimC5g/lcI5C0awuGcwkfqLHh9/0e55DVzEsn+Ml+89f10wDJbrMUiLr9BQ=="}})";
 
 #define INVALID_PEP_PROTOBUFS_JSON \
 INVALID_PEP_PROTOBUF_JSON_01,\

@@ -130,6 +130,7 @@ void pep_args::setSchema()
     CHECK_AND_ASSERT_RERETURN_IBOOL(dumpBaseToProto()); //base
     if (args.m_sk_seed.has_value()) //create sig
     {
+      CHECK_AND_ASSERT_RETURN_IBOOL(m_proto.has_base(), "invalid protobuf internal state");
       pepenet_social_protos::pep_base* base_ptr = m_proto.release_base(); //get base prt
       //get keys for signing
       crypto::public_key pk;
@@ -205,6 +206,7 @@ void pep_args::setSchema()
   
   ibool pep::loadFromProto()
   {
+    CHECK_AND_ASSERT_RETURN_IBOOL(m_proto.has_base(), "invalid protobuf internal state");
     pepenet_social_protos::pep_base* base_ptr = m_proto.release_base();
     m_msg = base_ptr->msg();
     
@@ -282,6 +284,7 @@ void pep_args::setSchema()
     }
     if (m_sig.has_value() && m_pk.has_value()) //verify base
     {
+      CHECK_AND_ASSERT_RETURN_IBOOL(m_proto.has_base(), "invalid protobuf internal state");
       pepenet_social_protos::pep_base* base_ptr = m_proto.release_base();
       bytes base_bytes;
       if (!base_ptr->SerializeToString(&base_bytes))
