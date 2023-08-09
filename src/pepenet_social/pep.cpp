@@ -209,36 +209,15 @@ void pep_args::setSchema()
     CHECK_AND_ASSERT_RETURN_IBOOL(m_proto.has_base(), "invalid protobuf internal state");
     pepenet_social_protos::pep_base* base_ptr = m_proto.release_base();
     m_msg = base_ptr->msg();
-    
     m_pseudonym = get_optional_string(base_ptr->pseudonym());
-    
-    boost::optional<bytes> parsed_pk_bytes = get_optional_bytes(base_ptr->pk());
-    if (parsed_pk_bytes.has_value())
-    {
-      crypto::public_key pk;
-      CHECK_AND_ASSERT_RETURN_IBOOL(from_bytes(pk, parsed_pk_bytes.value()), "invalid pk bytes in proto");
-      m_pk = pk;
-    }
-    boost::optional<bytes> parsed_tx_ref_bytes = get_optional_bytes(base_ptr->tx_ref());
-    if (parsed_tx_ref_bytes.has_value())
-    {
-      crypto::hash parsed_tx_ref;
-      CHECK_AND_ASSERT_RETURN_IBOOL(from_bytes(parsed_tx_ref, parsed_tx_ref_bytes.value()), "invalid tx_ref bytes in proto");
-      m_tx_ref = parsed_tx_ref;
-    }
-
+    CHECK_AND_ASSERT_RETURN_IBOOL(get_optional_from_bytes(base_ptr->pk(), m_pk).b, "invalid pk bytes in proto");
+    CHECK_AND_ASSERT_RETURN_IBOOL(get_optional_from_bytes(base_ptr->tx_ref(), m_tx_ref).b, "invalid tx_ref bytes in proto");
     m_pepetag = get_optional_string(base_ptr->pepetag());
     m_donation_address = get_optional_string(base_ptr->donation_address());
 
     m_proto.set_allocated_base(base_ptr); //return base to proto;
 
-    boost::optional<bytes> parsed_sig_bytes = get_optional_bytes(m_proto.sig());
-    if (parsed_sig_bytes.has_value())
-    {
-      crypto::signature parsed_sig;
-      CHECK_AND_ASSERT_RETURN_IBOOL(from_bytes(parsed_sig, parsed_sig_bytes.value()), "invalid sig bytes in proto");
-      m_sig = parsed_sig;
-    }
+    CHECK_AND_ASSERT_RETURN_IBOOL(get_optional_from_bytes(m_proto.sig(), m_sig).b, "invalid sig bytes in proto");
 
     m_loaded = true;
     return ibool{ true, INFO_NULLOPT };

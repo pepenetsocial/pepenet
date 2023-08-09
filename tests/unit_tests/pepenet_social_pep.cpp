@@ -48,7 +48,7 @@ class pep_social_feature_param_f : public testing::TestWithParam<std::string>, p
       "msg": "pepe has a good day",
       "pseudonym": "pepe1",
       "sk_seed": "123456",
-      "post_pk": 1,
+      "post_pk": true,
       "tx_ref": a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3,
       "pepetag": "good",
       "donation_address": "P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed96"
@@ -111,11 +111,7 @@ TEST_P(pep_social_args_param_f1, parse_json_success)
   rapidjson::Document d;
   ASSERT_FALSE(d.Parse(json_args.data()).HasParseError());
 
-  if (d["pep_args"].HasMember("msg"))
-    ASSERT_TRUE(m_msg == ex_msg);
-  else
-    ASSERT_TRUE(m_msg.empty());
-  
+  ASSERT_TRUE(m_msg == ex_msg);
   CHECK_OPT_VARIABLE_EQ_IN_JSON_ARGS(pseudonym);
   CHECK_OPT_VARIABLE_EQ_IN_JSON_ARGS(sk_seed);
   CHECK_OPT_VARIABLE_HAS_VALUE_IN_JSON_ARGS(post_pk);
@@ -229,11 +225,7 @@ TEST_P(pep_social_feature_param_f1, load_from_social_args_success_validate_pep_i
   rapidjson::Document d;
   ASSERT_FALSE(d.Parse(json_args.data()).HasParseError());
 
-  if (d["pep_args"].HasMember("msg"))
-    ASSERT_TRUE(m_msg == ex_msg);
-  else
-    ASSERT_TRUE(m_msg.empty());
-
+  ASSERT_TRUE(m_msg == ex_msg);
   CHECK_OPT_VARIABLE_EQ_IN_JSON_ARGS(pseudonym);
   CHECK_OPT_VARIABLE_EQ_IN_JSON_ARGS(tx_ref);
   CHECK_OPT_VARIABLE_EQ_IN_JSON_ARGS(pepetag);
