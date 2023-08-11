@@ -38,7 +38,7 @@ ibool pep_args::loadArgsFromJson()
     }
     if (m_json["pep_args"].HasMember("tx_ref"))
     {
-      std::string tx_ref_hex = m_json["pep_args"]["tx_ref"].GetString();
+      const std::string tx_ref_hex = m_json["pep_args"]["tx_ref"].GetString();
       crypto::hash tx_ref_parsed;
       if (!epee::string_tools::hex_to_pod(tx_ref_hex, tx_ref_parsed))
       {
@@ -140,7 +140,8 @@ void pep_args::setSchema()
       //add pk to base if requested
       if (args.m_post_pk.value_or(false))
       {
-        bytes pk_bytes(pk.data, 32);
+        bytes pk_bytes;
+        CHECK_AND_ASSERT_RETURN_IBOOL(to_bytes(pk, pk_bytes), "failed to serialize pk to bytes");
         base_ptr->set_pk(pk_bytes);
         m_pk = pk;
       }
@@ -152,8 +153,8 @@ void pep_args::setSchema()
       crypto::signature sig;
       pepenet_social::sign_msg(base_bytes, sig, pk, sk);
       //convert sig to bytes and set it to proto
-      bytes sig_bytes = bytes(sig.c.data, 32) + bytes(sig.r.data, 32);
-      //set the sig and pk
+      bytes sig_bytes;
+      CHECK_AND_ASSERT_RETURN_IBOOL(to_bytes(sig, sig_bytes), "failed to serialize sig to bytes");
       m_proto.set_sig(sig_bytes);
       m_sig = sig;
     }
@@ -285,7 +286,7 @@ void pep_args::setSchema()
   ibool pep::validate(const boost::optional<crypto::public_key>& pk)
   {
     m_pk = pk;
-    ibool r = validate();
+    const ibool r = validate();
     m_pk.reset();
     return r;
   }

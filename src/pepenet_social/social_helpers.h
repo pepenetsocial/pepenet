@@ -63,15 +63,6 @@ namespace pepenet_social {
 
   boost::optional<bytes> get_optional_bytes(const bytes& b);
   boost::optional<std::string> get_optional_string(const std::string& s);
-
-  /*    boost::optional<bytes> parsed_tx_ref_bytes = get_optional_bytes(base_ptr->tx_ref());
-      if (parsed_tx_ref_bytes.has_value())
-      {
-        crypto::hash parsed_tx_ref;
-        CHECK_AND_ASSERT_RETURN_IBOOL(from_bytes(parsed_tx_ref, parsed_tx_ref_bytes.value()), "invalid tx_ref bytes in proto");
-        m_tx_ref = parsed_tx_ref;
-      }
-*/
   
   template<typename T>
   ibool get_optional_from_bytes(const bytes& b, boost::optional<T>& opt)
