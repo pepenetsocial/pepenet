@@ -28,23 +28,23 @@
 // 
 
 #include "gtest/gtest.h"
-#include "pepenet_social/pep.h"
-#include "pepenet_social_pep.h"
+#include "pepenet_social/post.h"
+#include "pepenet_social_post.h"
 #include <google/protobuf/util/json_util.h> 
 namespace json_util = google::protobuf::util;
 
 #define GTEST_COUT std::cerr << "[          ] [ INFO ]"
 
-class pepenet_social_pep_social_args : public testing::Test, public pepenet_social::pep_args {};
-class pep_social_args_param : public testing::TestWithParam<std::string> {};
-class pep_social_args_param_f : public testing::TestWithParam<std::string>, public pepenet_social::pep_args {}; //fixture
+class pepenet_social_post_social_args : public testing::Test, public pepenet_social::post_args {};
+class post_social_args_param : public testing::TestWithParam<std::string> {};
+class post_social_args_param_f : public testing::TestWithParam<std::string>, public pepenet_social::post_args {}; //fixture
 
-class pepenet_social_pep_social_feature : public testing::TestWithParam<std::string>, public pepenet_social::pep {};
-class pep_social_feature_param_f : public testing::TestWithParam<std::string>, public pepenet_social::pep {}; //fixture
+class pepenet_social_post_social_feature : public testing::TestWithParam<std::string>, public pepenet_social::post {};
+class post_social_feature_param_f : public testing::TestWithParam<std::string>, public pepenet_social::post {}; //fixture
 
 /*
   {
-    "pep_args": {
+    "post_args": {
       "msg": "pepe has a good day",
       "pseudonym": "pepe1",
       "sk_seed": "123456",
@@ -59,7 +59,7 @@ static std::string ex_msg, ex_pseudonym, ex_sk_seed, ex_pepetag, ex_donation_add
 static crypto::hash ex_tx_ref;
 static crypto::public_key ex_pk;
 
-TEST_F(pepenet_social_pep_social_args, set_expected_args)
+TEST_F(pepenet_social_post_social_args, set_expected_args)
 {
   ex_msg = "pepe has a good day";
   ex_pseudonym = "pepe1";
@@ -74,7 +74,7 @@ TEST_F(pepenet_social_pep_social_args, set_expected_args)
 
 #define CHECK_OPT_VARIABLE_EQ_IN_JSON_ARGS(name) \
 { \
-  if (d["pep_args"].HasMember(#name))\
+  if (d["post_args"].HasMember(#name))\
   { \
     ASSERT_TRUE(m_##name.has_value()); \
     ASSERT_TRUE(m_##name.value() == ex_##name); \
@@ -87,7 +87,7 @@ TEST_F(pepenet_social_pep_social_args, set_expected_args)
 
 #define CHECK_OPT_VARIABLE_HAS_VALUE_IN_JSON_ARGS(name) \
 { \
-  if (d["pep_args"].HasMember(#name))\
+  if (d["post_args"].HasMember(#name))\
   { \
     ASSERT_TRUE(m_##name.has_value()); \
   } \
@@ -97,9 +97,9 @@ TEST_F(pepenet_social_pep_social_args, set_expected_args)
   } \
 } \
 
-class pep_social_args_param_f1 : public pep_social_args_param_f {};
+class post_social_args_param_f1 : public post_social_args_param_f {};
 
-TEST_P(pep_social_args_param_f1, parse_json_success)
+TEST_P(post_social_args_param_f1, parse_json_success)
 {
   std::string json_args = GetParam();
 
@@ -121,25 +121,25 @@ TEST_P(pep_social_args_param_f1, parse_json_success)
 
 INSTANTIATE_TEST_SUITE_P(
   pepenet_social,
-  pep_social_args_param_f1,
+  post_social_args_param_f1,
   ::testing::Values(
-      VALID_PEP_ARGS
-    ));
+    VALID_POST_ARGS
+  ));
 
-TEST_F(pepenet_social_pep_social_args, parse_json_fail_to_load_json)
+TEST_F(pepenet_social_post_social_args, parse_json_fail_to_load_json)
 {
   std::string json_args;
   ASSERT_FALSE(loadJson(json_args).b);
-  json_args = VALID_PEP_ARGS_08;
+  json_args = VALID_POST_ARGS_08;
   json_args.pop_back();
   ASSERT_FALSE(loadJson(json_args).b);
   json_args.pop_back();
   ASSERT_FALSE(loadJson(json_args).b);
 }
 
-class pep_social_args_param_f2 : public pep_social_args_param_f {};
+class post_social_args_param_f2 : public post_social_args_param_f {};
 
-TEST_P(pep_social_args_param_f2, parse_json_invalid_fields)
+TEST_P(post_social_args_param_f2, parse_json_invalid_fields)
 {
   std::string json_args = GetParam();
   ASSERT_FALSE(loadJson(json_args).b);
@@ -149,71 +149,71 @@ TEST_P(pep_social_args_param_f2, parse_json_invalid_fields)
 
 INSTANTIATE_TEST_SUITE_P(
   pepenet_social,
-  pep_social_args_param_f2,
+  post_social_args_param_f2,
   ::testing::Values(
-    INVALID_PEP_ARGS
+    INVALID_POST_ARGS
   ));
 
-class pep_social_args_param1 : public pep_social_args_param {};
+class post_social_args_param1 : public post_social_args_param {};
 
-TEST_P(pep_social_args_param1, load_from_social_args_success)
+TEST_P(post_social_args_param1, load_from_social_args_success)
 {
   std::string json_args = GetParam();
 
-  pepenet_social::pep_args args;
+  pepenet_social::post_args args;
   ASSERT_TRUE(args.loadJson(json_args).b);
   ASSERT_TRUE(args.loadArgsFromJson().b);
   ASSERT_TRUE(args.validate().b);
 
-  pepenet_social::pep pep;
-  ASSERT_TRUE(pep.loadFromSocialArgs(args).b);
-  ASSERT_TRUE(pep.validate().b);
+  pepenet_social::post post;
+  ASSERT_TRUE(post.loadFromSocialArgs(args).b);
+  ASSERT_TRUE(post.validate().b);
 
   pepenet_social::bytes proto_bytes_in, proto_bytes_out;
-  ASSERT_TRUE(pep.dumpToBinary(proto_bytes_in).b);
+  ASSERT_TRUE(post.dumpToBinary(proto_bytes_in).b);
 
   rapidjson::Document d;
   ASSERT_FALSE(d.Parse(json_args.data()).HasParseError());
-  bool generate_pk = d["pep_args"].HasMember("post_pk") && d["pep_args"]["post_pk"].IsBool() && !d["pep_args"]["post_pk"].GetBool();
+  bool generate_pk = d["post_args"].HasMember("post_pk") && d["post_args"]["post_pk"].IsBool() && !d["post_args"]["post_pk"].GetBool();
   crypto::public_key pk;
   crypto::secret_key sk;
   if (generate_pk)
   {
     std::string sk_seed;
-    ASSERT_TRUE(d["pep_args"].HasMember("sk_seed"));
-    ASSERT_TRUE(d["pep_args"]["sk_seed"].IsString());
-    sk_seed = d["pep_args"]["sk_seed"].GetString();
+    ASSERT_TRUE(d["post_args"].HasMember("sk_seed"));
+    ASSERT_TRUE(d["post_args"]["sk_seed"].IsString());
+    sk_seed = d["post_args"]["sk_seed"].GetString();
     ASSERT_TRUE(pepenet_social::secret_key_from_seed(sk_seed, sk));
     ASSERT_TRUE(crypto::secret_key_to_public_key(sk, pk));
   }
 
-  pepenet_social::pep pep_from_bin;
+  pepenet_social::post post_from_bin;
   pepenet_social::ibool r;
-  ASSERT_TRUE(pep_from_bin.loadFromBinary(proto_bytes_in).b);
+  ASSERT_TRUE(post_from_bin.loadFromBinary(proto_bytes_in).b);
   if (generate_pk)
   {
-    ASSERT_TRUE(pep_from_bin.validate(pk).b);
+    ASSERT_TRUE(post_from_bin.validate(pk).b);
   }
-  ASSERT_TRUE(pep_from_bin.dumpToBinary(proto_bytes_out).b);
+  ASSERT_TRUE(post_from_bin.dumpToBinary(proto_bytes_out).b);
 
   ASSERT_EQ(proto_bytes_in, proto_bytes_out);
 }
 
 INSTANTIATE_TEST_SUITE_P(
   pepenet_social,
-  pep_social_args_param1,
+  post_social_args_param1,
   ::testing::Values(
-    VALID_PEP_ARGS
+    VALID_POST_ARGS
   ));
 
-class pep_social_feature_param_f1 : public pep_social_feature_param_f {};
+class post_social_feature_param_f1 : public post_social_feature_param_f {};
 
 
-TEST_P(pep_social_feature_param_f1, load_from_social_args_success_validate_pep_internal)
+TEST_P(post_social_feature_param_f1, load_from_social_args_success_validate_post_internal)
 {
   std::string json_args = GetParam();
 
-  pepenet_social::pep_args args;
+  pepenet_social::post_args args;
   ASSERT_TRUE(args.loadJson(json_args).b);
   ASSERT_TRUE(args.loadArgsFromJson().b);
   ASSERT_TRUE(args.validate().b);
@@ -230,10 +230,10 @@ TEST_P(pep_social_feature_param_f1, load_from_social_args_success_validate_pep_i
   CHECK_OPT_VARIABLE_EQ_IN_JSON_ARGS(pepetag);
   CHECK_OPT_VARIABLE_EQ_IN_JSON_ARGS(donation_address);
   //check pk and sig
-  if (d["pep_args"].HasMember("post_pk"))
+  if (d["post_args"].HasMember("post_pk"))
   {
-    ASSERT_TRUE(d["pep_args"]["post_pk"].IsBool());
-    if (d["pep_args"]["post_pk"].GetBool())
+    ASSERT_TRUE(d["post_args"]["post_pk"].IsBool());
+    if (d["post_args"]["post_pk"].GetBool())
     {
       ASSERT_EQ(m_pk.value(), ex_pk);
     }
@@ -243,14 +243,14 @@ TEST_P(pep_social_feature_param_f1, load_from_social_args_success_validate_pep_i
 
 INSTANTIATE_TEST_SUITE_P(
   pepenet_social,
-  pep_social_feature_param_f1,
+  post_social_feature_param_f1,
   ::testing::Values(
-    VALID_PEP_ARGS
+    VALID_POST_ARGS
   ));
 
-TEST_F(pepenet_social_pep_social_feature, serialization_stability)
+TEST_F(pepenet_social_post_social_feature, serialization_stability)
 {
-  pepenet_social::pep_args args;
+  pepenet_social::post_args args;
   ASSERT_FALSE(loadFromSocialArgs(args).b);
   pepenet_social::bytes invalid_bytes_in;
   ASSERT_TRUE(invalid_bytes_in.empty());
@@ -260,25 +260,25 @@ TEST_F(pepenet_social_pep_social_feature, serialization_stability)
   ASSERT_TRUE(bytes_out.empty());
 }
 
-class pep_social_args_param2 : public pep_social_args_param {};
+class post_social_args_param2 : public post_social_args_param {};
 
-TEST_P(pep_social_args_param2, load_pep_from_binary_success_validation_fail)
+TEST_P(post_social_args_param2, load_post_from_binary_success_validation_fail)
 {
   std::string json_protobuf = GetParam();
 
-  pepenet_social_protos::pep pep_dummy_input;
-  ASSERT_TRUE(json_util::JsonStringToMessage(json_protobuf, &pep_dummy_input).ok());
+  pepenet_social_protos::post post_dummy_input;
+  ASSERT_TRUE(json_util::JsonStringToMessage(json_protobuf, &post_dummy_input).ok());
   pepenet_social::bytes bytes_in;
-  ASSERT_TRUE(pep_dummy_input.SerializeToString(&bytes_in));
+  ASSERT_TRUE(post_dummy_input.SerializeToString(&bytes_in));
 
-  pepenet_social::pep pep;
-  ASSERT_FALSE(pep.loadFromBinary(bytes_in).b);
-  ASSERT_FALSE(pep.validate().b);
+  pepenet_social::post post;
+  ASSERT_FALSE(post.loadFromBinary(bytes_in).b);
+  ASSERT_FALSE(post.validate().b);
 }
 
 INSTANTIATE_TEST_SUITE_P(
   pepenet_social,
-  pep_social_args_param2,
+  post_social_args_param2,
   ::testing::Values(
-    INVALID_PEP_PROTOBUFS_JSON
+    INVALID_POST_PROTOBUFS_JSON
   ));

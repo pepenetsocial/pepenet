@@ -29,35 +29,37 @@
 
 #pragma once
 
-#include "pepenet_social.h"
-/*
+#include "social_templates.h"
+
 namespace pepenet_social {
+
   class post_args : public social_args
   {
     friend class post;
-    private:
-    std::string m_title;
+  public:
+    virtual ibool loadArgsFromJson();
+  protected:
+    virtual void setSchema();
     std::string m_msg;
     boost::optional<std::string> m_pseudonym;
     boost::optional<std::string> m_sk_seed;
-    bool m_post_pk;
+    boost::optional<bool> m_post_pk;
     boost::optional<crypto::hash> m_tx_ref;
     boost::optional<std::string> m_pepetag;
     boost::optional<std::string> m_donation_address;
   };
 
-  class post : public social_feature
+  class post : public social_feature<pepenet_social_protos::post, post_args>
   {
-    public:
-    post(const post_args& args);
-    bool validate();
-    bool loadFromProto();
-    bool dumpToProto();
-    bool loadFromBinary(const bytes& bytes);
-    bool dumpToBinary(bytes& bytes);
-    bool dumpToJsonStr(std::string& json);
-    private:
-    std::string m_title;
+  public:
+    ibool validate();
+    ibool validate(const boost::optional<crypto::public_key>& pk);
+    ibool loadFromSocialArgs(post_args const& args);
+    //ibool dumpToJsonStr(std::string& json);
+  protected:
+    ibool dumpToProto();
+    ibool loadFromProto();
+    ibool dumpBaseToProto();
     std::string m_msg;
     boost::optional<std::string> m_pseudonym;
     boost::optional<crypto::public_key> m_pk;
@@ -65,7 +67,6 @@ namespace pepenet_social {
     boost::optional<crypto::hash> m_tx_ref;
     boost::optional<std::string> m_pepetag;
     boost::optional<std::string> m_donation_address;
-    pepenet_social_protos::post m_proto;
   };
+
 }
-*/
