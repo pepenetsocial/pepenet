@@ -45,3 +45,7 @@
 #define CHECK_AND_ASSERT_RERETURN_IBOOL(ibool) RETURN_IBOOL_IF(!(ibool.b), ibool.b, ibool.info.value_or(""))
 
 #define FALSE_IBOOL(info) pepenet_social::ibool{false, std::string(info)}
+
+//feature tags
+#define PEP_SOCIAL_FEATURE_TAG  0x00
+#define POST_SOCIAL_FEATURE_TAG 0x01

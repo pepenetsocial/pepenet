@@ -41,9 +41,8 @@
 #define TX_EXTRA_MERGE_MINING_TAG           0x03
 #define TX_EXTRA_TAG_ADDITIONAL_PUBKEYS     0x04
 #define TX_EXTRA_MYSTERIOUS_MINERGATE_TAG   0xDE
-// pepenet features - PEP, POST, COMMENT, pseudonyms, eddsa identity ...
-#define TX_EXTRA_LZMA_PEP                   0x05
-#define TX_EXTRA_LZMA_POST                  0x06
+// pepenet features - PEP, POST ...
+#define TX_EXTRA_SOCIAL_FEATURE             0x05
 
 #define TX_EXTRA_NONCE_PAYMENT_ID           0x00
 #define TX_EXTRA_NONCE_ENCRYPTED_PAYMENT_ID 0x01
@@ -178,29 +177,58 @@ namespace cryptonote
     END_SERIALIZE()
   };
 
-  struct tx_extra_lzma_pep
+  struct tx_extra_social_feature
   {
+    struct serialize_helper
+    {
+      tx_extra_social_feature& sf;
+
+      serialize_helper(tx_extra_social_feature& sf_) : sf(sf_)
+      {
+      }
+
+      BEGIN_SERIALIZE()
+        VARINT_FIELD_N("id", sf.id)
+        FIELD_N("data", sf.data)
+        END_SERIALIZE()
+    };
+
+    size_t id;
     std::string data;
 
-    BEGIN_SERIALIZE()
-    FIELD(data)
-    END_SERIALIZE()
-  };
+    // load
+    template <template <bool> class Archive>
+    bool do_serialize(Archive<false>& ar)
+    {
+      std::string field;
+      if (!::do_serialize(ar, field))
+        return false;
 
-  struct tx_extra_lzma_post
-  {
-    std::string data;
+      binary_archive<false> iar{ epee::strspan<std::uint8_t>(field) };
+      serialize_helper helper(*this);
+      return ::serialization::serialize(iar, helper);
+    }
 
-    BEGIN_SERIALIZE()
-    FIELD(data)
-    END_SERIALIZE()
+    // store
+    template <template <bool> class Archive>
+    bool do_serialize(Archive<true>& ar)
+    {
+      std::ostringstream oss;
+      binary_archive<true> oar(oss);
+      serialize_helper helper(*this);
+      if (!::do_serialize(oar, helper))
+        return false;
+
+      std::string field = oss.str();
+      return ::serialization::serialize(ar, field);
+    }
   };
 
   // tx_extra_field format, except tx_extra_padding and tx_extra_pub_key:
   //   varint tag;
   //   varint size;
   //   varint data[];
-  typedef boost::variant<tx_extra_padding, tx_extra_pub_key, tx_extra_nonce, tx_extra_merge_mining_tag, tx_extra_additional_pub_keys, tx_extra_mysterious_minergate, tx_extra_lzma_pep, tx_extra_lzma_post> tx_extra_field;
+  typedef boost::variant<tx_extra_padding, tx_extra_pub_key, tx_extra_nonce, tx_extra_merge_mining_tag, tx_extra_additional_pub_keys, tx_extra_mysterious_minergate, tx_extra_social_feature> tx_extra_field;
 }
 
 VARIANT_TAG(binary_archive, cryptonote::tx_extra_padding, TX_EXTRA_TAG_PADDING);
@@ -210,5 +238,4 @@ VARIANT_TAG(binary_archive, cryptonote::tx_extra_merge_mining_tag, TX_EXTRA_MERG
 VARIANT_TAG(binary_archive, cryptonote::tx_extra_additional_pub_keys, TX_EXTRA_TAG_ADDITIONAL_PUBKEYS);
 VARIANT_TAG(binary_archive, cryptonote::tx_extra_mysterious_minergate, TX_EXTRA_MYSTERIOUS_MINERGATE_TAG);
 // pepenet features
-VARIANT_TAG(binary_archive, cryptonote::tx_extra_lzma_pep, TX_EXTRA_LZMA_PEP);
-VARIANT_TAG(binary_archive, cryptonote::tx_extra_lzma_post, TX_EXTRA_LZMA_POST);
+VARIANT_TAG(binary_archive, cryptonote::tx_extra_social_feature, TX_EXTRA_SOCIAL_FEATURE);

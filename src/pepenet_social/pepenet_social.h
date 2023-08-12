@@ -31,13 +31,15 @@
 
 #include "cryptonote_basic/cryptonote_basic.h"
 #include "cryptonote_basic/cryptonote_format_utils.h"
+#include "pep.h"
+#include "post.h"
 
 namespace pepenet_social {
 
   bool check_tx_social_validity(const cryptonote::transaction& tx);
 
-  /*
-  ibool add_pep_to_tx_extra(const pepenet_social::pep& pep, std::vector<uint8_t>& tx_extra);
-  ibool get_and_verify_pep_from_tx_extra(const boost::optional<crypto::public_key>& ver_pk, boost::optional<pepenet_social::pep>& pep, const std::vector<uint8_t>& tx_extra);
-  */
+  ibool add_pep_to_tx_extra(pepenet_social::pep& pep, std::vector<uint8_t>& tx_extra);
+  ibool get_and_verify_pep_from_tx_extra(boost::optional<pepenet_social::pep>& pep, const std::vector<uint8_t>& tx_extra);
+  ibool add_post_to_tx_extra(pepenet_social::post& post, std::vector<uint8_t>& tx_extra);
+  ibool get_and_verify_post_from_tx_extra(boost::optional<pepenet_social::post>& post, const std::vector<uint8_t>& tx_extra);
 }

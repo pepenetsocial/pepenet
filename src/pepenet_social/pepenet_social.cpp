@@ -30,79 +30,72 @@
 #include "pepenet_social.h"
 
 namespace pepenet_social {
-  
-  //ibool get_and_verify_post_from_tx_extra(const boost::optional<crypto::public_key>& ver_pk, boost::optional<pepenet_social::post>& pep, const std::vector<uint8_t>& tx_extra);
 
-  bool check_tx_social_validity(const cryptonote::transaction& tx)
-  {
-    /*
-    boost::optional<pepenet_social::pep> pep;
-    boost::optional<pepenet_social::post> post;
-    boost::optional<crypto::public_key> null_pk;
-    boost::optional<std::string> err;
-    bool post_v = pepenet_social::get_and_verify_post_from_tx_extra(null_pk, post, tx.extra, err);
-    bool pep_v = pepenet_social::get_and_verify_pep_from_tx_extra(null_pk, pep, tx.extra, err);
-
-    if ((post_v && post.has_value()) || (pep_v && pep.has_value())) //valid pep or valid post
-      return true;
-    if ((!post_v && post.has_value()) && (!pep_v && pep.has_value())) //missing pep and missing post
-      return true;
-    //other cases are invalid
-    return false;
-  */
-    return true;
-  }
-
-  /*
-ibool add_pep_to_tx_extra(const pepenet_social::pep& pep, std::vector<uint8_t>& tx_extra)
+bool check_tx_social_validity(const cryptonote::transaction& tx)
 {
-  bytes lzma_pep;
-  pepenet_social::pep p = pep;
-  ibool r = p.dumpToBinary(lzma_pep);
-  if (!r.b)
-  {
-    return r;
-  }
-  if (!cryptonote::add_lzma_pep_to_tx_extra(tx_extra, lzma_pep))
-  {
-    return FALSE_IBOOL("failed to add pep to tx_extra") };
-  }
-  return ibool{ true, INFO_NULLOPT };
+  //TODO: make this more scalable
+  boost::optional<pepenet_social::pep> pep;
+  boost::optional<pepenet_social::post> post;
+  ibool post_v = pepenet_social::get_and_verify_post_from_tx_extra(post, tx.extra);
+  ibool pep_v = pepenet_social::get_and_verify_pep_from_tx_extra(pep, tx.extra);
+  if ((!post_v.b && !post.has_value()) && (!pep_v.b && !pep.has_value())) //false, false
+    return true;
+  if ((post_v.b && post.has_value()) != (pep_v.b && pep.has_value())) // xor: true, false or false, true
+    return true;
+  else
+    return false;
 }
 
-ibool get_and_verify_pep_from_tx_extra(const boost::optional<crypto::public_key>& ver_pk, boost::optional<pepenet_social::pep>& pep, const std::vector<uint8_t>& tx_extra)
+ibool add_pep_to_tx_extra(pepenet_social::pep& pep, std::vector<uint8_t>& tx_extra)
 {
-  //init pep optional
-  pep = pepenet_social::pep();
-  std::string lzma_pep;
-  bool pep_missing = !cryptonote::get_lzma_pep_from_tx_extra(tx_extra, lzma_pep);
-  if (!pep_missing)
-  {
-    bytes pep_proto_bytes;
-    bool decomp = pepenet_social::lzma_decompress_msg(lzma_pep, pep_proto_bytes);
-    if (!decomp)
-    {
-      pep.reset(); //decompression failed - invalid tx
-      return FALSE_IBOOL("failed to decompress lzma pep from tx_extra") };
-    }
-    ibool r = pep.value().loadFromBinary(pep_proto_bytes);
-    if (!r.b)
-    {
-      return FALSE_IBOOL("failed to load pep proto from bytes in tx_extra") };
-    }
-    r = pep.value().validate(ver_pk.value());
-    if (!r.b)
-    {
-      return r;
-    }
-    return ibool{ true, INFO_NULLOPT };
-  }
-  else
-  {
-    pep.reset();
-  }
+  CHECK_AND_ASSERT_RETURN_IBOOL(pep.validate().b, "invalid pep, failed to add to tx_extra");
+  bytes proto_bytes, compressed_proto_bytes;
+  CHECK_AND_ASSERT_RETURN_IBOOL(pep.dumpToBinary(proto_bytes).b, "failed to serialize pep to binary");
+  //compress
+  CHECK_AND_ASSERT_RETURN_IBOOL(lzma_compress_msg(proto_bytes, compressed_proto_bytes), "failed to compress pep proto bytes");
+  CHECK_AND_ASSERT_RETURN_IBOOL(cryptonote::add_social_feature_to_tx_extra(tx_extra, compressed_proto_bytes, PEP_SOCIAL_FEATURE_TAG), "failed to add pep bytes to tx extra");
   return { true, INFO_NULLOPT };
 }
-*/
+
+
+ibool get_and_verify_pep_from_tx_extra(boost::optional<pepenet_social::pep>& pep, const std::vector<uint8_t>& tx_extra)
+{
+  size_t feature_id;
+  bytes proto_bytes, compressed_proto_bytes;
+  CHECK_AND_ASSERT_RETURN_IBOOL(cryptonote::get_social_feature_from_tx_extra(tx_extra, compressed_proto_bytes, feature_id), "failed to get pep bytes from tx_extra");
+  CHECK_AND_ASSERT_RETURN_IBOOL(feature_id == PEP_SOCIAL_FEATURE_TAG, "pep not found in tx extra");
+  //decompress
+  CHECK_AND_ASSERT_RETURN_IBOOL(lzma_decompress_msg(compressed_proto_bytes, proto_bytes), "failed to decompress pep proto bytes");
+  pepenet_social::pep tx_extra_pep;
+  CHECK_AND_ASSERT_RETURN_IBOOL(tx_extra_pep.loadFromBinary(proto_bytes).b, "failed to load pep from binary");
+  pep = tx_extra_pep;
+  return { true, INFO_NULLOPT };
+}
+
+ibool add_post_to_tx_extra(pepenet_social::post& post, std::vector<uint8_t>& tx_extra)
+{
+  CHECK_AND_ASSERT_RETURN_IBOOL(post.validate().b, "invalid post, failed to add to tx_extra");
+  bytes proto_bytes, compressed_proto_bytes;
+  CHECK_AND_ASSERT_RETURN_IBOOL(post.dumpToBinary(proto_bytes).b, "failed to serialize post to binary");
+  //compress
+  CHECK_AND_ASSERT_RETURN_IBOOL(lzma_compress_msg(proto_bytes, compressed_proto_bytes), "failed to compress post proto bytes");
+  CHECK_AND_ASSERT_RETURN_IBOOL(cryptonote::add_social_feature_to_tx_extra(tx_extra, compressed_proto_bytes, POST_SOCIAL_FEATURE_TAG), "failed to add post bytes to tx extra");
+  return { true, INFO_NULLOPT };
+}
+
+
+ibool get_and_verify_post_from_tx_extra(boost::optional<pepenet_social::post>& post, const std::vector<uint8_t>& tx_extra)
+{
+  size_t feature_id;
+  bytes proto_bytes, compressed_proto_bytes;
+  CHECK_AND_ASSERT_RETURN_IBOOL(cryptonote::get_social_feature_from_tx_extra(tx_extra, compressed_proto_bytes, feature_id), "failed to get post bytes from tx_extra");
+  CHECK_AND_ASSERT_RETURN_IBOOL(feature_id == POST_SOCIAL_FEATURE_TAG, "post not found in tx extra");
+  //decompress
+  CHECK_AND_ASSERT_RETURN_IBOOL(lzma_decompress_msg(compressed_proto_bytes, proto_bytes), "failed to decompress post proto bytes");
+  pepenet_social::post tx_extra_post;
+  CHECK_AND_ASSERT_RETURN_IBOOL(tx_extra_post.loadFromBinary(proto_bytes).b, "failed to load post from binary");
+  post = tx_extra_post;
+  return { true, INFO_NULLOPT };
+}
 
 }

@@ -649,8 +649,7 @@ namespace cryptonote
     if (!pick<tx_extra_mysterious_minergate>(nar, tx_extra_fields, TX_EXTRA_MYSTERIOUS_MINERGATE_TAG)) return false;
     if (!pick<tx_extra_padding>(nar, tx_extra_fields, TX_EXTRA_TAG_PADDING)) return false;
     //pepenet features
-    if (!pick<tx_extra_lzma_pep>(nar, tx_extra_fields, TX_EXTRA_LZMA_PEP)) return false;
-    if (!pick<tx_extra_lzma_post>(nar, tx_extra_fields, TX_EXTRA_LZMA_POST)) return false;
+    if (!pick<tx_extra_social_feature>(nar, tx_extra_fields, TX_EXTRA_SOCIAL_FEATURE)) return false;
 
     // if not empty, someone added a new type and did not add a case above
     if (!tx_extra_fields.empty())
@@ -778,40 +777,24 @@ namespace cryptonote
     return true;
   }
   //---------------------------------------------------------------
-  bool add_lzma_pep_to_tx_extra(std::vector<uint8_t> &tx_extra, const std::string &lzma_pep){
+  bool add_social_feature_to_tx_extra(std::vector<uint8_t>& tx_extra, const std::string& proto_bytes, const size_t feature_id)
+  {
     // convert to variant
-    tx_extra_field field = tx_extra_lzma_pep{lzma_pep};
+    tx_extra_field field = tx_extra_social_feature{feature_id, proto_bytes};
     return add_tx_extra_field_to_extra(tx_extra, field, "failed to serialize tx extra lzma pep string");
   }
   //---------------------------------------------------------------
-  bool get_lzma_pep_from_tx_extra(const std::vector<uint8_t> &tx_extra, std::string &lzma_pep){
-    // parse
-    std::vector<tx_extra_field> tx_extra_fields;
-    parse_tx_extra(tx_extra, tx_extra_fields);
-    // find corresponding field
-    tx_extra_lzma_pep field;
-    if (!find_tx_extra_field_by_type(tx_extra_fields, field))
-      return false;
-    lzma_pep = field.data;
-    return true;
-  }
-  //---------------------------------------------------------------
-  bool add_lzma_post_to_tx_extra(std::vector<uint8_t> &tx_extra, const std::string &lzma_post)
+  bool get_social_feature_from_tx_extra(const std::vector<uint8_t>& tx_extra, std::string& proto_bytes, size_t& feature_id)
   {
-    // convert to variant
-    tx_extra_field field = tx_extra_lzma_post{lzma_post};
-    return add_tx_extra_field_to_extra(tx_extra, field, "failed to serialize tx extra lzma post string");
-  }
-  //---------------------------------------------------------------
-  bool get_lzma_post_from_tx_extra(const std::vector<uint8_t> &tx_extra, std::string &lzma_post){
     // parse
     std::vector<tx_extra_field> tx_extra_fields;
     parse_tx_extra(tx_extra, tx_extra_fields);
     // find corresponding field
-    tx_extra_lzma_post field;
+    tx_extra_social_feature field;
     if (!find_tx_extra_field_by_type(tx_extra_fields, field))
       return false;
-    lzma_post = field.data;
+    proto_bytes = field.data;
+    feature_id = field.id;
     return true;
   }
   //---------------------------------------------------------------

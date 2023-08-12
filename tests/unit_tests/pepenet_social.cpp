@@ -1,5 +1,4 @@
 // Copyright (c) 2023, pepenet
-// Copyright (c) 2023, pepenet
 // 
 // All rights reserved.
 // 
@@ -37,6 +36,10 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/replace.hpp>
+
+#include "pepenet_social_pep.h"
+#include "pepenet_social_post.h"
+#include "pepenet_social/pepenet_social.h"
 
 #define GTEST_COUT std::cerr << "[          ] [ INFO ]"
 
@@ -99,4 +102,85 @@ TEST(pepenet_social_functions, to_bytes_from_bytes)
   ASSERT_TRUE(pepenet_social::to_bytes(sig, sig_bytes));
   ASSERT_TRUE(pepenet_social::from_bytes(sig_out, sig_bytes));
   ASSERT_EQ(sig, sig_out);
+}
+
+TEST(pepenet_social_transactions, valid_transaction_pep_to_from_tx_extra)
+{
+  pepenet_social::pep_args args;
+  ASSERT_TRUE(args.loadJson(VALID_PEP_ARGS_08).b);
+  ASSERT_TRUE(args.loadArgsFromJson().b);
+  ASSERT_TRUE(args.validate().b);
+
+  pepenet_social::pep pep;
+  ASSERT_TRUE(pep.loadFromSocialArgs(args).b);
+  ASSERT_TRUE(pep.validate().b);
+  pepenet_social::bytes pep_bytes_in, pep_bytes_out;
+  ASSERT_TRUE(pep.dumpToBinary(pep_bytes_in).b);
+  cryptonote::transaction tx;
+
+  boost::optional<pepenet_social::pep> tx_extra_pep;
+  ASSERT_TRUE(pepenet_social::add_pep_to_tx_extra(pep, tx.extra).b);
+  ASSERT_TRUE(pepenet_social::check_tx_social_validity(tx));
+  ASSERT_TRUE(pepenet_social::get_and_verify_pep_from_tx_extra(tx_extra_pep, tx.extra).b);
+  ASSERT_TRUE(tx_extra_pep.has_value());
+  ASSERT_TRUE(tx_extra_pep.value().dumpToBinary(pep_bytes_out).b);
+  ASSERT_EQ(pep_bytes_in, pep_bytes_out);
+}
+
+TEST(pepenet_social_transactions, valid_transaction_post_to_from_tx_extra)
+{
+  pepenet_social::post_args args;
+  ASSERT_TRUE(args.loadJson(VALID_POST_ARGS_08).b);
+  ASSERT_TRUE(args.loadArgsFromJson().b);
+  ASSERT_TRUE(args.validate().b);
+
+  pepenet_social::post post;
+  ASSERT_TRUE(post.loadFromSocialArgs(args).b);
+  ASSERT_TRUE(post.validate().b);
+  pepenet_social::bytes post_bytes_in, post_bytes_out;
+  ASSERT_TRUE(post.dumpToBinary(post_bytes_in).b);
+  cryptonote::transaction tx;
+
+  boost::optional<pepenet_social::post> tx_extra_post;
+  ASSERT_TRUE(pepenet_social::add_post_to_tx_extra(post, tx.extra).b);
+  ASSERT_TRUE(pepenet_social::check_tx_social_validity(tx));
+  ASSERT_TRUE(pepenet_social::get_and_verify_post_from_tx_extra(tx_extra_post, tx.extra).b);
+  ASSERT_TRUE(tx_extra_post.has_value());
+  ASSERT_TRUE(tx_extra_post.value().dumpToBinary(post_bytes_out).b);
+  ASSERT_EQ(post_bytes_in, post_bytes_out);
+}
+
+TEST(pepenet_social_transactions, valid_transaction_no_social_features)
+{
+  cryptonote::transaction tx;
+  ASSERT_TRUE(pepenet_social::check_tx_social_validity(tx));
+}
+
+TEST(pepenet_social_transactions, invalid_transaction_pep_and_post)
+{
+  cryptonote::transaction tx;
+  pepenet_social::pep pep;
+  pepenet_social::post post;
+  
+  {
+    pepenet_social::pep_args args;
+    ASSERT_TRUE(args.loadJson(VALID_PEP_ARGS_08).b);
+    ASSERT_TRUE(args.loadArgsFromJson().b);
+    ASSERT_TRUE(args.validate().b);
+    ASSERT_TRUE(pep.loadFromSocialArgs(args).b);
+    ASSERT_TRUE(pep.validate().b);
+    ASSERT_TRUE(pepenet_social::add_pep_to_tx_extra(pep, tx.extra).b);
+  }
+
+  {
+    pepenet_social::post_args args;
+    ASSERT_TRUE(args.loadJson(VALID_POST_ARGS_08).b);
+    ASSERT_TRUE(args.loadArgsFromJson().b);
+    ASSERT_TRUE(args.validate().b);
+    ASSERT_TRUE(post.loadFromSocialArgs(args).b);
+    ASSERT_TRUE(post.validate().b);
+    ASSERT_TRUE(pepenet_social::add_post_to_tx_extra(post, tx.extra).b);
+  }
+  
+  ASSERT_FALSE(pepenet_social::check_tx_social_validity(tx));
 }
