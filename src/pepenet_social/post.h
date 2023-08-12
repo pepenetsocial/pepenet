@@ -40,6 +40,7 @@ namespace pepenet_social {
     virtual ibool loadArgsFromJson();
   protected:
     virtual void setSchema();
+    std::string m_title;
     std::string m_msg;
     boost::optional<std::string> m_pseudonym;
     boost::optional<std::string> m_sk_seed;
@@ -60,6 +61,7 @@ namespace pepenet_social {
     ibool dumpToProto();
     ibool loadFromProto();
     ibool dumpBaseToProto();
+    std::string m_title;
     std::string m_msg;
     boost::optional<std::string> m_pseudonym;
     boost::optional<crypto::public_key> m_pk;

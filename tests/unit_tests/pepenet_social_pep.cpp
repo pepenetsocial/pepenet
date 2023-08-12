@@ -142,8 +142,8 @@ class pep_social_args_param_f2 : public pep_social_args_param_f {};
 TEST_P(pep_social_args_param_f2, parse_json_invalid_fields)
 {
   std::string json_args = GetParam();
-  ASSERT_FALSE(loadJson(json_args).b);
-  ASSERT_FALSE(loadArgsFromJson().b);
+  pepenet_social::ibool r = loadJson(json_args);
+  ASSERT_FALSE(loadArgsFromJson().b && r.b);
   ASSERT_FALSE(validate().b);
 }
 

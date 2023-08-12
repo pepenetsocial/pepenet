@@ -6,13 +6,14 @@ namespace pepenet_social {
     {
       return FALSE_IBOOL("Json schema has to be validated before args can be loaded");
     }
-    if (!m_json["post_args"].HasMember("msg"))
+    if (!m_json["post_args"].HasMember("msg") || !m_json["post_args"].HasMember("title"))
     {
-      return FALSE_IBOOL("json field msg is required!");
+      return FALSE_IBOOL("json fields msg and title are required!");
     }
     else
     {
       m_msg = m_json["post_args"]["msg"].GetString();
+      m_title = m_json["post_args"]["title"].GetString();
     }
     if (m_json["post_args"].HasMember("pseudonym"))
     {
@@ -74,10 +75,13 @@ namespace pepenet_social {
       "type": "object",
       "properties": {
         "title": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
         },
         "msg": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
         },
         "pseudonym": {
             "type": "string",
@@ -85,7 +89,8 @@ namespace pepenet_social {
             "maxLength": 32
         },
         "sk_seed": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
         },
         "post_pk": {
             "type": "boolean"
@@ -124,6 +129,7 @@ namespace pepenet_social {
       return FALSE_IBOOL("invalid social args");
     }
     //copy base fields
+    m_title = args.m_title;
     m_msg = args.m_msg;
     m_pseudonym = args.m_pseudonym;
     m_tx_ref = args.m_tx_ref;
@@ -168,6 +174,7 @@ namespace pepenet_social {
   ibool post::dumpBaseToProto()
   {
     pepenet_social_protos::post_base* base = new pepenet_social_protos::post_base; //allocate to avoid destructor
+    base->set_title(m_title);
     base->set_msg(m_msg);
     if (m_pseudonym.has_value())
     {
@@ -212,6 +219,7 @@ namespace pepenet_social {
   {
     CHECK_AND_ASSERT_RETURN_IBOOL(m_proto.has_base(), "invalid protobuf internal state");
     pepenet_social_protos::post_base* base_ptr = m_proto.release_base();
+    m_title = base_ptr->title();
     m_msg = base_ptr->msg();
     m_pseudonym = get_optional_string(base_ptr->pseudonym());
     CHECK_AND_ASSERT_RETURN_IBOOL(get_optional_from_bytes(base_ptr->pk(), m_pk).b, "invalid pk bytes in proto");
@@ -236,6 +244,10 @@ namespace pepenet_social {
     //verify fields
     std::string compressed_msg;
     CHECK_AND_ASSERT_RETURN_IBOOL(lzma_compress_msg(m_msg, compressed_msg), "failed to compress msg field");
+    if (m_title.empty() || m_title.size() > POST_TITLE_MAX_SIZE)
+    {
+      return FALSE_IBOOL("invalid title field");
+    }
     if (m_msg.empty() || compressed_msg.size() > LZMA_POST_MAX_SIZE)
     {
       return FALSE_IBOOL("invalid msg field");

@@ -45,6 +45,7 @@ class post_social_feature_param_f : public testing::TestWithParam<std::string>, 
 /*
   {
     "post_args": {
+      "title": "pepe's story",
       "msg": "pepe has a good day",
       "pseudonym": "pepe1",
       "sk_seed": "123456",
@@ -55,12 +56,13 @@ class post_social_feature_param_f : public testing::TestWithParam<std::string>, 
     }
 */
 
-static std::string ex_msg, ex_pseudonym, ex_sk_seed, ex_pepetag, ex_donation_address;
+static std::string ex_title, ex_msg, ex_pseudonym, ex_sk_seed, ex_pepetag, ex_donation_address;
 static crypto::hash ex_tx_ref;
 static crypto::public_key ex_pk;
 
 TEST_F(pepenet_social_post_social_args, set_expected_args)
 {
+  ex_title = "pepe's journey";
   ex_msg = "pepe has a good day";
   ex_pseudonym = "pepe1";
   ex_sk_seed = "123456";
@@ -110,6 +112,7 @@ TEST_P(post_social_args_param_f1, parse_json_success)
   rapidjson::Document d;
   ASSERT_FALSE(d.Parse(json_args.data()).HasParseError());
 
+  ASSERT_TRUE(m_title == ex_title);
   ASSERT_TRUE(m_msg == ex_msg);
   CHECK_OPT_VARIABLE_EQ_IN_JSON_ARGS(pseudonym);
   CHECK_OPT_VARIABLE_EQ_IN_JSON_ARGS(sk_seed);
@@ -142,8 +145,8 @@ class post_social_args_param_f2 : public post_social_args_param_f {};
 TEST_P(post_social_args_param_f2, parse_json_invalid_fields)
 {
   std::string json_args = GetParam();
-  ASSERT_FALSE(loadJson(json_args).b);
-  ASSERT_FALSE(loadArgsFromJson().b);
+  pepenet_social::ibool r = loadJson(json_args);
+  ASSERT_FALSE(loadArgsFromJson().b && r.b);
   ASSERT_FALSE(validate().b);
 }
 
@@ -224,6 +227,7 @@ TEST_P(post_social_feature_param_f1, load_from_social_args_success_validate_post
   rapidjson::Document d;
   ASSERT_FALSE(d.Parse(json_args.data()).HasParseError());
 
+  ASSERT_TRUE(m_title == ex_title);
   ASSERT_TRUE(m_msg == ex_msg);
   CHECK_OPT_VARIABLE_EQ_IN_JSON_ARGS(pseudonym);
   CHECK_OPT_VARIABLE_EQ_IN_JSON_ARGS(tx_ref);

@@ -74,7 +74,8 @@ void pep_args::setSchema()
       "type": "object",
       "properties": {
         "msg": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
         },
         "pseudonym": {
             "type": "string",
@@ -82,7 +83,8 @@ void pep_args::setSchema()
             "maxLength": 32
         },
         "sk_seed": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
         },
         "post_pk": {
             "type": "boolean"

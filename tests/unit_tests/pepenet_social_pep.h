@@ -116,83 +116,99 @@ const std::string INVALID_PEP_ARGS_02 = R"({
   })";
 const std::string INVALID_PEP_ARGS_03 = R"({
     "pep_args": {
+      "msg": "pepe has a good day",
       "pseudonym": ""
     }
   })";
 const std::string INVALID_PEP_ARGS_04 = R"({
     "pep_args": {
+      "msg": "pepe has a good day",
       "pseudonym": "goodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgoodgood"
     }
   })";
 const std::string INVALID_PEP_ARGS_05 = R"({
     "pep_args": {
+      "msg": "pepe has a good day",
       "sk_seed": ""
     }
   })";
 const std::string INVALID_PEP_ARGS_06 = R"({
     "pep_args": {
+      "msg": "pepe has a good day",
       "sk_seed": "123456"
     }
   })";
 const std::string INVALID_PEP_ARGS_07 = R"({
     "pep_args": {
+      "msg": "pepe has a good day",
       "sk_seed": "123456",
       "post_pk": 1
     }
   })";
 const std::string INVALID_PEP_ARGS_08 = R"({
     "pep_args": {
+      "msg": "pepe has a good day",
       "sk_seed": "123456",
       "post_pk": 0
     }
   })";
 const std::string INVALID_PEP_ARGS_09 = R"({
     "pep_args": {
+      "msg": "pepe has a good day",
       "post_pk": true
     }
   })";
 const std::string INVALID_PEP_ARGS_10 = R"({
     "pep_args": {
+      "msg": "pepe has a good day",
       "tx_ref": "a665a45920422f"
     }
   })";
 const std::string INVALID_PEP_ARGS_11 = R"({
     "pep_args": {
+      "msg": "pepe has a good day",
       "tx_ref": "a665a45920422a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3f"
     }
   })";
 const std::string INVALID_PEP_ARGS_12 = R"({
     "pep_args": {
+      "msg": "pepe has a good day",
       "tx_ref": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27aeK"
     }
   })";
 const std::string INVALID_PEP_ARGS_13 = R"({
     "pep_args": {
+      "msg": "pepe has a good day",
       "pepetag": ""
     }
   })";
 const std::string INVALID_PEP_ARGS_14 = R"({
     "pep_args": {
+      "msg": "pepe has a good day",
       "pepetag": "pepepepeeppepepepepppepepepeeppepepepepp"
     }
   })";
 const std::string INVALID_PEP_ARGS_15 = R"({
     "pep_args": {
+      "msg": "pepe has a good day",
       "pepetag": "pepepepeeppepepepepppepepepeeppepepepepp"
     }
   })";
 const std::string INVALID_PEP_ARGS_16 = R"({
     "pep_args": {
+      "msg": "pepe has a good day",
       "donation_address": ""
     }
   })";
 const std::string INVALID_PEP_ARGS_17 = R"({
     "pep_args": {
+      "msg": "pepe has a good day",
       "donation_address": "P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed96P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed96"
     }
   })";
 const std::string INVALID_PEP_ARGS_18 = R"({
     "pep_args": {
+      "msg": "pepe has a good day",
       "donation_address": "P5cyrZT9T6CUwUXA46ykaQSy1SDmmWkGgAYkdAFJ5pix6ppbkUC1WsDTddJVDoMf7L59CqU3yCeGoE9VnkmQHVM41YedJed9"
     }
   })";
