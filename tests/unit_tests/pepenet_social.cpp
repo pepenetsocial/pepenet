@@ -56,6 +56,13 @@ TEST(pepenet_social_functions, lzma_compress_decompress)
   ASSERT_TRUE(msg_decopressed == msg);
 }
 
+TEST(pepenet_social_functions, lzma_decompresssion_function_stability)
+{
+  std::string invalid_compressed_data = "1828771932sslla";
+  std::string decompressed_out;
+  ASSERT_FALSE(pepenet_social::lzma_decompress_msg(invalid_compressed_data, decompressed_out));
+}
+
 TEST(pepenet_social_functions, sing_verify_msg)
 {
   //generate keys
@@ -144,7 +151,9 @@ TEST(pepenet_social_transactions, valid_transaction_post_to_from_tx_extra)
   boost::optional<pepenet_social::post> tx_extra_post;
   ASSERT_TRUE(pepenet_social::add_post_to_tx_extra(post, tx.extra).b);
   ASSERT_TRUE(pepenet_social::check_tx_social_validity(tx));
-  ASSERT_TRUE(pepenet_social::get_and_verify_post_from_tx_extra(tx_extra_post, tx.extra).b);
+  pepenet_social::ibool r = pepenet_social::get_and_verify_post_from_tx_extra(tx_extra_post, tx.extra);
+  GTEST_COUT << "get_and_verify_post_from_tx_extra: " << r.info.value_or("") << std::endl;
+  ASSERT_TRUE(r.b);
   ASSERT_TRUE(tx_extra_post.has_value());
   ASSERT_TRUE(tx_extra_post.value().dumpToBinary(post_bytes_out).b);
   ASSERT_EQ(post_bytes_in, post_bytes_out);
@@ -184,3 +193,73 @@ TEST(pepenet_social_transactions, invalid_transaction_pep_and_post)
   
   ASSERT_FALSE(pepenet_social::check_tx_social_validity(tx));
 }
+
+TEST(pepenet_social_transactions, valid_transaction_post_to_from_tx_extra_compression_stability)
+{
+  auto add_post_to_tx_extra = [](pepenet_social::post& post, std::vector<uint8_t>& tx_extra)
+    {
+      post.validate();
+      pepenet_social::bytes proto_bytes, compressed_proto_bytes;
+      ASSERT_TRUE(post.dumpToBinary(proto_bytes).b);
+      //compress
+      ASSERT_TRUE(pepenet_social::lzma_compress_msg(proto_bytes, compressed_proto_bytes));
+      {
+        pepenet_social::bytes decompressed_bytes_test;
+        ASSERT_TRUE(pepenet_social::lzma_decompress_msg(compressed_proto_bytes, decompressed_bytes_test));
+        ASSERT_EQ(proto_bytes, decompressed_bytes_test);
+      }
+      ASSERT_TRUE(cryptonote::add_social_feature_to_tx_extra(tx_extra, compressed_proto_bytes, POST_SOCIAL_FEATURE_TAG));
+
+      {
+        size_t feature_id;
+        pepenet_social::bytes proto_bytes_d, compressed_proto_bytes;
+        ASSERT_TRUE(cryptonote::get_social_feature_from_tx_extra(tx_extra, compressed_proto_bytes, feature_id));
+        ASSERT_TRUE(feature_id == POST_SOCIAL_FEATURE_TAG);
+        //decompress
+        ASSERT_TRUE(pepenet_social::lzma_decompress_msg(compressed_proto_bytes, proto_bytes_d));
+        ASSERT_EQ(proto_bytes, proto_bytes_d);
+        pepenet_social::post tx_extra_post;
+        ASSERT_TRUE(tx_extra_post.loadFromBinary(proto_bytes_d).b);
+        post = tx_extra_post;
+      }
+    };
+
+
+  auto get_and_verify_post_from_tx_extra = [](boost::optional<pepenet_social::post>& post, const std::vector<uint8_t>& tx_extra)
+    {
+      size_t feature_id;
+      pepenet_social::bytes proto_bytes, compressed_proto_bytes;
+      CHECK_AND_ASSERT_RETURN_IBOOL(cryptonote::get_social_feature_from_tx_extra(tx_extra, compressed_proto_bytes, feature_id), "failed to get post bytes from tx_extra");
+      CHECK_AND_ASSERT_RETURN_IBOOL(feature_id == POST_SOCIAL_FEATURE_TAG, "post not found in tx extra");
+      //decompress
+      CHECK_AND_ASSERT_RETURN_IBOOL(pepenet_social::lzma_decompress_msg(compressed_proto_bytes, proto_bytes), "failed to decompress post proto bytes");
+      pepenet_social::post tx_extra_post;
+      CHECK_AND_ASSERT_RETURN_IBOOL(tx_extra_post.loadFromBinary(proto_bytes).b, "failed to load post from binary");
+      post = tx_extra_post;
+      return pepenet_social::ibool{ true, INFO_NULLOPT };
+    };
+
+    for (size_t i = 0; i < 20; ++i)
+    {
+      pepenet_social::post_args args;
+      ASSERT_TRUE(args.loadJson(VALID_POST_ARGS_08).b);
+      ASSERT_TRUE(args.loadArgsFromJson().b);
+      ASSERT_TRUE(args.validate().b);
+
+      pepenet_social::post post;
+      ASSERT_TRUE(post.loadFromSocialArgs(args).b);
+      ASSERT_TRUE(post.validate().b);
+      pepenet_social::bytes post_bytes_in, post_bytes_out;
+      ASSERT_TRUE(post.dumpToBinary(post_bytes_in).b);
+      cryptonote::transaction tx;
+
+      boost::optional<pepenet_social::post> tx_extra_post;
+      add_post_to_tx_extra(post, tx.extra);
+      ASSERT_TRUE(pepenet_social::check_tx_social_validity(tx));
+      pepenet_social::ibool r = get_and_verify_post_from_tx_extra(tx_extra_post, tx.extra);
+      ASSERT_TRUE(r.b);
+      ASSERT_TRUE(tx_extra_post.has_value());
+      ASSERT_TRUE(tx_extra_post.value().dumpToBinary(post_bytes_out).b);
+      ASSERT_EQ(post_bytes_in, post_bytes_out);
+    }
+  }

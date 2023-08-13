@@ -45,9 +45,6 @@ namespace pepenet_social {
     bool b;
     boost::optional<std::string> info;
   };
-
-  bool lzma_compress_msg(const std::string& msg, std::string& out);
-  bool lzma_decompress_msg(const std::string& msg, std::string& out);
   
   bool secret_key_from_seed(const std::string& sk_seed, crypto::secret_key& sk);
   bool sign_msg(const std::string& msg, crypto::signature& sig, const crypto::public_key& pk, const crypto::secret_key& sk);

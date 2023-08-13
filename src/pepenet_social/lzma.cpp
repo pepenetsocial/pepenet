@@ -27,180 +27,62 @@
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
 
-//credit to: https://gist.github.com/Treeki/f431a2ff44aff984590a97a5c09f6f28
-// note: -D_7ZIP_ST is required when compiling on non-Windows platforms
-// g++ -o lzma_sample -std=c++14 -D_7ZIP_ST lzma_sample.cpp LzmaDec.c LzmaEnc.c LzFind.c
-
 #include "lzma.h"
 
-static void* _lzmaAlloc(ISzAllocPtr, size_t size)
-{
-  return new uint8_t[size];
-}
-static void _lzmaFree(ISzAllocPtr, void* addr)
-{
-  if (!addr)
-    return;
+namespace io = boost::iostreams;
 
-  delete[] reinterpret_cast<uint8_t*>(addr);
-}
+namespace pepenet_social {
 
-static ISzAlloc _allocFuncs = {
-  _lzmaAlloc, _lzmaFree
-};
-
-
-
-std::unique_ptr<uint8_t[]> lzmaCompress(const uint8_t* input, uint32_t inputSize, uint32_t* outputSize)
-{
-  std::unique_ptr<uint8_t[]> result;
-
-  // set up properties
-  CLzmaEncProps props;
-  LzmaEncProps_Init(&props);
-  if (inputSize >= (1 << 20))
-    props.dictSize = 1 << 20; // 1mb dictionary
-  else
-    props.dictSize = inputSize; // smaller dictionary = faster!
-  props.fb = 40;
-
-  // prepare space for the encoded properties
-  SizeT propsSize = 5;
-  uint8_t propsEncoded[5];
-
-  // allocate some space for the compression output
-  // this is way more than necessary in most cases...
-  // but better safe than sorry
-  //   (a smarter implementation would use a growing buffer,
-  //    but this requires a bunch of fuckery that is out of
-  ///   scope for this simple example)
-  SizeT outputSize64 = inputSize * 1.5;
-  if (outputSize64 < 1024)
-    outputSize64 = 1024;
-  auto output = std::make_unique<uint8_t[]>(outputSize64);
-
-  int lzmaStatus = LzmaEncode(
-    output.get(), &outputSize64, input, inputSize,
-    &props, propsEncoded, &propsSize, 0,
-    NULL,
-    &_allocFuncs, &_allocFuncs);
-
-  *outputSize = outputSize64 + 13;
-  if (lzmaStatus == SZ_OK)
+  bool lzma_compress_msg(const std::string& msg, std::string& compressed)
   {
-    // tricky: we have to generate the LZMA header
-    // 5 bytes properties + 8 byte uncompressed size
-    result = std::make_unique<uint8_t[]>(outputSize64 + 13);
-    uint8_t* resultData = result.get();
-
-    memcpy(resultData, propsEncoded, 5);
-    for (int i = 0; i < 8; i++)
-      resultData[5 + i] = (inputSize >> (i * 8)) & 0xFF;
-    memcpy(resultData + 13, output.get(), outputSize64);
-  }
-
-  return result;
-}
-
-
-std::unique_ptr<uint8_t[]> lzmaDecompress(const uint8_t* input, uint32_t inputSize, uint32_t* outputSize)
-{
-  if (inputSize < 13)
-    return NULL; // invalid header!
-
-  // extract the size from the header
-  UInt64 size = 0;
-  for (int i = 0; i < 8; i++)
-    size |= (input[5 + i] << (i * 8));
-
-  if (size <= (256 * 1024 * 1024))
-  {
-    auto blob = std::make_unique<uint8_t[]>(size);
-
-    ELzmaStatus lzmaStatus;
-    SizeT procOutSize = size, procInSize = inputSize - 13;
-    int status = LzmaDecode(blob.get(), &procOutSize, &input[13], &procInSize, input, 5, LZMA_FINISH_END, &lzmaStatus, &_allocFuncs);
-
-    if (status == SZ_OK && procOutSize == size)
+    try
     {
-      *outputSize = size;
-      return blob;
+      compressed.clear();
+      std::stringstream ss;
+      io::filtering_ostream out;
+      out.push(io::lzma_compressor());
+      out.push(ss);
+      
+      out << msg;
+      boost::iostreams::copy(ss, out);
+
+      compressed = ss.str();
     }
-  }
-
-  return NULL;
-}
-
-
-
-void hexdump(const uint8_t* buf, int size)
-{
-  int lines = (size + 15) / 16;
-  for (int i = 0; i < lines; i++)
-  {
-    printf("%08x | ", i * 16);
-
-    int lineMin = i * 16;
-    int lineMax = lineMin + 16;
-    int lineCappedMax = (lineMax > size) ? size : lineMax;
-
-    for (int j = lineMin; j < lineCappedMax; j++)
-      printf("%02x ", buf[j]);
-    for (int j = lineCappedMax; j < lineMax; j++)
-      printf("   ");
-
-    printf("| ");
-
-    for (int j = lineMin; j < lineCappedMax; j++)
+    catch (const std::exception& e)
     {
-      if (buf[j] >= 32 && buf[j] <= 127)
-        printf("%c", buf[j]);
-      else
-        printf(".");
+      compressed.clear();
+      return false;
     }
-    printf("\n");
+    catch (const boost::exception& e)
+    {
+      compressed.clear();
+      return false;
+    }
+    return true;
   }
-}
 
-
-void testIt(const uint8_t* input, int size)
-{
-  printf("Test Input:\n");
-  hexdump(input, size);
-
-  uint32_t compressedSize;
-  auto compressedBlob = lzmaCompress(input, size, &compressedSize);
-
-  if (compressedBlob)
+  bool lzma_decompress_msg(const std::string& msg, std::string& decompressed)
   {
-    printf("Compressed:\n");
-    hexdump(compressedBlob.get(), compressedSize);
-  }
-  else
-  {
-    printf("Nope, we screwed it\n");
-    return;
-  }
-
-  // let's try decompressing it now
-  uint32_t decompressedSize;
-  auto decompressedBlob = lzmaDecompress(compressedBlob.get(), compressedSize, &decompressedSize);
-
-  if (decompressedBlob)
-  {
-    printf("Decompressed:\n");
-    hexdump(decompressedBlob.get(), decompressedSize);
-  }
-  else
-  {
-    printf("Nope, we screwed it (part 2)\n");
-    return;
+    try
+    {
+      decompressed.clear();
+      io::array_source arrs{ msg.data(), msg.size() };
+      io::filtering_istreambuf in;
+      in.push(io::lzma_decompressor{});
+      in.push(arrs);
+      decompressed.assign(std::istreambuf_iterator<char>{&in}, {});
+    }
+    catch (const std::exception& e)
+    {
+      decompressed.clear();
+      return false;
+    }
+    catch (const boost::exception& e)
+    {
+      decompressed.clear();
+      return false;
+    }
+    return true;
   }
 
-  printf("----------\n");
-}
-
-void testIt(const char* string)
-{
-  testIt((const uint8_t*)string, strlen(string));
 }
