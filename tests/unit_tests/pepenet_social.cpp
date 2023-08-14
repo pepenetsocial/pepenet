@@ -191,6 +191,7 @@ TEST(pepenet_social_transactions, invalid_transaction_pep_and_post)
     ASSERT_TRUE(pepenet_social::add_post_to_tx_extra(post, tx.extra).b);
   }
   
+  ASSERT_FALSE(pepenet_social::no_duplicate_social_features(tx));
   ASSERT_FALSE(pepenet_social::check_tx_social_validity(tx));
 }
 

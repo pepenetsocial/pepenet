@@ -37,6 +37,7 @@
 namespace pepenet_social {
 
   bool check_tx_social_validity(const cryptonote::transaction& tx);
+  bool no_duplicate_social_features(const cryptonote::transaction& tx);
 
   ibool add_pep_to_tx_extra(pepenet_social::pep& pep, std::vector<uint8_t>& tx_extra);
   ibool get_and_verify_pep_from_tx_extra(boost::optional<pepenet_social::pep>& pep, const std::vector<uint8_t>& tx_extra);

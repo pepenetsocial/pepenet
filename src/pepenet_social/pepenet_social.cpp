@@ -33,18 +33,41 @@ namespace pepenet_social {
 
 bool check_tx_social_validity(const cryptonote::transaction& tx)
 {
-  //TODO: make this more scalable
+  if (!no_duplicate_social_features(tx))
+  {
+    return false;
+  }
+  //TODO: make this even more scalable
   boost::optional<pepenet_social::pep> pep;
   boost::optional<pepenet_social::post> post;
-  ibool post_v = pepenet_social::get_and_verify_post_from_tx_extra(post, tx.extra);
-  ibool pep_v = pepenet_social::get_and_verify_pep_from_tx_extra(pep, tx.extra);
-  if ((!post_v.b && !post.has_value()) && (!pep_v.b && !pep.has_value())) //false, false
-    return true;
-  if ((post_v.b && post.has_value()) != (pep_v.b && pep.has_value())) // xor: true, false or false, true
-    return true;
-  else
-    return false;
+  {
+    ibool r = pepenet_social::get_and_verify_post_from_tx_extra(post, tx.extra);
+    if (r.b != post.has_value())
+      return false;
+  }
+  {
+    ibool r = pepenet_social::get_and_verify_pep_from_tx_extra(pep, tx.extra);
+    if (r.b != pep.has_value())
+      return false;
+  }
+  return true;
 }
+
+bool no_duplicate_social_features(const cryptonote::transaction& tx)
+  {
+    std::vector<cryptonote::tx_extra_field> tx_extra_fields;
+    cryptonote::parse_tx_extra(tx.extra, tx_extra_fields);
+
+    size_t num_of_social_feature_fields = 0;
+    for (auto field : tx_extra_fields)
+    {
+      if (field.type() == typeid(cryptonote::tx_extra_social_feature))
+      {
+        ++num_of_social_feature_fields;
+      }
+    }
+    return num_of_social_feature_fields <= 1;
+  }
 
 ibool add_pep_to_tx_extra(pepenet_social::pep& pep, std::vector<uint8_t>& tx_extra)
 {
