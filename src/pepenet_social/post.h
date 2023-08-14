@@ -69,6 +69,15 @@ namespace pepenet_social {
     boost::optional<crypto::hash> m_tx_ref;
     boost::optional<std::string> m_pepetag;
     boost::optional<std::string> m_donation_address;
+  public:
+    std::string title() { return m_title; }
+    std::string msg() { return m_msg; }
+    boost::optional<std::string> pseudonym() { return m_pseudonym; }
+    boost::optional<crypto::public_key> pk() { return m_pk; }
+    boost::optional<crypto::signature> sig() { return m_sig; }
+    boost::optional<crypto::hash> tx_ref() { return m_tx_ref; }
+    boost::optional<std::string> pepetag() { return m_pepetag; }
+    boost::optional<std::string> donation_address() { return m_donation_address; }
   };
 
 }
