@@ -88,10 +88,9 @@ ibool get_and_verify_pep_from_tx_extra(boost::optional<pepenet_social::pep>& pep
   CHECK_AND_ASSERT_RETURN_IBOOL(cryptonote::get_social_feature_from_tx_extra(tx_extra, compressed_proto_bytes, feature_id), "failed to get pep bytes from tx_extra");
   CHECK_AND_ASSERT_RETURN_IBOOL(feature_id == PEP_SOCIAL_FEATURE_TAG, "pep not found in tx extra");
   //decompress
+  pep = pepenet_social::pep();
   CHECK_AND_ASSERT_RETURN_IBOOL(lzma_decompress_msg(compressed_proto_bytes, proto_bytes), "failed to decompress pep proto bytes");
-  pepenet_social::pep tx_extra_pep;
-  CHECK_AND_ASSERT_RETURN_IBOOL(tx_extra_pep.loadFromBinary(proto_bytes).b, "failed to load pep from binary");
-  pep = tx_extra_pep;
+  CHECK_AND_ASSERT_RETURN_IBOOL(pep.value().loadFromBinary(proto_bytes).b, "failed to load pep from binary");
   return { true, INFO_NULLOPT };
 }
 
@@ -114,10 +113,9 @@ ibool get_and_verify_post_from_tx_extra(boost::optional<pepenet_social::post>& p
   CHECK_AND_ASSERT_RETURN_IBOOL(cryptonote::get_social_feature_from_tx_extra(tx_extra, compressed_proto_bytes, feature_id), "failed to get post bytes from tx_extra");
   CHECK_AND_ASSERT_RETURN_IBOOL(feature_id == POST_SOCIAL_FEATURE_TAG, "post not found in tx extra");
   //decompress
+  post = pepenet_social::post();
   CHECK_AND_ASSERT_RETURN_IBOOL(lzma_decompress_msg(compressed_proto_bytes, proto_bytes), "failed to decompress post proto bytes");
-  pepenet_social::post tx_extra_post;
-  CHECK_AND_ASSERT_RETURN_IBOOL(tx_extra_post.loadFromBinary(proto_bytes).b, "failed to load post from binary");
-  post = tx_extra_post;
+  CHECK_AND_ASSERT_RETURN_IBOOL(post.value().loadFromBinary(proto_bytes).b, "failed to load post from binary");
   return { true, INFO_NULLOPT };
 }
 

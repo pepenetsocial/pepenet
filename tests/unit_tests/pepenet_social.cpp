@@ -195,6 +195,38 @@ TEST(pepenet_social_transactions, invalid_transaction_pep_and_post)
   ASSERT_FALSE(pepenet_social::check_tx_social_validity(tx));
 }
 
+TEST(pepenet_social_transactions, invalid_transaction_invalid_pep_social_feature_empty)
+{
+  cryptonote::transaction tx;
+  pepenet_social::bytes empty_bytes;
+  ASSERT_TRUE(cryptonote::add_social_feature_to_tx_extra(tx.extra, empty_bytes, PEP_SOCIAL_FEATURE_TAG));
+  ASSERT_FALSE(pepenet_social::check_tx_social_validity(tx));
+}
+
+TEST(pepenet_social_transactions, invalid_transaction_invalid_pep_social_feature_invalid_bytes)
+{
+  cryptonote::transaction tx;
+  pepenet_social::bytes invalid_bytes = "blablaqu8quefaju3r29fi";
+  ASSERT_TRUE(cryptonote::add_social_feature_to_tx_extra(tx.extra, invalid_bytes, PEP_SOCIAL_FEATURE_TAG));
+  ASSERT_FALSE(pepenet_social::check_tx_social_validity(tx));
+}
+
+TEST(pepenet_social_transactions, invalid_transaction_invalid_post_social_feature_empty)
+{
+  cryptonote::transaction tx;
+  pepenet_social::bytes empty_bytes;
+  ASSERT_TRUE(cryptonote::add_social_feature_to_tx_extra(tx.extra, empty_bytes, POST_SOCIAL_FEATURE_TAG));
+  ASSERT_FALSE(pepenet_social::check_tx_social_validity(tx));
+}
+
+TEST(pepenet_social_transactions, invalid_transaction_invalid_post_social_feature_invalid_bytes)
+{
+  cryptonote::transaction tx;
+  pepenet_social::bytes invalid_bytes = "blablaqu8quefaju3r29fi";
+  ASSERT_TRUE(cryptonote::add_social_feature_to_tx_extra(tx.extra, invalid_bytes, POST_SOCIAL_FEATURE_TAG));
+  ASSERT_FALSE(pepenet_social::check_tx_social_validity(tx));
+}
+
 TEST(pepenet_social_transactions, valid_transaction_post_to_from_tx_extra_compression_stability)
 {
   auto add_post_to_tx_extra = [](pepenet_social::post& post, std::vector<uint8_t>& tx_extra)
