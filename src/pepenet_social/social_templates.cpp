@@ -27,18 +27,49 @@
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // 
 
-#pragma once
-
-#include <string>
-#include <sstream>
-#include <boost/iostreams/filter/lzma.hpp>
-#include <boost/iostreams/filtering_stream.hpp>
-#include <boost/iostreams/copy.hpp>
-#include <boost/iostreams/device/array.hpp>
+#include "social_templates.h"
 
 namespace pepenet_social {
 
-  bool lzma_compress_msg(const std::string& msg, std::string& out);
-  bool lzma_decompress_msg(const std::string& msg, std::string& out);
-  
+  ibool social_args::loadJson(const std::string& json)
+  {
+    setSchema();
+    //parse document
+    if (m_json.Parse(json.data()).HasParseError())
+    {
+      return FALSE_IBOOL("the input is not a valid JSON.");
+    }
+    //parse schema
+    if (!m_json_schema_str_loaded)
+    {
+      return FALSE_IBOOL("json schema string is not loaded");
+    }
+
+    rapidjson::Document sd;
+    if (sd.Parse(m_json_schema_str.data()).HasParseError())
+    {
+      return FALSE_IBOOL("the schema is not a valid JSON.");
+    }
+    rapidjson::SchemaDocument schema(sd); // Compile a Document to SchemaDocument
+    // sd is no longer needed here.
+    rapidjson::SchemaValidator validator(schema);
+    if (!m_json.Accept(validator))
+    {
+      // Input JSON is invalid according to the schema
+      // Output diagnostic information
+      rapidjson::StringBuffer sb;
+      validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
+
+      std::string info = "";
+      info += (boost::format("Invalid schema: %s\nInvalid keyword: %s\n") % sb.GetString() % validator.GetInvalidSchemaKeyword()).str();
+      sb.Clear();
+      validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
+      info += (boost::format("Invalid document: %s\n") % sb.GetString()).str();
+
+      m_schema_valid = false;
+      return FALSE_IBOOL(info);
+    }
+    m_schema_valid = true;
+    return { true, INFO_NULLOPT };
+  }
 }

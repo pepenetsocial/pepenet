@@ -39,13 +39,21 @@ monero_enable_coverage()
 monero_find_all_headers(PEPENET_SOCIAL_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}")
 pepenet_find_all_sources(PEPENET_SOCIAL_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}")
 
-include_directories(${EXTERNAL_INCLUDE}/lzma)
+find_package(Protobuf REQUIRED)
+include_directories(${Protobuf_INCLUDE_DIRS})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS pepenet_social.proto)
+
 include_directories(${CMAKE_ROOT_DIR})
+
+find_package(Boost COMPONENTS iostreams REQUIRED)
+include_directories(${Boost_INCLUDE_DIRS}) 
 
 pepenet_add_library(pepenet_social
   ${PEPENET_SOCIAL_SOURCES}
   ${PEPENET_SOCIAL_HEADERS}
+  ${PROTO_SRCS}
+  ${PROTO_HDRS}
   )
 
-target_link_libraries(pepenet_social PUBLIC lzma epee cncrypto cryptonote_format_utils_basic cryptonote_basic)
-set_property(TARGET pepenet_social APPEND PROPERTY COMPILE_FLAGS "-D_7ZIP_ST")
+target_link_libraries(pepenet_social PUBLIC epee cncrypto cryptonote_format_utils_basic cryptonote_basic ${Protobuf_LIBRARIES} Boost::iostreams)

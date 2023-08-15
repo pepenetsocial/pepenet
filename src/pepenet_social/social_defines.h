@@ -29,16 +29,23 @@
 
 #pragma once
 
-#include <string>
-#include <sstream>
-#include <boost/iostreams/filter/lzma.hpp>
-#include <boost/iostreams/filtering_stream.hpp>
-#include <boost/iostreams/copy.hpp>
-#include <boost/iostreams/device/array.hpp>
+//feature limits - size in bytes
+#define LZMA_PEP_MAX_SIZE 512
+#define LZMA_POST_MAX_SIZE 4096
+#define POST_TITLE_MAX_SIZE 128
+#define PSEUDONYM_MAX_SIZE 32
+#define PEPETAG_MAX_SIZE 32
+#define DONATION_ADDRESS_MAX_SIZE 108
+#define DONATION_ADDRESS_MIN_SIZE 97
 
-namespace pepenet_social {
+#define INFO_NULLOPT boost::optional<std::string>()
 
-  bool lzma_compress_msg(const std::string& msg, std::string& out);
-  bool lzma_decompress_msg(const std::string& msg, std::string& out);
-  
-}
+#define RETURN_IBOOL_IF(expr, b, info){if(expr){return pepenet_social::ibool{b, std::string(info)};}}
+#define CHECK_AND_ASSERT_RETURN_IBOOL(expr, info) RETURN_IBOOL_IF(!(expr), false, info)
+#define CHECK_AND_ASSERT_RERETURN_IBOOL(ibool) RETURN_IBOOL_IF(!(ibool.b), ibool.b, ibool.info.value_or(""))
+
+#define FALSE_IBOOL(info) pepenet_social::ibool{false, std::string(info)}
+
+//feature tags
+#define PEP_SOCIAL_FEATURE_TAG  0x00
+#define POST_SOCIAL_FEATURE_TAG 0x01

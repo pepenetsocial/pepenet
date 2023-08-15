@@ -29,16 +29,53 @@
 
 #pragma once
 
-#include <string>
-#include <sstream>
-#include <boost/iostreams/filter/lzma.hpp>
-#include <boost/iostreams/filtering_stream.hpp>
-#include <boost/iostreams/copy.hpp>
-#include <boost/iostreams/device/array.hpp>
+#include "social_defines.h"
+#include "lzma.h"
+#include "crypto/crypto.h"
+#include "../contrib/epee/include/hex.h"
+#include "../contrib/epee/include/misc_log_ex.h"
+#include "../contrib/epee/include/string_tools.h"
 
 namespace pepenet_social {
 
-  bool lzma_compress_msg(const std::string& msg, std::string& out);
-  bool lzma_decompress_msg(const std::string& msg, std::string& out);
+  typedef std::string bytes;
+
+  struct ibool
+  {
+    bool b;
+    boost::optional<std::string> info;
+  };
   
+  bool secret_key_from_seed(const std::string& sk_seed, crypto::secret_key& sk);
+  bool sign_msg(const std::string& msg, crypto::signature& sig, const crypto::public_key& pk, const crypto::secret_key& sk);
+  bool check_msg_sig(const std::string& msg, crypto::signature& sig, const crypto::public_key& pk);
+
+  bool to_bytes(const crypto::signature& sig, bytes& b);
+  
+  bool from_bytes(crypto::signature& sig, const bytes& b);
+  bool to_bytes(const crypto::hash& hash, bytes& b);
+  bool from_bytes(crypto::hash& hash, const bytes& b);
+  bool to_bytes(const crypto::public_key& pk, bytes& b);
+  bool from_bytes(crypto::public_key& pk, const bytes& b);
+
+  boost::optional<bytes> get_optional_bytes(const bytes& b);
+  boost::optional<std::string> get_optional_string(const std::string& s);
+  
+  template<typename T>
+  ibool get_optional_from_bytes(const bytes& b, boost::optional<T>& opt)
+  {
+    boost::optional<bytes> parsed_bytes = get_optional_bytes(b);
+    if (parsed_bytes.has_value())
+    {
+      T parsed_val;
+      bool r = from_bytes(parsed_val, parsed_bytes.value());
+      if (r)
+      {
+        opt = parsed_val;
+        return ibool{r, INFO_NULLOPT };
+      }
+      return ibool {r , std::string("failed to parse value from bytes")};
+    }
+    return ibool{ true, INFO_NULLOPT };
+  }
 }

@@ -104,10 +104,14 @@ set(unit_tests_sources
   aligned.cpp
   rpc_version_str.cpp
   zmq_rpc.cpp
-  pepenet_social.cpp)
+  pepenet_social.cpp
+  pepenet_social_pep.cpp
+  pepenet_social_post.cpp)
 
 set(unit_tests_headers
-  unit_tests_utils.h)
+  unit_tests_utils.h
+  pepenet_social_pep.h
+  pepenet_social_post.h)
 
 pepenet_add_minimal_executable(unit_tests
   ${unit_tests_sources}

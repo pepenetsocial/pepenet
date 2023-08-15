@@ -14,6 +14,3 @@
 	path = external/supercop
 	url = https://github.com/monero-project/supercop
 	branch = monero
-[submodule "external/lzma"]
-	path = external/lzma
-	url = https://github.com/azx19/lzma.git

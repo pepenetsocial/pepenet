@@ -197,7 +197,7 @@ namespace
   const char* USAGE_INCOMING_TRANSFERS("incoming_transfers [available|unavailable] [verbose] [uses] [index=<N1>[,<N2>[,...]]]");
   const char* USAGE_PAYMENTS("payments <PID_1> [<PID_2> ... <PID_N>]");
   const char* USAGE_PAYMENT_ID("payment_id");
-  const char* USAGE_TRANSFER("transfer [index=<N1>[,<N2>,...]] [<priority>] [<ring_size>] (<URI> | <address> <amount>) [<payment_id>]");
+  const char* USAGE_TRANSFER("transfer [social_args=<msg>] [index=<N1>[,<N2>,...]] [<priority>] [<ring_size>] (<URI> | <address> <amount>) [<payment_id>]");
   const char* USAGE_LOCKED_TRANSFER("locked_transfer [index=<N1>[,<N2>,...]] [<priority>] [<ring_size>] (<URI> | <addr> <amount>) <lockblocks> [<payment_id (obsolete)>]");
   const char* USAGE_LOCKED_SWEEP_ALL("locked_sweep_all [index=<N1>[,<N2>,...] | index=all] [<priority>] [<ring_size>] <address> <lockblocks> [<payment_id (obsolete)>]");
   const char* USAGE_SWEEP_ALL("sweep_all [index=<N1>[,<N2>,...] | index=all] [<priority>] [<ring_size>] [outputs=<N>] <address> [<payment_id (obsolete)>]");
@@ -2494,27 +2494,22 @@ bool simple_wallet::show_social_activity(const std::vector<std::string>& args)
       boost::optional<pepenet_social::pep> pep;
       boost::optional<pepenet_social::post> post;
       boost::optional<crypto::public_key> null_pk;
-      boost::optional<std::string> err;
-      pepenet_social::get_and_verify_pep_from_tx_extra(null_pk, pep, tx.extra, err);
-      pepenet_social::get_and_verify_post_from_tx_extra(null_pk, post, tx.extra, err);
+      pepenet_social::ibool r;
+      r = pepenet_social::get_and_verify_pep_from_tx_extra(pep, tx.extra);
+      r = pepenet_social::get_and_verify_post_from_tx_extra(post, tx.extra);
       
-      if (err.has_value() && (!pep.has_value() && !post.has_value()))
-      {
-        fail_msg_writer() << tr("Could not get social feature from extra: ") << err.value();
-        return false;
-      }
       //FILTERS
       if (!show_comments) //comment filter
       {
         if (pep.has_value())
         {
-          if (pep.value().tx_ref.has_value())
+          if (pep.value().tx_ref().has_value())
             continue;
         }
 
         if (post.has_value())
         {
-          if (post.value().tx_ref.has_value())
+          if (post.value().tx_ref().has_value())
             continue;
         }
       }
@@ -2522,13 +2517,13 @@ bool simple_wallet::show_social_activity(const std::vector<std::string>& args)
       {
         if (pep.has_value())
         {
-          if (pk_filter != pep.value().pk)
+          if (pk_filter != pep.value().pk())
             continue;
         }
 
         if (post.has_value())
         {
-          if (pk_filter != post.value().pk)
+          if (pk_filter != post.value().pk())
             continue;
         }
       }
@@ -2536,13 +2531,13 @@ bool simple_wallet::show_social_activity(const std::vector<std::string>& args)
       {
         if (pep.has_value())
         {
-          if (pseudonym_filter != pep.value().pseudonym)
+          if (pseudonym_filter != pep.value().pseudonym())
             continue;
         }
 
         if (post.has_value())
         {
-          if (pseudonym_filter != post.value().pseudonym)
+          if (pseudonym_filter != post.value().pseudonym())
             continue;
         }
       }
@@ -2550,13 +2545,13 @@ bool simple_wallet::show_social_activity(const std::vector<std::string>& args)
       {
         if (pep.has_value())
         {
-          if (pepetag_filter != pep.value().pepetag)
+          if (pepetag_filter != pep.value().pepetag())
             continue;
         }
 
         if (post.has_value())
         {
-          if (pepetag_filter != post.value().pepetag)
+          if (pepetag_filter != post.value().pepetag())
             continue;
         }
       }
@@ -2586,36 +2581,36 @@ bool simple_wallet::show_social_activity(const std::vector<std::string>& args)
           % epee::string_tools::pod_to_hex(tx_hash)).str();
         if (pep.has_value())
         {
-          message_writer() << (boost::format(tr("[pep: ] %s")) % pep.value().msg).str();
-          if (pep.value().pseudonym.has_value())
-            message_writer() << (boost::format(tr("[pseudonym: ] %s")) % pep.value().pseudonym.value()).str();
-          if (pep.value().pepetag.has_value())
-            message_writer() << (boost::format(tr("[pepetag: ] %s")) % pep.value().pepetag.value()).str();
-          if (pep.value().donation_address.has_value())
-            message_writer() << (boost::format(tr("[donation address: ] %s")) % pep.value().donation_address.value()).str();
-          if (pep.value().tx_ref.has_value())
-            message_writer() << (boost::format(tr("[tx reference: ] %s")) % pep.value().tx_ref.value()).str();
-          if (pep.value().pk.has_value())
+          message_writer() << (boost::format(tr("[pep: ] %s")) % pep.value().msg()).str();
+          if (pep.value().pseudonym().has_value())
+            message_writer() << (boost::format(tr("[pseudonym: ] %s")) % pep.value().pseudonym().value()).str();
+          if (pep.value().pepetag().has_value())
+            message_writer() << (boost::format(tr("[pepetag: ] %s")) % pep.value().pepetag().value()).str();
+          if (pep.value().donation_address().has_value())
+            message_writer() << (boost::format(tr("[donation address: ] %s")) % pep.value().donation_address().value()).str();
+          if (pep.value().tx_ref().has_value())
+            message_writer() << (boost::format(tr("[tx reference: ] %s")) % pep.value().tx_ref().value()).str();
+          if (pep.value().pk().has_value())
           {
-            std::string pk_hex = epee::string_tools::pod_to_hex(pep.value().pk.value());
+            std::string pk_hex = epee::string_tools::pod_to_hex(pep.value().pk().value());
             message_writer() << (boost::format(tr("[pubkey: ] %s")) % pk_hex).str();
           }
         }
         else if (post.has_value())
         {
-          message_writer() << (boost::format(tr("[post title: ] %s")) % post.value().title).str();
-          message_writer() << (boost::format(tr("[post: ] %s")) % post.value().msg).str();
-          if (post.value().pseudonym.has_value())
-            message_writer() << (boost::format(tr("[pseudonym: ] %s")) % post.value().pseudonym.value()).str();
-          if (post.value().pepetag.has_value())
-            message_writer() << (boost::format(tr("[pepetag: ] %s")) % post.value().pepetag.value()).str();
-          if (post.value().donation_address.has_value())
-            message_writer() << (boost::format(tr("[donation address: ] %s")) % post.value().donation_address.value()).str();
-          if (post.value().tx_ref.has_value())
-            message_writer() << (boost::format(tr("[tx reference: ] %s")) % post.value().tx_ref.value()).str();
-          if (post.value().pk.has_value())
+          message_writer() << (boost::format(tr("[post title: ] %s")) % post.value().title()).str();
+          message_writer() << (boost::format(tr("[post: ] %s")) % post.value().msg()).str();
+          if (post.value().pseudonym().has_value())
+            message_writer() << (boost::format(tr("[pseudonym: ] %s")) % post.value().pseudonym().value()).str();
+          if (post.value().pepetag().has_value())
+            message_writer() << (boost::format(tr("[pepetag: ] %s")) % post.value().pepetag().value()).str();
+          if (post.value().donation_address().has_value())
+            message_writer() << (boost::format(tr("[donation address: ] %s")) % post.value().donation_address().value()).str();
+          if (post.value().tx_ref().has_value())
+            message_writer() << (boost::format(tr("[tx reference: ] %s")) % post.value().tx_ref().value()).str();
+          if (post.value().pk().has_value())
           {
-            std::string pk_hex = epee::string_tools::pod_to_hex(post.value().pk.value());
+            std::string pk_hex = epee::string_tools::pod_to_hex(post.value().pk().value());
             message_writer() << (boost::format(tr("[pubkey: ] %s")) % pk_hex).str();
           }
         }
@@ -6901,10 +6896,11 @@ bool simple_wallet::on_command(bool (simple_wallet::*cmd)(const std::vector<std:
 //----------------------------------------------------------------------------------------------------
 bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::string> &args_, bool called_by_mms)
 {
-//  "transfer [pep=<msg>] [post=<msg>] [post_title=<msg>] [pseudonym=<str>] [sk_seed=<str>] [post_pk=<1/0>] [tx_reference=<tx hash>] [pepetag=<str>] [donation_address=<str>] [index=<N1>[,<N2>,...]] [<priority>] [<ring_size>] <address> <amount> [<payment_id>]"
+//  "transfer [social_args=<msg>] [index=<N1>[,<N2>,...]] [<priority>] [<ring_size>] <address> <amount> [<payment_id>]"
   if (!try_connect_to_daemon())
     return false;
-
+  
+  std::vector<uint8_t> extra;
   std::vector<std::string> local_args = args_;
   //parse social args
   auto parse_str = [](const std::string& target_arg, std::string& val, std::vector<std::string>& local_args, bool& arg_missing)
@@ -6972,143 +6968,155 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
     return true;
   };
 
-  pepenet_social::pep_args pep_args;
-  pepenet_social::post_args post_args;
-  bool arg_missing;
-  bool pep_tag_missing = false, post_tag_missing = false, post_title_tag_missing = false;
-  std::string dummy_str;
+  auto check_tx_ref = [&](const boost::optional<crypto::hash>& tx_ref)
+  {
+    if (!tx_ref.has_value())
+      return true;
+        //check if tx exists
+    cryptonote::transaction check_tx;
+    if (!m_wallet->get_transaction(tx_ref.value(), check_tx))
+    {
+      fail_msg_writer() << (boost::format(tr("transaction with txid<%s> does not exist"))
+        % epee::string_tools::pod_to_hex(tx_ref.value())).str();
+      return false;
+    }
+    return true;
+  };
 
-  bool pep_arg = check_arg("pep=", local_args);
-  pep_tag_missing = !parse_msg_tag("pep=", pep_args.msg, local_args);
-  bool post_arg = check_arg("post=", local_args);
-  post_tag_missing = !parse_msg_tag("post=", post_args.msg, local_args);
-  bool post_title_arg = check_arg("post_title=", local_args);
-  post_title_tag_missing = !parse_msg_tag("post_title=", post_args.title, local_args);
+auto check_donation_address = [&](const boost::optional<std::string>& donation_address)
+  {
+    if(!donation_address.has_value())
+      return true;
+    cryptonote::address_parse_info pi;
+    cryptonote::network_type nt = m_wallet->nettype();
+    if (!get_account_address_from_str(pi, nt, donation_address.value()))
+    {
+      fail_msg_writer() << tr("invalid address: ") << donation_address.value();
+      return false;
+    }
+    return true;
+  };
 
-  if ((pep_arg && pep_tag_missing) || (post_arg && post_tag_missing)  || (post_title_arg && post_title_tag_missing))
+  std::string social_args_str;
+  bool pep_arg = check_arg("social_args=", local_args);
+  bool social_args_missing = !parse_msg_tag("social_args=", social_args_str, local_args);
+
+  if (!social_args_missing)
   {
-    fail_msg_writer() << tr("pep=<msg>....</msg>, post=<msg>....</msg>, post_title=<msg>....</msg> -> put your message in the place of ....");
-    return false;
-  }
-  
-  if ((post_arg && !post_title_arg) || (!post_arg && post_title_arg))
-  {
-    fail_msg_writer() << tr("post_title and post have to be defined at the same time");
-    return false;
-  }
-  if ((pep_arg && (post_arg || post_title_arg)))
-  {
-    fail_msg_writer() << tr("post and pep args defined at the same time");
-    return false;
-  }
-  else if ((pep_arg) || (post_arg && post_title_arg))
-  {
-    boost::optional<std::string> pseudonym;
-    if (!parse_str_opt("pseudonym=", pseudonym, local_args, arg_missing) && !arg_missing)
+    rapidjson::Document social_args_json;
+    //parse social args
+    if (social_args_json.Parse(social_args_str.data()).HasParseError())
     {
-      fail_msg_writer() << tr("empty pseudonym value");
+      fail_msg_writer() << tr("invalid social args json: ") << social_args_str;
       return false;
     }
-    boost::optional<std::string> sk_seed;
-    if (!parse_str_opt("sk_seed=", sk_seed, local_args, arg_missing) && !arg_missing)
+    //get the right social_feature args
+    if (social_args_json.HasMember("pep_args"))
     {
-      fail_msg_writer() << tr("empty sk_seed value");
-      return false;
-    }
-    bool sk_seed_arg_missing = arg_missing;
-    std::string post_pk_;
-    if (!parse_str("post_pk=", post_pk_, local_args, arg_missing) && !arg_missing)
-    {
-      fail_msg_writer() << tr("empty post_pk value");
-      return false;
-    }
-    if (!sk_seed_arg_missing && arg_missing)
-    {
-      fail_msg_writer() << tr("sk_seed specified, posk_pk argument is required!");
-      return false;
-    }
-    bool post_pk;
-    if(!sk_seed_arg_missing){
-      if (post_pk_ == "1")
+      pepenet_social::pep_args args;
+      pepenet_social::ibool r;
+      r = args.loadJson(social_args_str);
+      if (!r.b)
       {
-        post_pk = true;
+        fail_msg_writer() << tr("pep_args error: ") << r.info.value_or("unknown error");
+        return false;
       }
-      else if (post_pk_ == "0"){
-        post_pk = false;
-      }
-      else
+      r = args.loadArgsFromJson();
+      if (!r.b)
       {
-        fail_msg_writer() << tr("Invalid post_pk value. Only '0' or '1' is valid");
+        fail_msg_writer() << tr("pep_args error: ") << r.info.value_or("unknown error");
+        return false;
+      }
+      r = args.validate();
+      if (!r.b)
+      {
+        fail_msg_writer() << tr("pep_args error: ") << r.info.value_or("unknown error");
+        return false;
+      }
+      //make feature
+      pepenet_social::pep feature;
+      r = feature.loadFromSocialArgs(args);
+      if (!r.b)
+      {
+        fail_msg_writer() << tr("pep error: ") << r.info.value_or("unknown error");
+        return false;
+      }
+      r = feature.validate();
+      if (!r.b)
+      {
+        fail_msg_writer() << tr("pep error: ") << r.info.value_or("unknown error");
+        return false;
+      }
+      //check tx_ref and address
+      if (!check_tx_ref(feature.tx_ref()))
+      {
+        return false;
+      }
+      if (!check_donation_address(feature.donation_address()))
+      {
+        return false;
+      }
+      //add to extra
+      r = pepenet_social::add_pep_to_tx_extra(feature, extra);
+      if (!r.b)
+      {
+        fail_msg_writer() << tr("pep error: ") << r.info.value_or("unknown error");
         return false;
       }
     }
-
-    crypto::hash tx_reference_parsed;
-    boost::optional<crypto::hash> tx_reference;
-    std::string tx_ref_hex;
-    if (!parse_str("tx_reference=", tx_ref_hex, local_args, arg_missing) && !arg_missing)
+    else if (social_args_json.HasMember("post_args"))
     {
-      fail_msg_writer() << tr("empty tx_reference value");
-      return false;
-    }
-    if (!epee::string_tools::hex_to_pod(tx_ref_hex, tx_reference_parsed) && !arg_missing)
-    {
-      fail_msg_writer() << tr("invalid tx hash value");
-      return false;
-    }
-    else if (!arg_missing)
-    {
-      tx_reference = tx_reference_parsed;
-      //check if tx exists
-      cryptonote::transaction check_tx;
-      if (!m_wallet->get_transaction(tx_reference.value(), check_tx))
+      pepenet_social::post_args args;
+      pepenet_social::ibool r;
+      r = args.loadJson(social_args_str);
+      if (!r.b)
       {
-        fail_msg_writer() << (boost::format(tr("transaction with txid<%s> does not exist"))
-          % epee::string_tools::pod_to_hex(tx_reference.value())).str();
+        fail_msg_writer() << tr("post_args error: ") << r.info.value_or("unknown error");
+        return false;
+      }
+      r = args.loadArgsFromJson();
+      if (!r.b)
+      {
+        fail_msg_writer() << tr("post_args error: ") << r.info.value_or("unknown error");
+        return false;
+      }
+      r = args.validate();
+      if (!r.b)
+      {
+        fail_msg_writer() << tr("post_args error: ") << r.info.value_or("unknown error");
+        return false;
+      }
+      //make feature
+      pepenet_social::post feature;
+      r = feature.loadFromSocialArgs(args);
+      if (!r.b)
+      {
+        fail_msg_writer() << tr("post error: ") << r.info.value_or("unknown error");
+        return false;
+      }
+      r = feature.validate();
+      if (!r.b)
+      {
+        fail_msg_writer() << tr("post error: ") << r.info.value_or("unknown error");
+        return false;
+      }
+      //check tx_ref and address
+      if (!check_tx_ref(feature.tx_ref()))
+      {
+        return false;
+      }
+      if (!check_donation_address(feature.donation_address()))
+      {
+        return false;
+      }
+      //add to extra
+      r = pepenet_social::add_post_to_tx_extra(feature, extra);
+      if (!r.b)
+      {
+        fail_msg_writer() << tr("post error: ") << r.info.value_or("unknown error");
         return false;
       }
     }
-
-    boost::optional<std::string> pepetag;
-    if(!parse_str_opt("pepetag=", pepetag, local_args, arg_missing) && !arg_missing){
-      fail_msg_writer() << tr("empty peptag value");
-      return false;
-    }
-
-    boost::optional<std::string> donation_address;
-    if(!parse_str_opt("donation_address=", donation_address, local_args, arg_missing) && !arg_missing){
-      fail_msg_writer() << tr("empty peptag value");
-      return false;
-    }
-    else //check address
-    {
-      cryptonote::address_parse_info pi;
-      cryptonote::network_type nt = m_wallet->nettype();
-      if (!get_account_address_from_str(pi, nt, donation_address.value())){
-        fail_msg_writer() << tr("invalid address: ") << donation_address.value();
-        return false;
-      }
-    }
-    //construct args
-    if (pep_arg)
-    {
-      pep_args.pseudonym = pseudonym;
-      pep_args.sk_seed = sk_seed;
-      pep_args.post_pk = post_pk;
-      pep_args.tx_ref = tx_reference;
-      pep_args.pepetag = pepetag;
-      pep_args.donation_address = donation_address;
-    }
-    if (post_arg && post_title_arg)
-    {
-      post_args.pseudonym = pseudonym;
-      post_args.sk_seed = sk_seed;
-      post_args.post_pk = post_pk;
-      post_args.tx_ref = tx_reference;
-      post_args.pepetag = pepetag;
-      post_args.donation_address = donation_address;
-    }
-    
   }
   //
   std::set<uint32_t> subaddr_indices;
@@ -7160,27 +7168,6 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
   {
      fail_msg_writer() << tr("wrong number of arguments");
      return false;
-  }
-
-  std::vector<uint8_t> extra;
-  //add pep or post
-  if (pep_arg)
-  {
-    boost::optional<std::string> err;
-    if (!pepenet_social::add_pep_to_tx_extra(pep_args, extra, err))
-    {
-      fail_msg_writer() << tr("invalid pep arguments: ") << err.value_or("unknown reason");
-      return false;
-    }
-  }
-  else if (post_arg && post_title_arg)
-  {
-    boost::optional<std::string> err;
-    if (!pepenet_social::add_post_to_tx_extra(post_args, extra, err))
-    {
-      fail_msg_writer() << tr("invalid post arguments: ") << err.value_or("unknown reason");
-      return false;
-    }
   }
   
   bool payment_id_seen = false;
