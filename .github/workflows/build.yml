@@ -30,7 +30,7 @@ jobs:
       CCACHE_TEMPDIR: /tmp/.ccache-temp
     strategy:
       matrix:
-        os: [ubuntu-22.04, ubuntu-20.04]
+        os: [ubuntu-22.04]
     steps:
     - uses: actions/checkout@v3
       with:
@@ -54,7 +54,7 @@ jobs:
         ${{env.BUILD_DEFAULT_LINUX}}
 
   libwallet-ubuntu:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       CCACHE_TEMPDIR: /tmp/.ccache-temp
     steps:
@@ -82,7 +82,7 @@ jobs:
   
   test-ubuntu:
     needs: build-ubuntu
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       CCACHE_TEMPDIR: /tmp/.ccache-temp
     steps:
@@ -118,7 +118,7 @@ jobs:
 # BUILD_SHARED_LIBS=ON speeds up the linkage part a bit, reduces size, and is the only place where the dynamic linkage is tested.
 
   source-archive:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v3
       with:
