@@ -119,7 +119,7 @@ TEST_P(pep_social_args_param_f1, parse_json_success)
   CHECK_OPT_VARIABLE_EQ_IN_JSON_ARGS(donation_address);
 }
 
-INSTANTIATE_TEST_SUITE_P(
+INSTANTIATE_TEST_CASE_P(
   pepenet_social,
   pep_social_args_param_f1,
   ::testing::Values(
@@ -147,7 +147,7 @@ TEST_P(pep_social_args_param_f2, parse_json_invalid_fields)
   ASSERT_FALSE(validate().b);
 }
 
-INSTANTIATE_TEST_SUITE_P(
+INSTANTIATE_TEST_CASE_P(
   pepenet_social,
   pep_social_args_param_f2,
   ::testing::Values(
@@ -199,7 +199,7 @@ TEST_P(pep_social_args_param1, load_from_social_args_success)
   ASSERT_EQ(proto_bytes_in, proto_bytes_out);
 }
 
-INSTANTIATE_TEST_SUITE_P(
+INSTANTIATE_TEST_CASE_P(
   pepenet_social,
   pep_social_args_param1,
   ::testing::Values(
@@ -241,7 +241,7 @@ TEST_P(pep_social_feature_param_f1, load_from_social_args_success_validate_pep_i
   }
 }
 
-INSTANTIATE_TEST_SUITE_P(
+INSTANTIATE_TEST_CASE_P(
   pepenet_social,
   pep_social_feature_param_f1,
   ::testing::Values(
@@ -276,7 +276,7 @@ TEST_P(pep_social_args_param2, load_pep_from_binary_success_validation_fail)
   ASSERT_FALSE(pep.validate().b);
 }
 
-INSTANTIATE_TEST_SUITE_P(
+INSTANTIATE_TEST_CASE_P(
   pepenet_social,
   pep_social_args_param2,
   ::testing::Values(
