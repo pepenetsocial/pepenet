@@ -40,7 +40,8 @@ target_link_libraries(gen_ssl_cert
     ${Boost_PROGRAM_OPTIONS_LIBRARY}
     ${Boost_FILESYSTEM_LIBRARY}
     ${CMAKE_THREAD_LIBS_INIT}
-    ${EXTRA_LIBRARIES})
+    ${EXTRA_LIBRARIES}
+    unbound)
 add_dependencies(gen_ssl_cert
   version)
 set_property(TARGET gen_ssl_cert
