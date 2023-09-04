@@ -56,4 +56,4 @@ pepenet_add_library(pepenet_social
   ${PROTO_HDRS}
   )
 
-target_link_libraries(pepenet_social PUBLIC epee cncrypto cryptonote_format_utils_basic cryptonote_basic ${Protobuf_LIBRARIES} Boost::iostreams)
+target_link_libraries(pepenet_social PUBLIC epee cncrypto cryptonote_format_utils_basic cryptonote_basic ${Protobuf_LIBRARIES} Boost::iostreams lzma unbound)
