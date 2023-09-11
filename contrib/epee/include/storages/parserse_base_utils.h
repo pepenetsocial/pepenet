@@ -29,6 +29,7 @@
 #pragma once 
 
 #include <boost/utility/string_ref_fwd.hpp>
+#include <cstdint>
 #include <string>
 
 namespace epee 
